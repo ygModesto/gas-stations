@@ -13,14 +13,32 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
   <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
+  <!-- FlatGeobuf JS (Lector de archivos binarios espaciales) -->
+  <script src="https://unpkg.com/flatgeobuf@3.24.0/dist/flatgeobuf-geojson.min.js"></script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; height: 100vh; }
     header { padding: 10px 16px; background: #1e293b; color: white; display: flex; justify-content: space-between; align-items: center; }
     #map { flex: 1; width: 100%; }
     .info-bar { font-size: 0.85rem; color: #94a3b8; }
-    .popup-title { font-weight: bold; font-size: 1.1rem; color: #0f172a; margin-bottom: 4px; }
-    .popup-price { margin-top: 6px; font-size: 0.95rem; }
+    .zoom-notice {
+      position: absolute;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.85);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      z-index: 1000;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .popup-title { font-weight: bold; font-size: 1.05rem; color: #0f172a; margin-bottom: 4px; }
+    .popup-sub { font-size: 0.8rem; color: #64748b; margin-bottom: 6px; }
+    .popup-price { font-size: 0.9rem; line-height: 1.4; }
     .price-tag { font-weight: bold; color: #16a34a; }
   </style>
 </head>
@@ -32,6 +50,7 @@
   </header>
 
   <div id="map"></div>
+  <div id="zoom-notice" class="zoom-notice">Acerca el mapa para ver las gasolineras</div>
 
   <script>
     // 1. Inicializar mapa centrado en España
@@ -54,39 +73,77 @@
     })
     .addTo(map);
 
-    // 4. Cargar JSON generado por el Action
-    fetch('./public/gasolineras.json')
+    // Group de capas para añadir y limpiar marcadores dinámicamente
+    const markersGroup = L.layerGroup().addTo(map);
+    const zoomNotice = document.getElementById('zoom-notice');
+
+    // 4. Cargar la fecha desde meta.json ligero
+    fetch('./public/meta.json')
       .then(res => res.json())
-      .then(data => {
-        document.getElementById('last-update').textContent = `Actualizado: ${data.fecha}`;
+      .then(meta => {
+        document.getElementById('last-update').textContent = `Actualizado: ${meta.fecha}`;
+      })
+      .catch(() => {
+        document.getElementById('last-update').textContent = 'Datos disponibles';
+      });
 
-        // Para mejor rendimiento en móviles, creamos un grupo de capas
-        const markersGroup = L.layerGroup();
+    // 5. Cargar únicamente las gasolineras visibles con FlatGeobuf
+    async function updateMarkers() {
+      // Si el zoom está muy alejado (< 9), no cargar para no saturar la vista
+      if (map.getZoom() < 9) {
+        markersGroup.clearLayers();
+        zoomNotice.style.opacity = '1';
+        return;
+      }
 
-        data.estaciones.forEach(e => {
+      zoomNotice.style.opacity = '0';
+
+      // Obtener el rectángulo de la pantalla visible actual
+      const bounds = map.getBounds();
+      const bbox = {
+        minX: bounds.getWest(),
+        minY: bounds.getSouth(),
+        maxX: bounds.getEast(),
+        maxY: bounds.getNorth()
+      };
+
+      markersGroup.clearLayers();
+
+      try {
+        // Deserialización por HTTP Range Request directo a public/gasolineras.fgb
+        const iter = flatgeobuf.deserialize('./public/gasolineras.fgb', bbox);
+
+        for await (const feature of iter) {
+          const p = feature.properties;
+          const [lng, lat] = feature.geometry.coordinates;
+
           const popupContent = `
-            <div class="popup-title">${e.rotulo}</div>
-            <div>${e.direccion} (${e.municipio})</div>
-            <div style="font-size: 0.8rem; color: #64748b;">${e.horario}</div>
-            <hr style="margin: 8px 0; border: none; border-top: 1px solid #e2e8f0;">
+            <div class="popup-title">${p.rotulo || 'Gasolinera'}</div>
+            <div>${p.direccion || ''}</div>
+            <div class="popup-sub">${p.municipio || ''} (${p.provincia || ''}) | ${p.horario || ''}</div>
+            <hr style="margin: 6px 0; border: none; border-top: 1px solid #e2e8f0;">
             <div class="popup-price">
-              ${e.ga ? `<div>Diésel A: <span class="price-tag">${e.ga.toFixed(3)} €</span></div>` : ''}
-              ${e.g95 ? `<div>Gasolina 95: <span class="price-tag">${e.g95.toFixed(3)} €</span></div>` : ''}
-              ${e.g98 ? `<div>Gasolina 98: <span class="price-tag">${e.g98.toFixed(3)} €</span></div>` : ''}
+              ${p.ga ? `<div>Diésel A: <span class="price-tag">${p.ga.toFixed(3)} €</span></div>` : ''}
+              ${p.gapp ? `<div>Diésel Premium: <span class="price-tag">${p.gapp.toFixed(3)} €</span></div>` : ''}
+              ${p.g95 ? `<div>Gasolina 95: <span class="price-tag">${p.g95.toFixed(3)} €</span></div>` : ''}
+              ${p.g98 ? `<div>Gasolina 98: <span class="price-tag">${p.g98.toFixed(3)} €</span></div>` : ''}
             </div>
           `;
 
-          L.marker([e.lat, e.lng])
+          L.marker([lat, lng])
             .bindPopup(popupContent)
             .addTo(markersGroup);
-        });
+        }
+      } catch (err) {
+        console.error('Error leyendo FlatGeobuf:', err);
+      }
+    }
 
-        markersGroup.addTo(map);
-      })
-      .catch(err => {
-        console.error('Error al cargar datos:', err);
-        document.getElementById('last-update').textContent = 'Error al cargar los precios';
-      });
+    // Escuchar el evento cuando el usuario termina de mover o hacer zoom en el mapa
+    map.on('moveend', updateMarkers);
+
+    // Cargar marcadores iniciales al abrir si el mapa se inicia con zoom suficiente
+    updateMarkers();
   </script>
 </body>
 </html>
