@@ -1,0 +1,74 @@
+name: Actualizar precios de gasolineras
+
+on:
+  schedule:
+    # Se ejecuta cada 6 horas (a las 00:00, 06:00, 12:00 y 18:00 UTC)
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Permite ejecutarlo manualmente desde GitHub
+
+jobs:
+  fetch-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Descargar y procesar datos de MITECO
+        run: |
+          mkdir -p public
+          # Descargar JSON crudo
+          curl -sS -H "Accept: application/json" \
+            "https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/" \
+            -o raw.json
+
+          # Procesar con Python para limpiar comas decimales y reducir tamaño
+          python3 -c '
+          import json
+
+          with open("raw.json", "r", encoding="utf-8") as f:
+              data = json.load(f)
+
+          clean_stations = []
+          for e in data.get("ListaEESSPrecio", []):
+              try:
+                  lat = float(e["Latitud"].replace(",", "."))
+                  lng = float(e["Longitud (WGS84)"].replace(",", "."))
+
+                  clean_stations.append({
+                      "id": e.get("IDEESS"),
+                      "rotulo": e.get("Rótulo", "").strip(),
+                      "direccion": e.get("Dirección", "").strip(),
+                      "municipio": e.get("Municipio", "").strip(),
+                      "provincia": e.get("Provincia", "").strip(),
+                      "cp": e.get("C.P.", ""),
+                      "horario": e.get("Horario", ""),
+                      "lat": lat,
+                      "lng": lng,
+                      "g95": float(e["Precio Gasolina 95 E5"].replace(",", ".")) if e.get("Precio Gasolina 95 E5") else None,
+                      "g98": float(e["Precio Gasolina 98 E5"].replace(",", ".")) if e.get("Precio Gasolina 98 E5") else None,
+                      "ga": float(e["Precio Gasoleo A"].replace(",", ".")) if e.get("Precio Gasoleo A") else None,
+                      "gapp": float(e["Precio Gasoleo Premium"].replace(",", ".")) if e.get("Precio Gasoleo Premium") else None,
+                  })
+              except (ValueError, TypeError):
+                  continue
+
+          output = {
+              "fecha": data.get("Fecha"),
+              "estaciones": clean_stations
+          }
+
+          with open("public/gasolineras.json", "w", encoding="utf-8") as f:
+              json.dump(output, f, ensure_ascii=False, separators=(",", ":"))
+          '
+          rm raw.json
+
+      - name: Commit y Push de los datos actualizados
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/gasolineras.json
+          git commit -m "update: precios actualizados [skip ci]" || exit 0
+          git push
