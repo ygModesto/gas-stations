@@ -42,6 +42,42 @@
   }
   #search-btn:hover { background: #475569; }
 
+  /* Desplegable multiselección de combustibles */
+  #fuel-dropdown { position: relative; }
+  #fuel-toggle-btn {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    background: #334155;
+    color: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+  #fuel-toggle-btn:hover { background: #475569; }
+  #fuel-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background: #ffffff;
+    color: #0f172a;
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    z-index: 1000;
+    min-width: 170px;
+  }
+  #fuel-panel.open { display: block; }
+  #fuel-panel label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    padding: 4px 2px;
+    cursor: pointer;
+  }
+
   .zoom-notice {
     position: absolute;
     bottom: 25px;
@@ -71,6 +107,15 @@
     <input id="search-input" type="text" placeholder="Buscar municipio o calle..." />
     <button id="search-btn">Buscar</button>
   </div>
+  <div id="fuel-dropdown">
+    <button id="fuel-toggle-btn">Combustibles ▾</button>
+    <div id="fuel-panel">
+      <label><input type="checkbox" value="g95" checked /> Gasolina 95</label>
+      <label><input type="checkbox" value="g98" /> Gasolina 98</label>
+      <label><input type="checkbox" value="ga" /> Diésel A</label>
+      <label><input type="checkbox" value="gapp" /> Diésel Premium</label>
+    </div>
+  </div>
   <div class="info-bar" id="last-update">Cargando datos...</div>
 </header>
 
@@ -92,6 +137,13 @@ map.addControl(new maplibregl.AttributionControl({
   customAttribution: 'Datos: MITECO'
 }));
 map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+// Botón de geolocalización: centra el mapa en la posición GPS del usuario
+map.addControl(new maplibregl.GeolocateControl({
+  positionOptions: { enableHighAccuracy: true },
+  trackUserLocation: true,
+  showUserLocation: true
+}), 'top-right');
 
 const zoomNotice = document.getElementById('zoom-notice');
 
@@ -132,10 +184,54 @@ fetch('./public/meta.json')
     document.getElementById('last-update').textContent = 'Datos disponibles';
   });
 
-// 4. Fuente y capa de puntos para las gasolineras (sustituye a L.marker por elemento DOM)
+// 4. Fuente y capa de marcadores con el precio (sustituye a L.marker por elemento DOM)
 const SOURCE_ID = 'gasolineras';
 const LAYER_ID = 'gasolineras-points';
 let popup = null;
+
+// Combustibles disponibles: clave del dato -> etiqueta corta a mostrar en el marcador
+const FUEL_SHORT_LABELS = { g95: '95', g98: '98', ga: 'GO-A', gapp: 'GO-P' };
+let selectedFuels = ['g95']; // por defecto, Gasolina 95
+let currentFeatures = []; // últimas features crudas cargadas desde el .fgb (sin etiqueta calculada)
+
+// Panel desplegable de combustibles
+const fuelToggleBtn = document.getElementById('fuel-toggle-btn');
+const fuelPanel = document.getElementById('fuel-panel');
+fuelToggleBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  fuelPanel.classList.toggle('open');
+});
+document.addEventListener('click', (e) => {
+  if (!fuelPanel.contains(e.target) && e.target !== fuelToggleBtn) {
+    fuelPanel.classList.remove('open');
+  }
+});
+fuelPanel.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+  checkbox.addEventListener('change', () => {
+    selectedFuels = Array.from(fuelPanel.querySelectorAll('input:checked')).map(cb => cb.value);
+    applyLabels(); // recalcula las etiquetas sin volver a leer el .fgb
+  });
+});
+
+// Construye el texto del marcador según los combustibles seleccionados (respeta el orden del panel)
+function buildLabel(properties) {
+  const lines = [];
+  for (const key of ['g95', 'g98', 'ga', 'gapp']) {
+    if (selectedFuels.includes(key) && properties[key]) {
+      lines.push(`${FUEL_SHORT_LABELS[key]}: ${Number(properties[key]).toFixed(3)}€`);
+    }
+  }
+  return lines.join('\n');
+}
+
+// Recalcula las etiquetas de precio sobre las features ya cargadas y actualiza la capa
+function applyLabels() {
+  const labeled = currentFeatures.map(f => ({
+    ...f,
+    properties: { ...f.properties, label: buildLabel(f.properties) }
+  }));
+  map.getSource(SOURCE_ID)?.setData({ type: 'FeatureCollection', features: labeled });
+}
 
 map.on('load', () => {
   map.addSource(SOURCE_ID, {
@@ -145,13 +241,21 @@ map.on('load', () => {
 
   map.addLayer({
     id: LAYER_ID,
-    type: 'circle',
+    type: 'symbol',
     source: SOURCE_ID,
+    layout: {
+      'text-field': ['get', 'label'],
+      'text-size': 11,
+      'text-anchor': 'center',
+      'text-allow-overlap': true,
+      'text-ignore-placement': true,
+      'text-justify': 'center'
+    },
     paint: {
-      'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 3, 16, 8],
-      'circle-color': '#16a34a',
-      'circle-stroke-width': 1.5,
-      'circle-stroke-color': '#ffffff'
+      'text-color': '#ffffff',
+      'text-halo-color': '#16a34a',
+      'text-halo-width': 4,
+      'text-halo-blur': 0.5
     }
   });
 
@@ -189,6 +293,7 @@ map.on('load', () => {
 async function updateMarkers() {
   // Si el zoom está muy alejado (< 9), no cargar para no saturar la vista
   if (map.getZoom() < 9) {
+    currentFeatures = [];
     map.getSource(SOURCE_ID)?.setData({ type: 'FeatureCollection', features: [] });
     zoomNotice.style.opacity = '1';
     return;
@@ -209,8 +314,9 @@ async function updateMarkers() {
     for await (const feature of iter) {
       features.push(feature);
     }
-    // Una sola actualización de la capa por movimiento, en vez de crear/destruir un marcador por elemento
-    map.getSource(SOURCE_ID)?.setData({ type: 'FeatureCollection', features });
+    currentFeatures = features;
+    // Una sola actualización de la capa por movimiento, con el precio ya calculado
+    applyLabels();
   } catch (err) {
     console.error('Error leyendo FlatGeobuf:', err);
   }
