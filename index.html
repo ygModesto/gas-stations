@@ -1,149 +1,223 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Buscador de Gasolineras en España</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Buscador de Gasolineras en España</title>
 
-  <!-- Leaflet CSS & JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- MapLibre GL JS -->
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 
-  <!-- Leaflet Control Geocoder (Buscador de direcciones) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<!-- FlatGeobuf JS (Lector de archivos binarios espaciales) -->
+<script src="https://unpkg.com/flatgeobuf@3.24.0/dist/flatgeobuf-geojson.min.js"></script>
 
-  <!-- FlatGeobuf JS (Lector de archivos binarios espaciales) -->
-  <script src="https://unpkg.com/flatgeobuf@3.24.0/dist/flatgeobuf-geojson.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; height: 100vh; }
+  header { padding: 10px 16px; background: #1e293b; color: white; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+  #map { flex: 1; width: 100%; position: relative; }
+  .info-bar { font-size: 0.85rem; color: #94a3b8; }
 
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; height: 100vh; }
-    header { padding: 10px 16px; background: #1e293b; color: white; display: flex; justify-content: space-between; align-items: center; }
-    #map { flex: 1; width: 100%; }
-    .info-bar { font-size: 0.85rem; color: #94a3b8; }
-    .zoom-notice {
-      position: absolute;
-      bottom: 25px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15, 23, 42, 0.85);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      z-index: 1000;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-    .popup-title { font-weight: bold; font-size: 1.05rem; color: #0f172a; margin-bottom: 4px; }
-    .popup-sub { font-size: 0.8rem; color: #64748b; margin-bottom: 6px; }
-    .popup-price { font-size: 0.9rem; line-height: 1.4; }
-    .price-tag { font-weight: bold; color: #16a34a; }
-  </style>
+  /* Buscador de dirección (sustituye a Leaflet Control.Geocoder) */
+  #search-box {
+    display: flex;
+    gap: 4px;
+  }
+  #search-input {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    font-size: 0.85rem;
+    width: 220px;
+  }
+  #search-btn {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    background: #334155;
+    color: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  #search-btn:hover { background: #475569; }
+
+  .zoom-notice {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.85);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    z-index: 1000;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .popup-title { font-weight: bold; font-size: 1.05rem; color: #0f172a; margin-bottom: 4px; }
+  .popup-sub { font-size: 0.8rem; color: #64748b; margin-bottom: 6px; }
+  .popup-price { font-size: 0.9rem; line-height: 1.4; }
+  .price-tag { font-weight: bold; color: #16a34a; }
+</style>
 </head>
 <body>
 
-  <header>
-    <h1>Gasolineras España</h1>
-    <div class="info-bar" id="last-update">Cargando datos...</div>
-  </header>
+<header>
+  <h1>Gasolineras España</h1>
+  <div id="search-box">
+    <input id="search-input" type="text" placeholder="Buscar municipio o calle..." />
+    <button id="search-btn">Buscar</button>
+  </div>
+  <div class="info-bar" id="last-update">Cargando datos...</div>
+</header>
 
-  <div id="map"></div>
+<div id="map">
   <div id="zoom-notice" class="zoom-notice">Acerca el mapa para ver las gasolineras</div>
+</div>
 
-  <script>
-    // 1. Inicializar mapa centrado en España
-    const map = L.map('map').setView([40.416775, -3.703790], 6);
+<script>
+// 1. Inicializar mapa centrado en España con el estilo de OpenFreeMap (vector, gratis, sin API key)
+const map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://tiles.openfreemap.org/styles/liberty',
+  center: [-3.703790, 40.416775],
+  zoom: 6,
+  attributionControl: false
+});
 
-    // 2. Capa de mapas OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap | Datos: MITECO'
-    }).addTo(map);
+map.addControl(new maplibregl.AttributionControl({
+  customAttribution: 'Datos: MITECO'
+}));
+map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
-    // 3. Añadir buscador de calles / municipios
-    L.Control.geocoder({
-      defaultMarkGeocode: false,
-      placeholder: "Buscar municipio o calle..."
-    })
-    .on('markgeocode', function(e) {
-      const bbox = e.geocode.bbox;
-      map.fitBounds(bbox);
-    })
-    .addTo(map);
+const zoomNotice = document.getElementById('zoom-notice');
 
-    // Group de capas para añadir y limpiar marcadores dinámicamente
-    const markersGroup = L.layerGroup().addTo(map);
-    const zoomNotice = document.getElementById('zoom-notice');
+// 2. Buscador de direcciones/municipios usando Nominatim (mismo proveedor que usaba Leaflet Control.Geocoder)
+async function geocodeAndFly(query) {
+  if (!query) return;
+  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
+  try {
+    const res = await fetch(url, { headers: { 'Accept-Language': 'es' } });
+    const results = await res.json();
+    if (!results.length) return;
+    const { boundingbox } = results[0];
+    // boundingbox: [minLat, maxLat, minLon, maxLon]
+    const bounds = [
+      [parseFloat(boundingbox[2]), parseFloat(boundingbox[0])],
+      [parseFloat(boundingbox[3]), parseFloat(boundingbox[1])]
+    ];
+    map.fitBounds(bounds, { padding: 40 });
+  } catch (err) {
+    console.error('Error en geocodificación:', err);
+  }
+}
 
-    // 4. Cargar la fecha desde meta.json ligero
-    fetch('./public/meta.json')
-      .then(res => res.json())
-      .then(meta => {
-        document.getElementById('last-update').textContent = `Actualizado: ${meta.fecha}`;
-      })
-      .catch(() => {
-        document.getElementById('last-update').textContent = 'Datos disponibles';
-      });
+document.getElementById('search-btn').addEventListener('click', () => {
+  geocodeAndFly(document.getElementById('search-input').value.trim());
+});
+document.getElementById('search-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') geocodeAndFly(e.target.value.trim());
+});
 
-    // 5. Cargar únicamente las gasolineras visibles con FlatGeobuf
-    async function updateMarkers() {
-      // Si el zoom está muy alejado (< 9), no cargar para no saturar la vista
-      if (map.getZoom() < 9) {
-        markersGroup.clearLayers();
-        zoomNotice.style.opacity = '1';
-        return;
-      }
+// 3. Cargar la fecha desde meta.json ligero
+fetch('./public/meta.json')
+  .then(res => res.json())
+  .then(meta => {
+    document.getElementById('last-update').textContent = `Actualizado: ${meta.fecha}`;
+  })
+  .catch(() => {
+    document.getElementById('last-update').textContent = 'Datos disponibles';
+  });
 
-      zoomNotice.style.opacity = '0';
+// 4. Fuente y capa de puntos para las gasolineras (sustituye a L.marker por elemento DOM)
+const SOURCE_ID = 'gasolineras';
+const LAYER_ID = 'gasolineras-points';
+let popup = null;
 
-      // Obtener el rectángulo de la pantalla visible actual
-      const bounds = map.getBounds();
-      const bbox = {
-        minX: bounds.getWest(),
-        minY: bounds.getSouth(),
-        maxX: bounds.getEast(),
-        maxY: bounds.getNorth()
-      };
+map.on('load', () => {
+  map.addSource(SOURCE_ID, {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] }
+  });
 
-      markersGroup.clearLayers();
-
-      try {
-        // Deserialización por HTTP Range Request directo a public/gasolineras.fgb
-        const iter = flatgeobuf.deserialize('./public/gasolineras.fgb', bbox);
-
-        for await (const feature of iter) {
-          const p = feature.properties;
-          const [lng, lat] = feature.geometry.coordinates;
-
-          const popupContent = `
-            <div class="popup-title">${p.rotulo || 'Gasolinera'}</div>
-            <div>${p.direccion || ''}</div>
-            <div class="popup-sub">${p.municipio || ''} (${p.provincia || ''}) | ${p.horario || ''}</div>
-            <hr style="margin: 6px 0; border: none; border-top: 1px solid #e2e8f0;">
-            <div class="popup-price">
-              ${p.ga ? `<div>Diésel A: <span class="price-tag">${p.ga.toFixed(3)} €</span></div>` : ''}
-              ${p.gapp ? `<div>Diésel Premium: <span class="price-tag">${p.gapp.toFixed(3)} €</span></div>` : ''}
-              ${p.g95 ? `<div>Gasolina 95: <span class="price-tag">${p.g95.toFixed(3)} €</span></div>` : ''}
-              ${p.g98 ? `<div>Gasolina 98: <span class="price-tag">${p.g98.toFixed(3)} €</span></div>` : ''}
-            </div>
-          `;
-
-          L.marker([lat, lng])
-            .bindPopup(popupContent)
-            .addTo(markersGroup);
-        }
-      } catch (err) {
-        console.error('Error leyendo FlatGeobuf:', err);
-      }
+  map.addLayer({
+    id: LAYER_ID,
+    type: 'circle',
+    source: SOURCE_ID,
+    paint: {
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 3, 16, 8],
+      'circle-color': '#16a34a',
+      'circle-stroke-width': 1.5,
+      'circle-stroke-color': '#ffffff'
     }
+  });
 
-    // Escuchar el evento cuando el usuario termina de mover o hacer zoom en el mapa
-    map.on('moveend', updateMarkers);
+  map.on('mouseenter', LAYER_ID, () => { map.getCanvas().style.cursor = 'pointer'; });
+  map.on('mouseleave', LAYER_ID, () => { map.getCanvas().style.cursor = ''; });
 
-    // Cargar marcadores iniciales al abrir si el mapa se inicia con zoom suficiente
-    updateMarkers();
-  </script>
+  map.on('click', LAYER_ID, (e) => {
+    const p = e.features[0].properties;
+    const coords = e.features[0].geometry.coordinates.slice();
+
+    const popupContent = `
+      <div class="popup-title">${p.rotulo || 'Gasolinera'}</div>
+      <div>${p.direccion || ''}</div>
+      <div class="popup-sub">${p.municipio || ''} (${p.provincia || ''}) | ${p.horario || ''}</div>
+      <hr style="margin: 6px 0; border: none; border-top: 1px solid #e2e8f0;">
+      <div class="popup-price">
+        ${p.ga ? `<div>Diésel A: <span class="price-tag">${Number(p.ga).toFixed(3)} €</span></div>` : ''}
+        ${p.gapp ? `<div>Diésel Premium: <span class="price-tag">${Number(p.gapp).toFixed(3)} €</span></div>` : ''}
+        ${p.g95 ? `<div>Gasolina 95: <span class="price-tag">${Number(p.g95).toFixed(3)} €</span></div>` : ''}
+        ${p.g98 ? `<div>Gasolina 98: <span class="price-tag">${Number(p.g98).toFixed(3)} €</span></div>` : ''}
+      </div>
+    `;
+
+    if (popup) popup.remove();
+    popup = new maplibregl.Popup()
+      .setLngLat(coords)
+      .setHTML(popupContent)
+      .addTo(map);
+  });
+
+  updateMarkers();
+});
+
+// 5. Cargar únicamente las gasolineras visibles con FlatGeobuf, vía HTTP Range Request
+async function updateMarkers() {
+  // Si el zoom está muy alejado (< 9), no cargar para no saturar la vista
+  if (map.getZoom() < 9) {
+    map.getSource(SOURCE_ID)?.setData({ type: 'FeatureCollection', features: [] });
+    zoomNotice.style.opacity = '1';
+    return;
+  }
+  zoomNotice.style.opacity = '0';
+
+  const bounds = map.getBounds();
+  const bbox = {
+    minX: bounds.getWest(),
+    minY: bounds.getSouth(),
+    maxX: bounds.getEast(),
+    maxY: bounds.getNorth()
+  };
+
+  const features = [];
+  try {
+    const iter = flatgeobuf.deserialize('./public/gasolineras.fgb', bbox);
+    for await (const feature of iter) {
+      features.push(feature);
+    }
+    // Una sola actualización de la capa por movimiento, en vez de crear/destruir un marcador por elemento
+    map.getSource(SOURCE_ID)?.setData({ type: 'FeatureCollection', features });
+  } catch (err) {
+    console.error('Error leyendo FlatGeobuf:', err);
+  }
+}
+
+// Escuchar el evento cuando el usuario termina de mover o hacer zoom en el mapa
+map.on('moveend', updateMarkers);
+</script>
 </body>
 </html>
