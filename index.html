@@ -186,6 +186,7 @@ fetch('./public/meta.json')
 
 // 4. Fuente y capa de marcadores con el precio (sustituye a L.marker por elemento DOM)
 const SOURCE_ID = 'gasolineras';
+const DOT_LAYER_ID = 'gasolineras-dots';
 const LAYER_ID = 'gasolineras-points';
 let popup = null;
 
@@ -239,12 +240,29 @@ map.on('load', () => {
     data: { type: 'FeatureCollection', features: [] }
   });
 
+  // Capa de punto: SIEMPRE visible/clicable, tenga o no precio del combustible seleccionado.
+  // Es la que gestiona el hover y el popup — el texto de precio (abajo) puede quedar vacío
+  // y en una capa 'symbol' eso deja sin área clicable, por eso el punto va aparte.
+  map.addLayer({
+    id: DOT_LAYER_ID,
+    type: 'circle',
+    source: SOURCE_ID,
+    paint: {
+      'circle-radius': 6,
+      'circle-color': '#16a34a',
+      'circle-stroke-width': 1.5,
+      'circle-stroke-color': '#ffffff'
+    }
+  });
+
+  // Capa de texto: el precio, superpuesta al punto. Puramente visual, sin interacción propia.
   map.addLayer({
     id: LAYER_ID,
     type: 'symbol',
     source: SOURCE_ID,
     layout: {
       'text-field': ['get', 'label'],
+      'text-font': ['Noto Sans Bold'],
       'text-size': 11,
       'text-anchor': 'center',
       'text-allow-overlap': true,
@@ -259,10 +277,10 @@ map.on('load', () => {
     }
   });
 
-  map.on('mouseenter', LAYER_ID, () => { map.getCanvas().style.cursor = 'pointer'; });
-  map.on('mouseleave', LAYER_ID, () => { map.getCanvas().style.cursor = ''; });
+  map.on('mouseenter', DOT_LAYER_ID, () => { map.getCanvas().style.cursor = 'pointer'; });
+  map.on('mouseleave', DOT_LAYER_ID, () => { map.getCanvas().style.cursor = ''; });
 
-  map.on('click', LAYER_ID, (e) => {
+  map.on('click', DOT_LAYER_ID, (e) => {
     const p = e.features[0].properties;
     const coords = e.features[0].geometry.coordinates.slice();
 
