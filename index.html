@@ -16,7 +16,10 @@
 
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; height: 100vh; }
+  /* 100dvh y no 100vh: en móvil, 100vh cuenta el alto CON la barra de direcciones retraída, así
+     que el final de la página queda por debajo del borde visible y se comía la leyenda. La regla
+     100vh se deja delante como respaldo para navegadores sin soporte de dvh. */
+  body { font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
   header { padding: 10px 16px; background: #1e293b; color: white; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
   #map { flex: 1; width: 100%; position: relative; }
   .info-bar { font-size: 0.85rem; color: #94a3b8; }
@@ -82,7 +85,7 @@
 
   .zoom-notice {
     position: absolute;
-    bottom: 25px;
+    bottom: calc(25px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
     background: rgba(15, 23, 42, 0.85);
@@ -116,8 +119,9 @@
 
   .legend {
     position: absolute;
-    bottom: 25px;
+    bottom: calc(25px + env(safe-area-inset-bottom, 0px));
     left: 10px;
+    max-width: calc(100% - 20px);
     background: rgba(255, 255, 255, 0.95);
     color: #0f172a;
     padding: 8px 10px;
@@ -130,6 +134,16 @@
   .legend-title { font-weight: bold; color: #334155; margin-bottom: 4px; }
   .legend-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
   .legend-swatch { width: 12px; height: 12px; border-radius: 2px; flex: none; }
+
+  @media (max-width: 480px) {
+    .legend {
+      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+      left: 8px;
+      padding: 6px 8px;
+      font-size: 0.7rem;
+      line-height: 1.35;
+    }
+  }
 </style>
 </head>
 <body>
@@ -180,8 +194,13 @@ map.addControl(new maplibregl.AttributionControl({
 map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
 // Botón de geolocalización: centra el mapa en la posición GPS del usuario
+// El maxZoom por defecto del control es 15, y a ese nivel la ventana es de ~1,4 x 2,3 km: sobre los
+// datos de MITECO, más de la mitad de las posiciones se quedan con menos de 3 gasolineras a la
+// vista, y por debajo de 4 con precio ni siquiera hay escala de color (ver MIN_FOR_CLASSES).
+// Con 13 la ventana pasa a ~5,7 x 9,3 km y la mediana sube a 8 gasolineras.
 map.addControl(new maplibregl.GeolocateControl({
   positionOptions: { enableHighAccuracy: true },
+  fitBoundsOptions: { maxZoom: 13 },
   trackUserLocation: true,
   showUserLocation: true
 }), 'top-right');
@@ -269,7 +288,7 @@ fuelPanel.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
 
 // Prioridad de las gasolineras que no sirven ninguno de los combustibles seleccionados: al ser
 // mayor que cualquier precio real, son las primeras en ocultarse cuando hay solapamiento.
-const NO_PRICE_SORT_KEY = 9999;
+const NO_PRICE_REF = 9999;
 
 // Longitud máxima del rótulo dentro del marcador. Los datos de MITECO no vienen normalizados:
 // la mediana son 6 caracteres (REPSOL, GALP, SHELL...), pero cerca del 10% pasa de 18 y hay rótulos
@@ -290,23 +309,26 @@ function buildTitle(properties) {
 //   precios, para poder darle otro tamaño y color con la expresión 'format' de la capa.
 // - prices: nunca va vacío. El recuadro se dimensiona con el texto, y sin texto no habría
 //   marcador ni área clicable para las gasolineras sin el combustible seleccionado.
-// - sortKey: precio del primer combustible seleccionado que la gasolinera sirve, que es también la
-//   primera línea de precio. MapLibre coloca antes las claves más bajas, así que la más
-//   barata gana el solapamiento y oculta a las vecinas más caras.
+// - refPrice: precio del primer combustible seleccionado que la gasolinera sirve, que es también
+//   la primera línea de precio. Es la referencia tanto del color como del orden de dibujo.
+// - drawKey: refPrice en negativo, ver la nota en la capa.
 function buildMarkerProps(properties) {
   const lines = [];
-  let sortKey = NO_PRICE_SORT_KEY;
+  let refPrice = NO_PRICE_REF;
   for (const key of FUEL_ORDER) {
     if (selectedFuels.includes(key) && properties[key]) {
       const price = Number(properties[key]);
       lines.push(`${FUEL_SHORT_LABELS[key]}: ${price.toFixed(3)}€`);
-      if (sortKey === NO_PRICE_SORT_KEY) sortKey = price;
+      if (refPrice === NO_PRICE_REF) refPrice = price;
     }
   }
   return {
     title: buildTitle(properties),
     prices: lines.length ? lines.join('\n') : '—',
-    sortKey
+    refPrice,
+    // Clave de dibujo invertida. El negativo manda además al fondo a las gasolineras sin precio,
+    // porque su refPrice centinela (9999) pasa a ser el valor más bajo de todos.
+    drawKey: -refPrice
   };
 }
 
@@ -328,10 +350,10 @@ function computeThresholds(prices) {
 }
 
 // Traduce un precio a la imagen de badge que le corresponde
-function badgeFor(sortKey, thresholds) {
-  if (sortKey === NO_PRICE_SORT_KEY || !thresholds) return NO_PRICE_BADGE_ID;
+function badgeFor(refPrice, thresholds) {
+  if (refPrice === NO_PRICE_REF || !thresholds) return NO_PRICE_BADGE_ID;
   let i = 0;
-  while (i < thresholds.length && sortKey > thresholds[i]) i++;
+  while (i < thresholds.length && refPrice > thresholds[i]) i++;
   return BADGE_IDS[i];
 }
 
@@ -345,8 +367,8 @@ function referenceFuelLabel() {
 function applyLabels() {
   const markerProps = currentFeatures.map(f => buildMarkerProps(f.properties));
   const prices = markerProps
-    .map(m => m.sortKey)
-    .filter(k => k !== NO_PRICE_SORT_KEY)
+    .map(m => m.refPrice)
+    .filter(k => k !== NO_PRICE_REF)
     .sort((a, b) => a - b);
   const thresholds = computeThresholds(prices);
 
@@ -355,7 +377,7 @@ function applyLabels() {
     properties: {
       ...f.properties,
       ...markerProps[i],
-      badge: badgeFor(markerProps[i].sortKey, thresholds)
+      badge: badgeFor(markerProps[i].refPrice, thresholds)
     }
   }));
   map.getSource(SOURCE_ID)?.setData({ type: 'FeatureCollection', features: labeled });
@@ -418,9 +440,10 @@ map.on('load', () => {
   // Capa única: el recuadro se ajusta al texto del precio con 'icon-text-fit', y como el texto
   // nunca va vacío (ver buildMarkerProps) el símbolo siempre existe y es clicable.
   //
-  // No se declara ningún '*-allow-overlap' ni '*-ignore-placement': con los valores por defecto
-  // (false) MapLibre detecta colisiones y oculta los marcadores que se pisan. El orden lo marca
-  // 'symbol-sort-key' con el precio, así que al acercar el zoom van apareciendo las más caras.
+  // Los '*-allow-overlap' van en true: ninguna gasolinera se oculta por pisarse con otra, se
+  // dibujan todas y el orden lo decide 'symbol-sort-key'. Los '*-ignore-placement' se dejan en su
+  // valor por defecto (false) a propósito: así los recuadros sí siguen apartando las etiquetas
+  // del mapa base (nombres de calle), que si no se leerían por debajo.
   map.addLayer({
     id: LAYER_ID,
     type: 'symbol',
@@ -430,7 +453,12 @@ map.on('load', () => {
       'icon-text-fit': 'both',
       'icon-text-fit-padding': [5, 7, 5, 7], // arriba, derecha, abajo, izquierda
       'icon-padding': 4,                     // margen extra de colisión: evita recuadros pegados
-      'symbol-sort-key': ['get', 'sortKey'], // menor precio = se coloca antes = tapa a las demás
+      // Con el solape permitido la clave se invierte respecto al modo colisión: MapLibre dibuja
+      // ENCIMA las claves más altas, y drawKey es el precio en negativo, de forma que la
+      // gasolinera más barata queda en primer plano y las caras van quedando detrás.
+      'symbol-sort-key': ['get', 'drawKey'],
+      'icon-allow-overlap': true,
+      'text-allow-overlap': true,
       // El rótulo y los precios son dos secciones de una misma etiqueta: 'format' permite
       // darle al título tamaño completo y blanco puro, y a los precios algo menos de
       // cuerpo y un verde pálido, para que se lean como subtítulo.
