@@ -113,6 +113,23 @@
     text-decoration: none;
   }
   .popup-nav:hover { background: #15803d; }
+
+  .legend {
+    position: absolute;
+    bottom: 25px;
+    left: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #0f172a;
+    padding: 8px 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    z-index: 1000;
+  }
+  .legend-title { font-weight: bold; color: #334155; margin-bottom: 4px; }
+  .legend-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .legend-swatch { width: 12px; height: 12px; border-radius: 2px; flex: none; }
 </style>
 </head>
 <body>
@@ -137,6 +154,10 @@
 
 <div id="map">
   <div id="zoom-notice" class="zoom-notice">Acerca el mapa para ver las gasolineras</div>
+  <div id="legend" class="legend" hidden>
+    <div id="legend-title" class="legend-title"></div>
+    <div id="legend-rows"></div>
+  </div>
 </div>
 
 <script type="module">
@@ -166,6 +187,9 @@ map.addControl(new maplibregl.GeolocateControl({
 }), 'top-right');
 
 const zoomNotice = document.getElementById('zoom-notice');
+const legendEl = document.getElementById('legend');
+const legendTitleEl = document.getElementById('legend-title');
+const legendRowsEl = document.getElementById('legend-rows');
 
 // 2. Buscador de direcciones/municipios usando Nominatim (mismo proveedor que usaba Leaflet Control.Geocoder)
 async function geocodeAndFly(query) {
@@ -207,11 +231,20 @@ fetch('./public/meta.json')
 // 4. Fuente y capa de marcadores con el precio (sustituye a L.marker por elemento DOM)
 const SOURCE_ID = 'gasolineras';
 const LAYER_ID = 'gasolineras-points';
-const BADGE_IMAGE_ID = 'gasolinera-badge';
+// Paleta de las 4 clases de precio, de más barata a más cara, más un gris para las que no
+// sirven el combustible seleccionado. Todos los tonos son oscuros a propósito: el texto del
+// marcador es blanco y en negrita, y sobre un amarillo o un verde claro no se leería. El extremo
+// barato es un teal y no un verde puro para que la rampa siga distinguiéndose con daltonismo
+// deuterano, el más común.
+const PRICE_COLORS = ['#0f766e', '#4d7c0f', '#b45309', '#b91c1c'];
+const NO_PRICE_COLOR = '#64748b';
+const BADGE_IDS = PRICE_COLORS.map((_, i) => 'badge-' + i);
+const NO_PRICE_BADGE_ID = 'badge-sin-precio';
 let popup = null;
 
 // Combustibles disponibles: clave del dato -> etiqueta corta a mostrar en el marcador
 const FUEL_SHORT_LABELS = { g95: '95', g98: '98', ga: 'GO-A', gapp: 'GO-P' };
+const FUEL_ORDER = ['g95', 'g98', 'ga', 'gapp']; // manda en etiqueta, color y orden de colisión
 let selectedFuels = ['g95', 'ga']; // por defecto, Gasolina 95
 let currentFeatures = []; // últimas features crudas cargadas desde el .fgb (sin etiqueta calculada)
 
@@ -263,7 +296,7 @@ function buildTitle(properties) {
 function buildMarkerProps(properties) {
   const lines = [];
   let sortKey = NO_PRICE_SORT_KEY;
-  for (const key of ['g95', 'g98', 'ga', 'gapp']) {
+  for (const key of FUEL_ORDER) {
     if (selectedFuels.includes(key) && properties[key]) {
       const price = Number(properties[key]);
       lines.push(`${FUEL_SHORT_LABELS[key]}: ${price.toFixed(3)}€`);
@@ -277,13 +310,74 @@ function buildMarkerProps(properties) {
   };
 }
 
-// Recalcula etiquetas y prioridades sobre las features ya cargadas y actualiza la capa
+// Mínimo de gasolineras con precio para repartir en clases de color. Con dos o tres a la vista,
+// "la más cara de las visibles" no informa de nada, así que se pintan todas en gris neutro.
+const MIN_FOR_CLASSES = 4;
+
+// Umbrales de color relativos a lo que hay en pantalla: los cuartiles de los precios visibles,
+// recalculados en cada movimiento. Así el verde significa "barata por aquí" y no "barata en
+// España", que es lo que no sirve: la gasolinera más barata de Palma cuesta lo mismo que la
+// mediana de Sevilla, y con umbrales fijos zonas enteras saldrían de un solo color.
+function computeThresholds(prices) {
+  if (prices.length < MIN_FOR_CLASSES) return null;
+  const sorted = [...prices].sort((a, b) => a - b);
+  const at = (q) => sorted[Math.floor((sorted.length - 1) * q)];
+  const thresholds = [at(0.25), at(0.5), at(0.75)];
+  // Si demasiadas comparten precio los cuartiles colapsan; mejor neutro que una escala falsa.
+  return thresholds[0] < thresholds[2] ? thresholds : null;
+}
+
+// Traduce un precio a la imagen de badge que le corresponde
+function badgeFor(sortKey, thresholds) {
+  if (sortKey === NO_PRICE_SORT_KEY || !thresholds) return NO_PRICE_BADGE_ID;
+  let i = 0;
+  while (i < thresholds.length && sortKey > thresholds[i]) i++;
+  return BADGE_IDS[i];
+}
+
+// Combustible que manda en el color: el primero seleccionado en el orden del panel
+function referenceFuelLabel() {
+  const key = FUEL_ORDER.find(k => selectedFuels.includes(k));
+  return key ? FUEL_SHORT_LABELS[key] : '';
+}
+
+// Recalcula etiquetas, prioridades y color sobre las features ya cargadas y actualiza la capa
 function applyLabels() {
-  const labeled = currentFeatures.map(f => ({
+  const markerProps = currentFeatures.map(f => buildMarkerProps(f.properties));
+  const prices = markerProps
+    .map(m => m.sortKey)
+    .filter(k => k !== NO_PRICE_SORT_KEY)
+    .sort((a, b) => a - b);
+  const thresholds = computeThresholds(prices);
+
+  const labeled = currentFeatures.map((f, i) => ({
     ...f,
-    properties: { ...f.properties, ...buildMarkerProps(f.properties) }
+    properties: {
+      ...f.properties,
+      ...markerProps[i],
+      badge: badgeFor(markerProps[i].sortKey, thresholds)
+    }
   }));
   map.getSource(SOURCE_ID)?.setData({ type: 'FeatureCollection', features: labeled });
+  updateLegend(thresholds, prices);
+}
+
+// La leyenda muestra los tramos reales que hay en pantalla, no una escala fija
+function updateLegend(thresholds, prices) {
+  if (!thresholds) {
+    legendEl.hidden = true;
+    return;
+  }
+  const bounds = [prices[0], ...thresholds, prices[prices.length - 1]];
+  const fmt = (v) => v.toFixed(3) + ' €';
+  legendTitleEl.textContent = 'Precio ' + referenceFuelLabel() + ' en la zona';
+  legendRowsEl.innerHTML = PRICE_COLORS.map((color, i) =>
+    '<div class="legend-row">' +
+    '<span class="legend-swatch" style="background:' + color + '"></span>' +
+    '<span>' + fmt(bounds[i]) + ' - ' + fmt(bounds[i + 1]) + '</span>' +
+    '</div>'
+  ).join('');
+  legendEl.hidden = false;
 }
 
 // Recuadro que hace de fondo del marcador. Se registra como imagen estirable: las esquinas
@@ -311,12 +405,15 @@ map.on('load', () => {
     data: { type: 'FeatureCollection', features: [] }
   });
 
-  map.addImage(BADGE_IMAGE_ID, makeBadgeImage('#16a34a'), {
+  // Un badge por clase de precio, todos con la misma geometría estirable
+  const badgeMeta = {
     content: [BADGE_CORNER, BADGE_CORNER, BADGE_SIZE - BADGE_CORNER, BADGE_SIZE - BADGE_CORNER],
     stretchX: [[BADGE_CORNER, BADGE_SIZE - BADGE_CORNER]],
     stretchY: [[BADGE_CORNER, BADGE_SIZE - BADGE_CORNER]],
     pixelRatio: 2
-  });
+  };
+  PRICE_COLORS.forEach((color, i) => map.addImage(BADGE_IDS[i], makeBadgeImage(color), badgeMeta));
+  map.addImage(NO_PRICE_BADGE_ID, makeBadgeImage(NO_PRICE_COLOR), badgeMeta);
 
   // Capa única: el recuadro se ajusta al texto del precio con 'icon-text-fit', y como el texto
   // nunca va vacío (ver buildMarkerProps) el símbolo siempre existe y es clicable.
@@ -329,7 +426,7 @@ map.on('load', () => {
     type: 'symbol',
     source: SOURCE_ID,
     layout: {
-      'icon-image': BADGE_IMAGE_ID,
+      'icon-image': ['get', 'badge'], // color asignado en applyLabels() por cuartiles
       'icon-text-fit': 'both',
       'icon-text-fit-padding': [5, 7, 5, 7], // arriba, derecha, abajo, izquierda
       'icon-padding': 4,                     // margen extra de colisión: evita recuadros pegados
@@ -399,7 +496,7 @@ async function updateMarkers() {
   // Si el zoom está muy alejado (< 9), no cargar para no saturar la vista
   if (map.getZoom() < 9) {
     currentFeatures = [];
-    map.getSource(SOURCE_ID)?.setData({ type: 'FeatureCollection', features: [] });
+    applyLabels(); // vacía la capa y, de paso, oculta la leyenda
     zoomNotice.style.opacity = '1';
     return;
   }
