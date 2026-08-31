@@ -186,13 +186,13 @@ fetch('./public/meta.json')
 
 // 4. Fuente y capa de marcadores con el precio (sustituye a L.marker por elemento DOM)
 const SOURCE_ID = 'gasolineras';
-const DOT_LAYER_ID = 'gasolineras-dots';
 const LAYER_ID = 'gasolineras-points';
+const BADGE_IMAGE_ID = 'gasolinera-badge';
 let popup = null;
 
 // Combustibles disponibles: clave del dato -> etiqueta corta a mostrar en el marcador
 const FUEL_SHORT_LABELS = { g95: '95', g98: '98', ga: 'GO-A', gapp: 'GO-P' };
-let selectedFuels = ['g95']; // por defecto, Gasolina 95
+let selectedFuels = ['g95', 'ga']; // por defecto, Gasolina 95
 let currentFeatures = []; // últimas features crudas cargadas desde el .fgb (sin etiqueta calculada)
 
 // Panel desplegable de combustibles
@@ -214,7 +214,9 @@ fuelPanel.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
   });
 });
 
-// Construye el texto del marcador según los combustibles seleccionados (respeta el orden del panel)
+// Construye el texto del marcador según los combustibles seleccionados (respeta el orden del panel).
+// Nunca devuelve cadena vacía: el recuadro se dimensiona con el texto, y sin texto no habría
+// marcador ni área clicable para las gasolineras que no sirven el combustible seleccionado.
 function buildLabel(properties) {
   const lines = [];
   for (const key of ['g95', 'g98', 'ga', 'gapp']) {
@@ -222,7 +224,7 @@ function buildLabel(properties) {
       lines.push(`${FUEL_SHORT_LABELS[key]}: ${Number(properties[key]).toFixed(3)}€`);
     }
   }
-  return lines.join('\n');
+  return lines.length ? lines.join('\n') : '—';
 }
 
 // Recalcula las etiquetas de precio sobre las features ya cargadas y actualiza la capa
@@ -234,53 +236,68 @@ function applyLabels() {
   map.getSource(SOURCE_ID)?.setData({ type: 'FeatureCollection', features: labeled });
 }
 
+// Recuadro que hace de fondo del marcador. Se registra como imagen estirable: las esquinas
+// (BADGE_CORNER px) se mantienen fijas y sólo se estira la banda central, así el mismo recuadro
+// vale para un precio o para cuatro sin deformar el borde ni las esquinas.
+const BADGE_SIZE = 24;    // px de imagen (a pixelRatio 2 → 12 px en pantalla)
+const BADGE_CORNER = 8;   // zona no estirable de cada esquina
+function makeBadgeImage(color) {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = BADGE_SIZE;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = color;
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.roundRect(1.5, 1.5, BADGE_SIZE - 3, BADGE_SIZE - 3, 3); // radio 0 = esquinas vivas
+  ctx.fill();
+  ctx.stroke();
+  return ctx.getImageData(0, 0, BADGE_SIZE, BADGE_SIZE);
+}
+
 map.on('load', () => {
   map.addSource(SOURCE_ID, {
     type: 'geojson',
     data: { type: 'FeatureCollection', features: [] }
   });
 
-  // Capa de punto: SIEMPRE visible/clicable, tenga o no precio del combustible seleccionado.
-  // Es la que gestiona el hover y el popup — el texto de precio (abajo) puede quedar vacío
-  // y en una capa 'symbol' eso deja sin área clicable, por eso el punto va aparte.
-  map.addLayer({
-    id: DOT_LAYER_ID,
-    type: 'circle',
-    source: SOURCE_ID,
-    paint: {
-      'circle-radius': 6,
-      'circle-color': '#16a34a',
-      'circle-stroke-width': 1.5,
-      'circle-stroke-color': '#ffffff'
-    }
+  map.addImage(BADGE_IMAGE_ID, makeBadgeImage('#16a34a'), {
+    content: [BADGE_CORNER, BADGE_CORNER, BADGE_SIZE - BADGE_CORNER, BADGE_SIZE - BADGE_CORNER],
+    stretchX: [[BADGE_CORNER, BADGE_SIZE - BADGE_CORNER]],
+    stretchY: [[BADGE_CORNER, BADGE_SIZE - BADGE_CORNER]],
+    pixelRatio: 2
   });
 
-  // Capa de texto: el precio, superpuesta al punto. Puramente visual, sin interacción propia.
+  // Capa única: el recuadro se ajusta al texto del precio con 'icon-text-fit', y como el texto
+  // nunca va vacío (ver buildLabel) el símbolo siempre existe y es clicable.
   map.addLayer({
     id: LAYER_ID,
     type: 'symbol',
     source: SOURCE_ID,
     layout: {
+      'icon-image': BADGE_IMAGE_ID,
+      'icon-text-fit': 'both',
+      'icon-text-fit-padding': [5, 7, 5, 7], // arriba, derecha, abajo, izquierda
+      'icon-allow-overlap': true,
+      'icon-ignore-placement': true,
       'text-field': ['get', 'label'],
       'text-font': ['Noto Sans Bold'],
-      'text-size': 11,
+      'text-size': 13,
+      'text-line-height': 1.15,
       'text-anchor': 'center',
       'text-allow-overlap': true,
       'text-ignore-placement': true,
       'text-justify': 'center'
     },
     paint: {
-      'text-color': '#ffffff',
-      'text-halo-color': '#16a34a',
-      'text-halo-width': 4,
-      'text-halo-blur': 0.5
+      'text-color': '#ffffff'
     }
   });
 
-  map.on('mouseenter', DOT_LAYER_ID, () => { map.getCanvas().style.cursor = 'pointer'; });
-  map.on('mouseleave', DOT_LAYER_ID, () => { map.getCanvas().style.cursor = ''; });
+  map.on('mouseenter', LAYER_ID, () => { map.getCanvas().style.cursor = 'pointer'; });
+  map.on('mouseleave', LAYER_ID, () => { map.getCanvas().style.cursor = ''; });
 
-  map.on('click', DOT_LAYER_ID, (e) => {
+  map.on('click', LAYER_ID, (e) => {
     const p = e.features[0].properties;
     const coords = e.features[0].geometry.coordinates.slice();
 
