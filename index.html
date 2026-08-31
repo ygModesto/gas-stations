@@ -83,21 +83,6 @@
     cursor: pointer;
   }
 
-  .zoom-notice {
-    position: absolute;
-    bottom: calc(25px + env(safe-area-inset-bottom, 0px));
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(15, 23, 42, 0.85);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    z-index: 1000;
-    pointer-events: none;
-    transition: opacity 0.3s;
-  }
-
   .popup-title { font-weight: bold; font-size: 1.05rem; color: #0f172a; margin-bottom: 4px; }
   .popup-sub { font-size: 0.8rem; color: #64748b; margin-bottom: 6px; }
   .popup-price { font-size: 0.9rem; line-height: 1.4; }
@@ -167,7 +152,6 @@
 </header>
 
 <div id="map">
-  <div id="zoom-notice" class="zoom-notice">Acerca el mapa para ver las gasolineras</div>
   <div id="legend" class="legend" hidden>
     <div id="legend-title" class="legend-title"></div>
     <div id="legend-rows"></div>
@@ -198,14 +182,17 @@ map.addControl(new maplibregl.NavigationControl(), 'top-right');
 // datos de MITECO, más de la mitad de las posiciones se quedan con menos de 3 gasolineras a la
 // vista, y por debajo de 4 con precio ni siquiera hay escala de color (ver MIN_FOR_CLASSES).
 // Con 13 la ventana pasa a ~5,7 x 9,3 km y la mediana sube a 8 gasolineras.
-map.addControl(new maplibregl.GeolocateControl({
+const geolocate = new maplibregl.GeolocateControl({
   positionOptions: { enableHighAccuracy: true },
   fitBoundsOptions: { maxZoom: 13 },
-  trackUserLocation: true,
+  // Sin seguimiento continuo: centra en la posición UNA vez (getCurrentPosition, no watchPosition).
+  // Con trackUserLocation el control quedaba en modo bloqueo y cada nuevo fix re-centraba y volvía a
+  // aplicar el zoom 13, deshaciendo el zoom out del usuario. Aquí solo marca la posición y libera.
+  trackUserLocation: false,
   showUserLocation: true
-}), 'top-right');
+});
+map.addControl(geolocate, 'top-right');
 
-const zoomNotice = document.getElementById('zoom-notice');
 const legendEl = document.getElementById('legend');
 const legendTitleEl = document.getElementById('legend-title');
 const legendRowsEl = document.getElementById('legend-rows');
@@ -250,6 +237,16 @@ fetch('./public/meta.json')
 // 4. Fuente y capa de marcadores con el precio (sustituye a L.marker por elemento DOM)
 const SOURCE_ID = 'gasolineras';
 const LAYER_ID = 'gasolineras-points';
+const DOTS_LAYER_ID = 'gasolineras-dots';
+// Por debajo de este zoom las estaciones se pintan como puntos de color (capa DOTS_LAYER_ID) y por
+// encima como recuadros con el precio (capa LAYER_ID). El corte coincide con el zoom a partir del
+// cual la ventana es lo bastante pequeña como para que quepan las etiquetas sin saturar.
+const LABEL_MIN_ZOOM = 9;
+// Dos ficheros para la misma capa: el completo (con rótulo, dirección, horario…) para el zoom
+// cercano donde se ven recuadros y popups, y uno ligero (solo geometría + los 4 precios, ~55%
+// menos) para el zoom alejado, donde solo se pintan puntos de color y esos campos no se usan.
+const FGB_FULL = './public/gasolineras.fgb';
+const FGB_LITE = './public/gasolineras-lite.fgb';
 // Paleta de las 4 clases de precio, de más barata a más cara, más un gris para las que no
 // sirven el combustible seleccionado. Todos los tonos son oscuros a propósito: el texto del
 // marcador es blanco y en negrita, y sobre un amarillo o un verde claro no se leería. El extremo
@@ -421,7 +418,7 @@ function makeBadgeImage(color) {
   return ctx.getImageData(0, 0, BADGE_SIZE, BADGE_SIZE);
 }
 
-map.on('load', () => {
+map.on('load', async () => {
   map.addSource(SOURCE_ID, {
     type: 'geojson',
     data: { type: 'FeatureCollection', features: [] }
@@ -448,6 +445,7 @@ map.on('load', () => {
     id: LAYER_ID,
     type: 'symbol',
     source: SOURCE_ID,
+    minzoom: LABEL_MIN_ZOOM, // por debajo se muestran los puntos de DOTS_LAYER_ID en su lugar
     layout: {
       'icon-image': ['get', 'badge'], // color asignado en applyLabels() por cuartiles
       'icon-text-fit': 'both',
@@ -477,6 +475,30 @@ map.on('load', () => {
     },
     paint: {
       'text-color': '#ffffff'
+    }
+  });
+
+  // Capa de puntos para el zoom alejado: solo ubican las estaciones, sin rótulo ni precio. El color
+  // reutiliza la clase de cuartil ya calculada en applyLabels() (propiedad 'badge'), traduciéndola
+  // aquí al color correspondiente; así el punto conserva la lectura barato→caro sin texto encima.
+  map.addLayer({
+    id: DOTS_LAYER_ID,
+    type: 'circle',
+    source: SOURCE_ID,
+    maxzoom: LABEL_MIN_ZOOM, // a partir de este zoom toman el relevo los recuadros de LAYER_ID
+    paint: {
+      // El radio crece un poco al acercarse para que los puntos no queden diminutos en zoom país
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 2.5, 8, 4.5],
+      'circle-color': [
+        'match', ['get', 'badge'],
+        BADGE_IDS[0], PRICE_COLORS[0],
+        BADGE_IDS[1], PRICE_COLORS[1],
+        BADGE_IDS[2], PRICE_COLORS[2],
+        BADGE_IDS[3], PRICE_COLORS[3],
+        NO_PRICE_COLOR // badge-sin-precio o cualquier valor sin clasificar
+      ],
+      'circle-stroke-width': 1,
+      'circle-stroke-color': '#ffffff' // borde blanco para separar el punto del mapa base
     }
   });
 
@@ -516,20 +538,27 @@ map.on('load', () => {
       .addTo(map);
   });
 
-  updateMarkers();
+  // Arranque: si el usuario YA concedió el permiso de localización (sin volver a preguntar), se
+  // centra el mapa en su posición y se marca, y solo entonces se piden las gasolineras de esa zona
+  // —el 'moveend' del vuelo dispara updateMarkers—, evitando la carga de todo el país en zoom 6.
+  // Si no hay permiso concedido (o la API no está), se mantiene la vista general de España.
+  let autoLocating = false;
+  if (navigator.permissions?.query) {
+    try {
+      const status = await navigator.permissions.query({ name: 'geolocation' });
+      if (status.state === 'granted') autoLocating = geolocate.trigger();
+    } catch { /* Permissions API no disponible para geolocation: se ignora y se sigue con España */ }
+  }
+  // Si la geolocalización falla tras concederse (GPS caído, etc.), no dejamos el mapa vacío
+  geolocate.on('error', () => { if (autoLocating) { autoLocating = false; updateMarkers(); } });
+
+  if (!autoLocating) updateMarkers();
 });
 
 // 5. Cargar únicamente las gasolineras visibles con FlatGeobuf, vía HTTP Range Request
 async function updateMarkers() {
-  // Si el zoom está muy alejado (< 9), no cargar para no saturar la vista
-  if (map.getZoom() < 9) {
-    currentFeatures = [];
-    applyLabels(); // vacía la capa y, de paso, oculta la leyenda
-    zoomNotice.style.opacity = '1';
-    return;
-  }
-  zoomNotice.style.opacity = '0';
-
+  // Se carga a cualquier zoom: en vista alejada las estaciones se pintan como puntos (DOTS_LAYER_ID)
+  // y al acercarse pasan a recuadros con precio (LAYER_ID).
   const bounds = map.getBounds();
   const bbox = {
     minX: bounds.getWest(),
@@ -538,9 +567,13 @@ async function updateMarkers() {
     maxY: bounds.getNorth()
   };
 
+  // En zoom alejado (solo puntos) basta el fichero ligero; al acercarse, con recuadros y popups,
+  // se necesita el completo. El corte coincide con el de las capas (LABEL_MIN_ZOOM).
+  const src = map.getZoom() < LABEL_MIN_ZOOM ? FGB_LITE : FGB_FULL;
+
   const features = [];
   try {
-    const iter = flatgeobuf.deserialize('./public/gasolineras.fgb', bbox);
+    const iter = flatgeobuf.deserialize(src, bbox);
     for await (const feature of iter) {
       features.push(feature);
     }

@@ -86,6 +86,12 @@ jobs:
               # Exportar a FlatGeobuf (crea un archivo binario indexado espacialmente)
               gdf.to_file("public/gasolineras.fgb", driver="FlatGeobuf")
 
+              # Versión ligera para el zoom alejado (solo puntos de color): geometría + los 4 precios,
+              # sin los campos de texto pesados. Pesa ~55% menos y evita bajar todo el país completo
+              # cuando en pantalla solo se ven puntos. La web elige un fichero u otro según el zoom.
+              gdf[["geometry", "g95", "g98", "ga", "gapp"]].to_file(
+                  "public/gasolineras-lite.fgb", driver="FlatGeobuf")
+
               # Guardar metadatos adicionales (como la fecha de actualización) en un json ligero
               with open("public/meta.json", "w", encoding="utf-8") as f_meta:
                   json.dump({"fecha": data.get("Fecha"), "total": len(features)}, f_meta)
@@ -97,6 +103,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/gasolineras.fgb public/meta.json
+          git add public/gasolineras.fgb public/gasolineras-lite.fgb public/meta.json
           git commit -m "update: archivo FlatGeobuf actualizado [skip ci]" || exit 0
           git push
