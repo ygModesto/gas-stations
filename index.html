@@ -99,6 +99,20 @@
   .popup-sub { font-size: 0.8rem; color: #64748b; margin-bottom: 6px; }
   .popup-price { font-size: 0.9rem; line-height: 1.4; }
   .price-tag { font-weight: bold; color: #16a34a; }
+
+  .popup-nav {
+    display: block;
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: #16a34a;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+  }
+  .popup-nav:hover { background: #15803d; }
 </style>
 </head>
 <body>
@@ -224,14 +238,28 @@ fuelPanel.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
 // mayor que cualquier precio real, son las primeras en ocultarse cuando hay solapamiento.
 const NO_PRICE_SORT_KEY = 9999;
 
-// Construye el texto del marcador y su prioridad de colisión según los combustibles seleccionados
-// (respeta el orden del panel).
+// Longitud máxima del rótulo dentro del marcador. Los datos de MITECO no vienen normalizados:
+// la mediana son 6 caracteres (REPSOL, GALP, SHELL...), pero cerca del 10% pasa de 18 y hay rótulos
+// de hasta 86 que estirarían el recuadro por media pantalla. El nombre completo sigue en el popup.
+const MAX_TITLE_CHARS = 16;
+
+function buildTitle(properties) {
+  const rotulo = String(properties.rotulo || '').trim() || 'Gasolinera';
+  return rotulo.length > MAX_TITLE_CHARS
+    ? rotulo.slice(0, MAX_TITLE_CHARS - 1).trimEnd() + '…'
+    : rotulo;
+}
+
+// Construye el contenido del marcador y su prioridad de colisión según los combustibles
+// seleccionados (respeta el orden del panel).
 //
-// - label: nunca va vacío. El recuadro se dimensiona con el texto, y sin texto no habría marcador
-//   ni área clicable para las gasolineras que no sirven el combustible seleccionado.
+// - title: el rótulo de la gasolinera, recortado. Va en propiedad aparte, y no concatenado a los
+//   precios, para poder darle otro tamaño y color con la expresión 'format' de la capa.
+// - prices: nunca va vacío. El recuadro se dimensiona con el texto, y sin texto no habría
+//   marcador ni área clicable para las gasolineras sin el combustible seleccionado.
 // - sortKey: precio del primer combustible seleccionado que la gasolinera sirve, que es también la
-//   primera línea del marcador. MapLibre coloca antes las claves más bajas, así que la más barata
-//   gana el solapamiento y oculta a las vecinas más caras.
+//   primera línea de precio. MapLibre coloca antes las claves más bajas, así que la más
+//   barata gana el solapamiento y oculta a las vecinas más caras.
 function buildMarkerProps(properties) {
   const lines = [];
   let sortKey = NO_PRICE_SORT_KEY;
@@ -242,7 +270,11 @@ function buildMarkerProps(properties) {
       if (sortKey === NO_PRICE_SORT_KEY) sortKey = price;
     }
   }
-  return { label: lines.length ? lines.join('\n') : '—', sortKey };
+  return {
+    title: buildTitle(properties),
+    prices: lines.length ? lines.join('\n') : '—',
+    sortKey
+  };
 }
 
 // Recalcula etiquetas y prioridades sobre las features ya cargadas y actualiza la capa
@@ -302,7 +334,16 @@ map.on('load', () => {
       'icon-text-fit-padding': [5, 7, 5, 7], // arriba, derecha, abajo, izquierda
       'icon-padding': 4,                     // margen extra de colisión: evita recuadros pegados
       'symbol-sort-key': ['get', 'sortKey'], // menor precio = se coloca antes = tapa a las demás
-      'text-field': ['get', 'label'],
+      // El rótulo y los precios son dos secciones de una misma etiqueta: 'format' permite
+      // darle al título tamaño completo y blanco puro, y a los precios algo menos de
+      // cuerpo y un verde pálido, para que se lean como subtítulo.
+      'text-field': [
+        'format',
+        ['get', 'title'], { 'font-scale': 1 },
+        '\n', {},
+        ['get', 'prices'], { 'font-scale': 0.9, 'text-color': '#dcfce7' }
+      ],
+      'text-max-width': 20, // en ems: evita que un rótulo de 16 caracteres se parta en dos
       'text-font': ['Noto Sans Bold'],
       'text-size': 13,
       'text-line-height': 1.15,
@@ -321,6 +362,12 @@ map.on('load', () => {
     const p = e.features[0].properties;
     const coords = e.features[0].geometry.coordinates.slice();
 
+    // URL universal de Google Maps (Maps URLs API): en móvil abre la app nativa si está
+    // instalada y en escritorio la web, sin necesidad de detectar plataforma. Se navega a las
+    // coordenadas y no al nombre porque muchas gasolineras no figuran en el directorio de Google.
+    const [lng, lat] = coords;
+    const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat.toFixed(6)},${lng.toFixed(6)}&travelmode=driving`;
+
     const popupContent = `
       <div class="popup-title">${p.rotulo || 'Gasolinera'}</div>
       <div>${p.direccion || ''}</div>
@@ -332,6 +379,9 @@ map.on('load', () => {
         ${p.g95 ? `<div>Gasolina 95: <span class="price-tag">${Number(p.g95).toFixed(3)} €</span></div>` : ''}
         ${p.g98 ? `<div>Gasolina 98: <span class="price-tag">${Number(p.g98).toFixed(3)} €</span></div>` : ''}
       </div>
+      <a class="popup-nav" href="${directionsUrl}" target="_blank" rel="noopener noreferrer">
+        Cómo llegar
+      </a>
     `;
 
     if (popup) popup.remove();
