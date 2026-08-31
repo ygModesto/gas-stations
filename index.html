@@ -5,12 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Buscador de Gasolineras en España</title>
 
-<!-- MapLibre GL JS -->
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<!-- MapLibre GL JS. Desde la v6 la distribución es sólo ESM: ya no existe el bundle UMD ni el
+     global `maplibregl`, así que la librería se importa dentro del <script type="module"> de abajo.
+     Sólo el CSS sigue cargándose con <link>. -->
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.6.0/dist/maplibre-gl.css" />
 
-<!-- FlatGeobuf JS (Lector de archivos binarios espaciales) -->
-<script src="https://unpkg.com/flatgeobuf@3.24.0/dist/flatgeobuf-geojson.min.js"></script>
+<!-- FlatGeobuf JS (Lector de archivos binarios espaciales). Sigue publicando bundle UMD,
+     así que se carga como script clásico y expone el global `flatgeobuf`. -->
+<script src="https://unpkg.com/flatgeobuf@4.4.0/dist/flatgeobuf-geojson.min.js"></script>
 
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -112,7 +114,7 @@
     <div id="fuel-panel">
       <label><input type="checkbox" value="g95" checked /> Gasolina 95</label>
       <label><input type="checkbox" value="g98" /> Gasolina 98</label>
-      <label><input type="checkbox" value="ga" /> Diésel A</label>
+      <label><input type="checkbox" value="ga" checked /> Diésel A</label>
       <label><input type="checkbox" value="gapp" /> Diésel Premium</label>
     </div>
   </div>
@@ -123,7 +125,11 @@
   <div id="zoom-notice" class="zoom-notice">Acerca el mapa para ver las gasolineras</div>
 </div>
 
-<script>
+<script type="module">
+// MapLibre v6 es ESM puro. Se importa con namespace (`import * as`) porque ya no hay export
+// default, y con la versión fijada: un especificador sin versión o con @latest devuelve 404.
+import * as maplibregl from 'https://unpkg.com/maplibre-gl@6.6.0/dist/maplibre-gl.mjs';
+
 // 1. Inicializar mapa centrado en España con el estilo de OpenFreeMap (vector, gratis, sin API key)
 const map = new maplibregl.Map({
   container: 'map',
@@ -214,24 +220,36 @@ fuelPanel.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
   });
 });
 
-// Construye el texto del marcador según los combustibles seleccionados (respeta el orden del panel).
-// Nunca devuelve cadena vacía: el recuadro se dimensiona con el texto, y sin texto no habría
-// marcador ni área clicable para las gasolineras que no sirven el combustible seleccionado.
-function buildLabel(properties) {
+// Prioridad de las gasolineras que no sirven ninguno de los combustibles seleccionados: al ser
+// mayor que cualquier precio real, son las primeras en ocultarse cuando hay solapamiento.
+const NO_PRICE_SORT_KEY = 9999;
+
+// Construye el texto del marcador y su prioridad de colisión según los combustibles seleccionados
+// (respeta el orden del panel).
+//
+// - label: nunca va vacío. El recuadro se dimensiona con el texto, y sin texto no habría marcador
+//   ni área clicable para las gasolineras que no sirven el combustible seleccionado.
+// - sortKey: precio del primer combustible seleccionado que la gasolinera sirve, que es también la
+//   primera línea del marcador. MapLibre coloca antes las claves más bajas, así que la más barata
+//   gana el solapamiento y oculta a las vecinas más caras.
+function buildMarkerProps(properties) {
   const lines = [];
+  let sortKey = NO_PRICE_SORT_KEY;
   for (const key of ['g95', 'g98', 'ga', 'gapp']) {
     if (selectedFuels.includes(key) && properties[key]) {
-      lines.push(`${FUEL_SHORT_LABELS[key]}: ${Number(properties[key]).toFixed(3)}€`);
+      const price = Number(properties[key]);
+      lines.push(`${FUEL_SHORT_LABELS[key]}: ${price.toFixed(3)}€`);
+      if (sortKey === NO_PRICE_SORT_KEY) sortKey = price;
     }
   }
-  return lines.length ? lines.join('\n') : '—';
+  return { label: lines.length ? lines.join('\n') : '—', sortKey };
 }
 
-// Recalcula las etiquetas de precio sobre las features ya cargadas y actualiza la capa
+// Recalcula etiquetas y prioridades sobre las features ya cargadas y actualiza la capa
 function applyLabels() {
   const labeled = currentFeatures.map(f => ({
     ...f,
-    properties: { ...f.properties, label: buildLabel(f.properties) }
+    properties: { ...f.properties, ...buildMarkerProps(f.properties) }
   }));
   map.getSource(SOURCE_ID)?.setData({ type: 'FeatureCollection', features: labeled });
 }
@@ -269,7 +287,11 @@ map.on('load', () => {
   });
 
   // Capa única: el recuadro se ajusta al texto del precio con 'icon-text-fit', y como el texto
-  // nunca va vacío (ver buildLabel) el símbolo siempre existe y es clicable.
+  // nunca va vacío (ver buildMarkerProps) el símbolo siempre existe y es clicable.
+  //
+  // No se declara ningún '*-allow-overlap' ni '*-ignore-placement': con los valores por defecto
+  // (false) MapLibre detecta colisiones y oculta los marcadores que se pisan. El orden lo marca
+  // 'symbol-sort-key' con el precio, así que al acercar el zoom van apareciendo las más caras.
   map.addLayer({
     id: LAYER_ID,
     type: 'symbol',
@@ -278,15 +300,13 @@ map.on('load', () => {
       'icon-image': BADGE_IMAGE_ID,
       'icon-text-fit': 'both',
       'icon-text-fit-padding': [5, 7, 5, 7], // arriba, derecha, abajo, izquierda
-      'icon-allow-overlap': true,
-      'icon-ignore-placement': true,
+      'icon-padding': 4,                     // margen extra de colisión: evita recuadros pegados
+      'symbol-sort-key': ['get', 'sortKey'], // menor precio = se coloca antes = tapa a las demás
       'text-field': ['get', 'label'],
       'text-font': ['Noto Sans Bold'],
       'text-size': 13,
       'text-line-height': 1.15,
       'text-anchor': 'center',
-      'text-allow-overlap': true,
-      'text-ignore-placement': true,
       'text-justify': 'center'
     },
     paint: {
