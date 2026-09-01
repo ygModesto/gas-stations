@@ -140,12 +140,12 @@
     <button id="search-btn">Buscar</button>
   </div>
   <div id="fuel-dropdown">
-    <button id="fuel-toggle-btn">Combustibles ▾</button>
+    <button id="fuel-toggle-btn"></button>
     <div id="fuel-panel">
-      <label><input type="checkbox" value="g95" checked /> Gasolina 95</label>
-      <label><input type="checkbox" value="g98" /> Gasolina 98</label>
-      <label><input type="checkbox" value="ga" checked /> Diésel A</label>
-      <label><input type="checkbox" value="gapp" /> Diésel Premium</label>
+      <label><input type="radio" name="fuel" value="g95" checked /> Gasolina 95</label>
+      <label><input type="radio" name="fuel" value="g98" /> Gasolina 98</label>
+      <label><input type="radio" name="fuel" value="ga" /> Diésel A</label>
+      <label><input type="radio" name="fuel" value="gapp" /> Diésel Premium</label>
     </div>
   </div>
   <div class="info-bar" id="last-update">Cargando datos...</div>
@@ -260,8 +260,7 @@ let popup = null;
 
 // Combustibles disponibles: clave del dato -> etiqueta corta a mostrar en el marcador
 const FUEL_SHORT_LABELS = { g95: '95', g98: '98', ga: 'GO-A', gapp: 'GO-P' };
-const FUEL_ORDER = ['g95', 'g98', 'ga', 'gapp']; // manda en etiqueta, color y orden de colisión
-let selectedFuels = ['g95', 'ga']; // por defecto, Gasolina 95
+let selectedFuel = 'g95'; // debe coincidir con el radio marcado en el HTML
 let currentFeatures = []; // últimas features crudas cargadas desde el .fgb (sin etiqueta calculada)
 
 // Panel desplegable de combustibles
@@ -276,15 +275,25 @@ document.addEventListener('click', (e) => {
     fuelPanel.classList.remove('open');
   }
 });
-fuelPanel.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
-  checkbox.addEventListener('change', () => {
-    selectedFuels = Array.from(fuelPanel.querySelectorAll('input:checked')).map(cb => cb.value);
+// Con selección única el botón ya no rotula un genérico "Combustibles": muestra el activo,
+// que es información útil sin desplegar el panel.
+function syncFuelButton(radio) {
+  fuelToggleBtn.textContent = radio.parentElement.textContent.trim() + ' ▾';
+}
+
+fuelPanel.querySelectorAll('input[name="fuel"]').forEach((radio) => {
+  radio.addEventListener('change', () => {
+    selectedFuel = radio.value;
+    syncFuelButton(radio);
+    fuelPanel.classList.remove('open'); // elegir uno ya cierra: no queda nada más que marcar
     applyLabels(); // recalcula las etiquetas sin volver a leer el .fgb
   });
 });
+syncFuelButton(fuelPanel.querySelector('input[name="fuel"]:checked'));
 
-// Prioridad de las gasolineras que no sirven ninguno de los combustibles seleccionados: al ser
-// mayor que cualquier precio real, son las primeras en ocultarse cuando hay solapamiento.
+// Precio centinela de las gasolineras que no sirven el combustible seleccionado. Al ser mayor que
+// cualquier precio real, son las últimas en la prioridad de colisión: si compiten por el sitio con
+// una que sí tiene precio, ceden y se quedan en punto.
 const NO_PRICE_REF = 9999;
 
 // Longitud máxima del rótulo dentro del marcador. Los datos de MITECO no vienen normalizados:
@@ -304,28 +313,17 @@ function buildTitle(properties) {
 //
 // - title: el rótulo de la gasolinera, recortado. Va en propiedad aparte, y no concatenado a los
 //   precios, para poder darle otro tamaño y color con la expresión 'format' de la capa.
-// - prices: nunca va vacío. El recuadro se dimensiona con el texto, y sin texto no habría
+// - price: nunca va vacío. El recuadro se dimensiona con el texto, y sin texto no habría
 //   marcador ni área clicable para las gasolineras sin el combustible seleccionado.
-// - refPrice: precio del primer combustible seleccionado que la gasolinera sirve, que es también
-//   la primera línea de precio. Es la referencia tanto del color como del orden de dibujo.
-// - drawKey: refPrice en negativo, ver la nota en la capa.
+// - refPrice: el precio del combustible seleccionado. Es la referencia tanto del color como del
+//   orden de dibujo.
 function buildMarkerProps(properties) {
-  const lines = [];
-  let refPrice = NO_PRICE_REF;
-  for (const key of FUEL_ORDER) {
-    if (selectedFuels.includes(key) && properties[key]) {
-      const price = Number(properties[key]);
-      lines.push(`${FUEL_SHORT_LABELS[key]}: ${price.toFixed(3)}€`);
-      if (refPrice === NO_PRICE_REF) refPrice = price;
-    }
-  }
+  const raw = properties[selectedFuel];
+  const refPrice = raw ? Number(raw) : NO_PRICE_REF;
   return {
     title: buildTitle(properties),
-    prices: lines.length ? lines.join('\n') : '—',
-    refPrice,
-    // Clave de dibujo invertida. El negativo manda además al fondo a las gasolineras sin precio,
-    // porque su refPrice centinela (9999) pasa a ser el valor más bajo de todos.
-    drawKey: -refPrice
+    price: raw ? `${FUEL_SHORT_LABELS[selectedFuel]}: ${refPrice.toFixed(3)}€` : '—',
+    refPrice
   };
 }
 
@@ -352,12 +350,6 @@ function badgeFor(refPrice, thresholds) {
   let i = 0;
   while (i < thresholds.length && refPrice > thresholds[i]) i++;
   return BADGE_IDS[i];
-}
-
-// Combustible que manda en el color: el primero seleccionado en el orden del panel
-function referenceFuelLabel() {
-  const key = FUEL_ORDER.find(k => selectedFuels.includes(k));
-  return key ? FUEL_SHORT_LABELS[key] : '';
 }
 
 // Recalcula etiquetas, prioridades y color sobre las features ya cargadas y actualiza la capa
@@ -389,7 +381,7 @@ function updateLegend(thresholds, prices) {
   }
   const bounds = [prices[0], ...thresholds, prices[prices.length - 1]];
   const fmt = (v) => v.toFixed(3) + ' €';
-  legendTitleEl.textContent = 'Precio ' + referenceFuelLabel() + ' en la zona';
+  legendTitleEl.textContent = 'Precio ' + FUEL_SHORT_LABELS[selectedFuel] + ' en la zona';
   legendRowsEl.innerHTML = PRICE_COLORS.map((color, i) =>
     '<div class="legend-row">' +
     '<span class="legend-swatch" style="background:' + color + '"></span>' +
@@ -434,13 +426,14 @@ map.on('load', async () => {
   PRICE_COLORS.forEach((color, i) => map.addImage(BADGE_IDS[i], makeBadgeImage(color), badgeMeta));
   map.addImage(NO_PRICE_BADGE_ID, makeBadgeImage(NO_PRICE_COLOR), badgeMeta);
 
-  // Capa única: el recuadro se ajusta al texto del precio con 'icon-text-fit', y como el texto
-  // nunca va vacío (ver buildMarkerProps) el símbolo siempre existe y es clicable.
+  // Capa de recuadros: el fondo se ajusta al texto con 'icon-text-fit', y como el texto nunca va
+  // vacío (ver buildMarkerProps) el símbolo siempre existe.
   //
-  // Los '*-allow-overlap' van en true: ninguna gasolinera se oculta por pisarse con otra, se
-  // dibujan todas y el orden lo decide 'symbol-sort-key'. Los '*-ignore-placement' se dejan en su
-  // valor por defecto (false) a propósito: así los recuadros sí siguen apartando las etiquetas
-  // del mapa base (nombres de calle), que si no se leerían por debajo.
+  // Los cuatro '*-allow-overlap' y '*-ignore-placement' van en false: MapLibre detecta colisiones y
+  // descarta los recuadros que se pisan, quedándose con el de 'symbol-sort-key' más bajo, o sea el
+  // más barato. La que cede el sitio NO desaparece del mapa: sigue pintada como punto en
+  // DOTS_LAYER_ID, justo debajo. Estar en el índice de colisión además aparta las etiquetas del
+  // mapa base (nombres de calle), que si no se leerían por debajo del recuadro.
   map.addLayer({
     id: LAYER_ID,
     type: 'symbol',
@@ -451,12 +444,16 @@ map.on('load', async () => {
       'icon-text-fit': 'both',
       'icon-text-fit-padding': [5, 7, 5, 7], // arriba, derecha, abajo, izquierda
       'icon-padding': 4,                     // margen extra de colisión: evita recuadros pegados
-      // Con el solape permitido la clave se invierte respecto al modo colisión: MapLibre dibuja
-      // ENCIMA las claves más altas, y drawKey es el precio en negativo, de forma que la
-      // gasolinera más barata queda en primer plano y las caras van quedando detrás.
-      'symbol-sort-key': ['get', 'drawKey'],
-      'icon-allow-overlap': true,
-      'text-allow-overlap': true,
+      // Con colisión activa (los '*-allow-overlap' de abajo en false) MapLibre coloca antes las
+      // claves más BAJAS y esas son las que sobreviven al solape, así que la clave es el precio
+      // tal cual: gana la más barata. Las que pierden no desaparecen, quedan como punto en
+      // DOTS_LAYER_ID. Y las que no sirven el combustible (refPrice 9999) son las primeras en
+      // ceder el sitio.
+      'symbol-sort-key': ['get', 'refPrice'],
+      'icon-allow-overlap': false,
+      'text-allow-overlap': false,
+      'icon-ignore-placement': false,
+      'text-ignore-placement': false,
       // El rótulo y los precios son dos secciones de una misma etiqueta: 'format' permite
       // darle al título tamaño completo y blanco puro, y a los precios algo menos de
       // cuerpo y un verde pálido, para que se lean como subtítulo.
@@ -464,7 +461,7 @@ map.on('load', async () => {
         'format',
         ['get', 'title'], { 'font-scale': 1 },
         '\n', {},
-        ['get', 'prices'], { 'font-scale': 0.9, 'text-color': '#dcfce7' }
+        ['get', 'price'], { 'font-scale': 0.9, 'text-color': '#dcfce7' }
       ],
       'text-max-width': 20, // en ems: evita que un rótulo de 16 caracteres se parta en dos
       'text-font': ['Noto Sans Bold'],
@@ -478,17 +475,21 @@ map.on('load', async () => {
     }
   });
 
-  // Capa de puntos para el zoom alejado: solo ubican las estaciones, sin rótulo ni precio. El color
-  // reutiliza la clase de cuartil ya calculada en applyLabels() (propiedad 'badge'), traduciéndola
-  // aquí al color correspondiente; así el punto conserva la lectura barato→caro sin texto encima.
+  // Capa de puntos, visible en TODOS los zooms y por debajo de los recuadros (de ahí el beforeId
+  // al final del addLayer). Cumple dos funciones según el zoom:
+  //  - Alejado, donde LAYER_ID no se dibuja: son la única representación de las estaciones.
+  //  - Cercano: el punto de una gasolinera con recuadro visible queda tapado por él, así que los
+  //    que se ven son justo los de las que han perdido el solape. Ninguna desaparece del mapa.
+  // El color reutiliza la clase de cuartil ya calculada en applyLabels() (propiedad 'badge'), así
+  // que el punto conserva la lectura barato→caro sin texto encima.
   map.addLayer({
     id: DOTS_LAYER_ID,
     type: 'circle',
     source: SOURCE_ID,
-    maxzoom: LABEL_MIN_ZOOM, // a partir de este zoom toman el relevo los recuadros de LAYER_ID
     paint: {
-      // El radio crece un poco al acercarse para que los puntos no queden diminutos en zoom país
-      'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 2.5, 8, 4.5],
+      // Crece con el zoom: en vista de país no debe emborronar, y de cerca tiene que verse y
+      // poder tocarse con el dedo, porque ahí es donde representa a una gasolinera oculta
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 2.5, 8, 4.5, 14, 5.5],
       'circle-color': [
         'match', ['get', 'badge'],
         BADGE_IDS[0], PRICE_COLORS[0],
@@ -500,12 +501,22 @@ map.on('load', async () => {
       'circle-stroke-width': 1,
       'circle-stroke-color': '#ffffff' // borde blanco para separar el punto del mapa base
     }
+  }, LAYER_ID); // beforeId: los puntos se insertan DEBAJO de los recuadros
+
+  // Hover y clic sobre las DOS capas: un punto visible es una gasolinera que perdió el solape, y
+  // sería absurdo verla y no poder consultarla (un símbolo oculto por colisión no se dibuja, así
+  // que su recuadro tampoco recibe clics). Por debajo de LABEL_MIN_ZOOM no son interactivos: ahí
+  // se carga el .fgb ligero, sin rótulo, dirección ni horario, y el popup saldría medio vacío.
+  const INTERACTIVE_LAYERS = [LAYER_ID, DOTS_LAYER_ID];
+  const canPopup = () => map.getZoom() >= LABEL_MIN_ZOOM;
+
+  map.on('mouseenter', INTERACTIVE_LAYERS, () => {
+    if (canPopup()) map.getCanvas().style.cursor = 'pointer';
   });
+  map.on('mouseleave', INTERACTIVE_LAYERS, () => { map.getCanvas().style.cursor = ''; });
 
-  map.on('mouseenter', LAYER_ID, () => { map.getCanvas().style.cursor = 'pointer'; });
-  map.on('mouseleave', LAYER_ID, () => { map.getCanvas().style.cursor = ''; });
-
-  map.on('click', LAYER_ID, (e) => {
+  map.on('click', INTERACTIVE_LAYERS, (e) => {
+    if (!canPopup()) return;
     const p = e.features[0].properties;
     const coords = e.features[0].geometry.coordinates.slice();
 
