@@ -121,24 +121,61 @@
     }
   }
 
-  .popup-title { font-weight: bold; font-size: 1.05rem; color: #0f172a; margin-bottom: 4px; }
-  .popup-sub { font-size: 0.8rem; color: #64748b; margin-bottom: 6px; }
-  .popup-price { font-size: 0.9rem; line-height: 1.4; }
-  .price-tag { font-weight: bold; color: #16a34a; }
+  /* La ventana de la gasolinera hereda el lenguaje del panel: misma tarjeta, mismos grises y
+     ninguna de las dos cosas que la desentonaban -- el verde #16a34a de la paleta vieja, que ya
+     no existe en el resto de la app, y los cuatro precios en lista plana. */
+  .maplibregl-popup-content {
+    padding: 10px 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+  }
+  .popup-title { font-weight: bold; font-size: 0.95rem; color: #0f172a; line-height: 1.3; }
+  .popup-addr { font-size: 0.75rem; color: #475569; margin-top: 2px; }
+  .popup-sub { font-size: 0.72rem; color: #94a3b8; }
+
+  .popup-prices {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 0.78rem;
+  }
+  /* Nombre a la izquierda y precio a la derecha: alineados en columna se comparan de un vistazo,
+     que es justo lo que no permitia el "Diesel: 1.789 EUR" corrido de antes. */
+  .popup-price-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 2px 4px;
+    border-left: 3px solid transparent;
+    color: #334155;
+  }
+  .popup-price-row span:last-child { font-variant-numeric: tabular-nums; }
+  /* El combustible activo se marca con el color de su tramo de precio: el mismo del marcador y
+     el de la leyenda, asi que la ventana dice a que clase pertenece sin explicarlo. */
+  .popup-price-row.is-selected {
+    font-weight: bold;
+    color: #0f172a;
+    background: #f1f5f9;
+    border-left-color: var(--clase);
+    border-radius: 0 4px 4px 0;
+  }
+  .popup-price-row .sin-dato { color: #cbd5e1; font-weight: normal; }
 
   .popup-nav {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     margin-top: 10px;
-    padding: 8px 10px;
+    padding: 7px 10px;
     border-radius: 6px;
-    background: #16a34a;
+    background: #334155;
     color: #ffffff;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     font-weight: bold;
-    text-align: center;
     text-decoration: none;
   }
-  .popup-nav:hover { background: #15803d; }
+  .popup-nav:hover { background: #475569; }
 
 </style>
 </head>
@@ -249,13 +286,20 @@ const LABEL_MIN_ZOOM = 9;
 // menos) para el zoom alejado, donde solo se pintan puntos de color y esos campos no se usan.
 const FGB_FULL = './public/gasolineras.fgb';
 const FGB_LITE = './public/gasolineras-lite.fgb';
-// Paleta de las 4 clases de precio, de más barata a más cara, más un gris para las que no
-// sirven el combustible seleccionado. Todos los tonos son oscuros a propósito: el texto del
-// marcador es blanco y en negrita, y sobre un amarillo o un verde claro no se leería. El extremo
-// barato es un teal y no un verde puro para que la rampa siga distinguiéndose con daltonismo
-// deuterano, el más común.
-const PRICE_COLORS = ['#0f766e', '#4d7c0f', '#b45309', '#b91c1c'];
-const NO_PRICE_COLOR = '#64748b';
+// Paleta de las 4 clases de precio, de más barata a más cara, más un gris para las que no sirven
+// el combustible seleccionado.
+//
+// Dos restricciones la determinan:
+//  - Todos los tonos son oscuros: el texto del marcador es blanco y pequeño, y necesita 4,5:1.
+//    El peor de los cuatro queda en 5,2:1.
+//  - La rampa va de frío a cálido SIN pasar por el verde, que es el eje que se pierde con el
+//    daltonismo más común. Simulando deuteranopia, el peor par de tramos queda a dE 34; la paleta
+//    anterior (teal/oliva/ámbar/rojo) tenía el oliva y el ámbar a dE 3,4, o sea indistinguibles.
+const PRICE_COLORS = ['#1e40af', '#0e7490', '#c2410c', '#9f1239'];
+// Más oscuro que el #64748b anterior: así se separa de los tramos en deuteranopia (dE 12 -> 15).
+// No se baja más porque con Gasolina 98 o Diésel Premium cerca de la mitad del parque es gris, y
+// un gris muy oscuro dominaría el mapa en vez de leerse como "sin dato".
+const NO_PRICE_COLOR = '#475569';
 const BADGE_IDS = PRICE_COLORS.map((_, i) => 'badge-' + i);
 const NO_PRICE_BADGE_ID = 'badge-sin-precio';
 let popup = null;
@@ -492,6 +536,23 @@ function computeThresholds(prices) {
   return thresholds[0] < thresholds[2] ? thresholds : null;
 }
 
+// Color del tramo al que pertenece una gasolinera, a partir de su badge. Lo usa el popup para
+// resaltar el combustible activo con el mismo color que luce el marcador en el mapa.
+function colorForBadge(badge) {
+  const i = BADGE_IDS.indexOf(badge);
+  return i === -1 ? NO_PRICE_COLOR : PRICE_COLORS[i];
+}
+
+// Los rótulos y direcciones de MITECO son texto libre y el popup se inyecta con setHTML(), así
+// que un '<' o un '&' en el dato rompería el marcado. Sin regex, para no depender de escapes.
+function esc(valor) {
+  return String(valor ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+}
+
 // Traduce un precio a la imagen de badge que le corresponde
 function badgeFor(refPrice, thresholds) {
   if (refPrice === NO_PRICE_REF || !thresholds) return NO_PRICE_BADGE_ID;
@@ -627,12 +688,13 @@ map.on('load', async () => {
       'text-allow-overlap': false,
       'icon-ignore-placement': false,
       'text-ignore-placement': false,
-      // Rótulo y precio son dos secciones de una misma etiqueta. La jerarquía va al revés que
-      // antes: el precio es el dato que se busca de un vistazo, así que se lleva el cuerpo entero
-      // y el blanco puro, y el rótulo queda de apoyo, más pequeño y en verde pálido.
+      // Rótulo y precio son dos secciones de una misma etiqueta. El precio es el dato que se busca
+      // de un vistazo, así que se lleva el cuerpo entero y el blanco puro; el rótulo queda de
+      // apoyo, más pequeño y en un gris claro neutro. Ese #f1f5f9 es el neutro más oscuro que
+      // aún pasa el 4,5:1 sobre los cuatro fondos (4,73:1 en el naranja, el peor).
       'text-field': [
         'format',
-        ['get', 'title'], { 'font-scale': 0.78, 'text-color': '#dcfce7' },
+        ['get', 'title'], { 'font-scale': 0.78, 'text-color': '#f1f5f9' },
         '\n', {},
         ['get', 'price'], { 'font-scale': 1 }
       ],
@@ -699,18 +761,29 @@ map.on('load', async () => {
     const [lng, lat] = coords;
     const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat.toFixed(6)},${lng.toFixed(6)}&travelmode=driving`;
 
+    // Filas generadas desde FUEL_LABELS, no escritas a mano: antes el popup repetía los cuatro
+    // nombres por su cuenta, que es exactamente lo que dejó "Diésel A" descolgado del resto.
+    // El combustible activo va resaltado con el color de su tramo, el mismo del marcador.
+    const filasPrecio = Object.entries(FUEL_LABELS).map(([clave, nombre]) => {
+      const activo = clave === selectedFuel;
+      const valor = p[clave]
+        ? Number(p[clave]).toFixed(3) + ' €'
+        : '<span class="sin-dato">—</span>';
+      return '<div class="popup-price-row' + (activo ? ' is-selected' : '') + '"' +
+        (activo ? ' style="--clase:' + colorForBadge(p.badge) + '"' : '') + '>' +
+        '<span>' + nombre + '</span><span>' + valor + '</span></div>';
+    }).join('');
+
     const popupContent = `
-      <div class="popup-title">${p.rotulo || 'Gasolinera'}</div>
-      <div>${p.direccion || ''}</div>
-      <div class="popup-sub">${p.municipio || ''} (${p.provincia || ''}) | ${p.horario || ''}</div>
-      <hr style="margin: 6px 0; border: none; border-top: 1px solid #e2e8f0;">
-      <div class="popup-price">
-        ${p.ga ? `<div>Diésel: <span class="price-tag">${Number(p.ga).toFixed(3)} €</span></div>` : ''}
-        ${p.gapp ? `<div>Diésel Premium: <span class="price-tag">${Number(p.gapp).toFixed(3)} €</span></div>` : ''}
-        ${p.g95 ? `<div>Gasolina 95: <span class="price-tag">${Number(p.g95).toFixed(3)} €</span></div>` : ''}
-        ${p.g98 ? `<div>Gasolina 98: <span class="price-tag">${Number(p.g98).toFixed(3)} €</span></div>` : ''}
-      </div>
+      <div class="popup-title">${esc(p.rotulo) || 'Gasolinera'}</div>
+      <div class="popup-addr">${esc(p.direccion)}</div>
+      <div class="popup-sub">${esc(p.municipio)}${p.provincia ? ' (' + esc(p.provincia) + ')' : ''}</div>
+      <div class="popup-sub">${esc(p.horario)}</div>
+      <div class="popup-prices">${filasPrecio}</div>
       <a class="popup-nav" href="${directionsUrl}" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true">
+          <path d="M21 3 3 10.5l7 3 3 7L21 3z" />
+        </svg>
         Cómo llegar
       </a>
     `;
