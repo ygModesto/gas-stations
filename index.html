@@ -283,9 +283,39 @@ const BADGE_IDS = PRICE_COLORS.map((_, i) => 'badge-' + i);
 const NO_PRICE_BADGE_ID = 'badge-sin-precio';
 let popup = null;
 
+// Preferencias del usuario. localStorage y no otra cosa porque el sitio es estático (GitHub Pages,
+// sin backend donde guardar nada por usuario) y basta con que sobrevivan a recargas en el mismo
+// dispositivo. Nada de esto es crítico: si falla, se arranca con los valores por defecto.
+const PREFS_KEY = 'gasolineras:prefs';
+
+function loadPrefs() {
+  try {
+    return JSON.parse(localStorage.getItem(PREFS_KEY)) || {};
+  } catch {
+    // localStorage no solo puede traer JSON corrupto: el propio acceso lanza en navegación
+    // privada o con los datos de sitio bloqueados, así que hay que envolver hasta la lectura.
+    return {};
+  }
+}
+
+function savePrefs() {
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify({
+      fuel: selectedFuel,
+      // Se guardan las marcas EXCLUIDAS, no las seleccionadas. Así "todas" es una lista vacía, y
+      // si en un despliegue futuro se añade una marca a BRANDS, a quien tenía todas marcadas le
+      // aparece marcada también la nueva, en vez de oculta por no estar en la lista guardada.
+      excluded: ALL_BRANDS.filter(b => !selectedBrands.has(b))
+    }));
+  } catch { /* sin persistencia disponible: la sesión funciona igual, solo no se recuerda */ }
+}
+
+const prefs = loadPrefs();
+
 // Combustibles disponibles: clave del dato -> etiqueta corta a mostrar en el marcador
 const FUEL_SHORT_LABELS = { g95: '95', g98: '98', ga: 'GO-A', gapp: 'GO-P' };
-let selectedFuel = 'g95'; // debe coincidir con el radio marcado en el HTML
+// Se valida contra la lista actual: un valor guardado por una versión anterior puede ya no existir
+let selectedFuel = FUEL_SHORT_LABELS[prefs.fuel] ? prefs.fuel : 'g95';
 let currentFeatures = []; // últimas features crudas cargadas desde el .fgb (sin etiqueta calculada)
 
 // Marcas que puede traer la columna 'brand' del .fgb, en el mismo orden que usa el workflow al
@@ -317,7 +347,9 @@ function brandLabel(brand) {
   return brand.length <= 2 ? brand : brand.charAt(0) + brand.slice(1).toLowerCase();
 }
 
-let selectedBrands = new Set(ALL_BRANDS); // por defecto se muestran todas
+// Las marcas excluidas que ya no existen en ALL_BRANDS se ignoran solas al construir el Set
+const excludedBrands = new Set(Array.isArray(prefs.excluded) ? prefs.excluded : []);
+let selectedBrands = new Set(ALL_BRANDS.filter(b => !excludedBrands.has(b))); // por defecto, todas
 
 // Panel desplegable de combustibles
 const fuelToggleBtn = document.getElementById('fuel-toggle-btn');
@@ -341,11 +373,15 @@ fuelPanel.querySelectorAll('input[name="fuel"]').forEach((radio) => {
   radio.addEventListener('change', () => {
     selectedFuel = radio.value;
     syncFuelButton(radio);
+    savePrefs();
     fuelPanel.classList.remove('open'); // elegir uno ya cierra: no queda nada más que marcar
     applyLabels(); // recalcula las etiquetas sin volver a leer el .fgb
   });
 });
-syncFuelButton(fuelPanel.querySelector('input[name="fuel"]:checked'));
+// El HTML marca siempre g95; si había preferencia guardada, se traslada al DOM
+const initialFuelRadio = fuelPanel.querySelector('input[name="fuel"][value="' + selectedFuel + '"]');
+initialFuelRadio.checked = true;
+syncFuelButton(initialFuelRadio);
 
 // Panel desplegable de marcas
 const brandToggleBtn = document.getElementById('brand-toggle-btn');
@@ -354,7 +390,8 @@ const brandListEl = document.getElementById('brand-list');
 
 // Las casillas se generan desde ALL_BRANDS para no repetir el listado en el HTML
 brandListEl.innerHTML = ALL_BRANDS.map(b =>
-  '<label><input type="checkbox" value="' + b + '" checked /> ' + brandLabel(b) + '</label>'
+  '<label><input type="checkbox" value="' + b + '"' + (selectedBrands.has(b) ? ' checked' : '') +
+  ' /> ' + brandLabel(b) + '</label>'
 ).join('');
 
 brandToggleBtn.addEventListener('click', (e) => {
@@ -384,6 +421,7 @@ function onBrandsChanged() {
     Array.from(brandPanel.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value)
   );
   syncBrandButton();
+  savePrefs();
   updateMarkers();
 }
 
