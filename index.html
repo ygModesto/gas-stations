@@ -24,29 +24,6 @@
   #map { flex: 1; width: 100%; position: relative; }
   .info-bar { font-size: 0.85rem; color: #94a3b8; }
 
-  /* Buscador de dirección (sustituye a Leaflet Control.Geocoder) */
-  #search-box {
-    display: flex;
-    gap: 4px;
-  }
-  #search-input {
-    padding: 6px 10px;
-    border-radius: 6px;
-    border: none;
-    font-size: 0.85rem;
-    width: 220px;
-  }
-  #search-btn {
-    padding: 6px 10px;
-    border-radius: 6px;
-    border: none;
-    background: #334155;
-    color: white;
-    cursor: pointer;
-    font-size: 0.85rem;
-  }
-  #search-btn:hover { background: #475569; }
-
   /* Panel de control sobre el mapa. Sustituye a los desplegables que estaban en la cabecera:
      colapsado hace de leyenda, expandido contiene todos los ajustes. */
   .panel {
@@ -131,7 +108,8 @@
      lo que hace que el panel siga funcionando como leyenda. */
   #legend-block { padding: 0 10px 8px; }
   .legend-title { font-weight: bold; color: #334155; margin-bottom: 2px; }
-  .legend-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .legend-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; cursor: pointer; }
+  .legend-row input { flex: none; margin: 0; }
   .legend-swatch { width: 12px; height: 12px; border-radius: 2px; flex: none; }
 
   @media (max-width: 480px) {
@@ -168,10 +146,6 @@
 
 <header>
   <h1>Gasolineras España</h1>
-  <div id="search-box">
-    <input id="search-input" type="text" placeholder="Buscar municipio o calle..." />
-    <button id="search-btn">Buscar</button>
-  </div>
   <div class="info-bar" id="last-update">Cargando datos...</div>
 </header>
 
@@ -252,33 +226,6 @@ const legendBlockEl = document.getElementById('legend-block');
 const legendTitleEl = document.getElementById('legend-title');
 const legendRowsEl = document.getElementById('legend-rows');
 
-// 2. Buscador de direcciones/municipios usando Nominatim (mismo proveedor que usaba Leaflet Control.Geocoder)
-async function geocodeAndFly(query) {
-  if (!query) return;
-  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
-  try {
-    const res = await fetch(url, { headers: { 'Accept-Language': 'es' } });
-    const results = await res.json();
-    if (!results.length) return;
-    const { boundingbox } = results[0];
-    // boundingbox: [minLat, maxLat, minLon, maxLon]
-    const bounds = [
-      [parseFloat(boundingbox[2]), parseFloat(boundingbox[0])],
-      [parseFloat(boundingbox[3]), parseFloat(boundingbox[1])]
-    ];
-    map.fitBounds(bounds, { padding: 40 });
-  } catch (err) {
-    console.error('Error en geocodificación:', err);
-  }
-}
-
-document.getElementById('search-btn').addEventListener('click', () => {
-  geocodeAndFly(document.getElementById('search-input').value.trim());
-});
-document.getElementById('search-input').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') geocodeAndFly(e.target.value.trim());
-});
-
 // 3. Cargar la fecha desde meta.json ligero
 fetch('./public/meta.json')
   .then(res => res.json())
@@ -336,6 +283,7 @@ function savePrefs() {
       // si en un despliegue futuro se añade una marca a BRANDS, a quien tenía todas marcadas le
       // aparece marcada también la nueva, en vez de oculta por no estar en la lista guardada.
       excluded: ALL_BRANDS.filter(b => !selectedBrands.has(b)),
+      excludedRanges: BADGE_IDS.filter(id => !selectedRanges.has(id)),
       showRanges
     }));
   } catch { /* sin persistencia disponible: la sesión funciona igual, solo no se recuerda */ }
@@ -389,6 +337,12 @@ let selectedBrands = new Set(ALL_BRANDS.filter(b => !excludedBrands.has(b))); //
 // deliberado: si la preferencia no existe todavía (undefined), el valor por defecto es mostrarlos.
 let showRanges = prefs.showRanges !== false;
 
+// Filtro por los 4 tramos de precio. Las claves son las mismas de los badges, que ya identifican
+// la clase de cada gasolinera. Como con las marcas, se persiste lo EXCLUIDO para que "todos" sea
+// la lista vacía.
+const excludedRanges = new Set(Array.isArray(prefs.excludedRanges) ? prefs.excludedRanges : []);
+let selectedRanges = new Set(BADGE_IDS.filter(id => !excludedRanges.has(id)));
+
 // Panel de control sobre el mapa. Colapsado hace de leyenda (los rangos de precio viven fuera de
 // #panel-body, así que siguen viendose); expandido muestra combustible, marcas y el interruptor
 // de los rangos. Sustituye a los dos desplegables que estaban en la cabecera.
@@ -414,7 +368,11 @@ function syncSummary() {
   else if (n === 0) marcas = 'ninguna marca';
   else if (n === 1) marcas = brandLabel([...selectedBrands][0]);
   else marcas = n + ' marcas';
-  panelSummary.textContent = combustible + ' · ' + marcas;
+  // Un filtro de rango activo con la leyenda apagada sería invisible: se anuncia aquí
+  const rangos = selectedRanges.size < BADGE_IDS.length
+    ? ' · ' + selectedRanges.size + '/' + BADGE_IDS.length + ' rangos'
+    : '';
+  panelSummary.textContent = combustible + ' · ' + marcas + rangos;
 }
 
 // --- Combustible ---
@@ -461,6 +419,16 @@ panelBody.querySelectorAll('#brand-actions button').forEach((btn) => {
 });
 
 // --- Rangos de precio ---
+// Las filas se regeneran en cada applyLabels(), así que el listener va en el contenedor
+legendRowsEl.addEventListener('change', () => {
+  selectedRanges = new Set(
+    Array.from(legendRowsEl.querySelectorAll('input:checked')).map(cb => cb.value)
+  );
+  syncSummary();
+  savePrefs();
+  applyLabels();
+});
+
 showRangesInput.checked = showRanges;
 showRangesInput.addEventListener('change', () => {
   showRanges = showRangesInput.checked;
@@ -552,7 +520,23 @@ function applyLabels() {
       badge: badgeFor(markerProps[i].refPrice, thresholds)
     }
   }));
-  map.getSource(SOURCE_ID)?.setData({ type: 'FeatureCollection', features: labeled });
+  // El filtro por rango va DESPUÉS de calcular los cuartiles, nunca antes: si la escala se
+  // recalculara sobre el subconjunto ya filtrado, quedarse con el tramo barato volvería a partirlo
+  // en cuatro y los rangos bailarían en cada clic.
+  //
+  // Con los 4 tramos marcados no se filtra nada, así que siguen viéndose las que no sirven el
+  // combustible (las grises). En cuanto se desmarca alguno, esas caen también: no pertenecen a
+  // ningún tramo, y dejarlas sería enterrar el resultado — con Gasolina 98 o Diésel Premium son
+  // cerca de la mitad del parque.
+  //
+  // Sin escala válida (pocas gasolineras) el filtro no se aplica, para no dejar el mapa vacío
+  // justo cuando la leyenda se oculta y no habría forma de deshacerlo.
+  const filtrandoRangos = selectedRanges.size < BADGE_IDS.length;
+  const mostrados = (thresholds && filtrandoRangos)
+    ? labeled.filter(f => selectedRanges.has(f.properties.badge))
+    : labeled;
+
+  map.getSource(SOURCE_ID)?.setData({ type: 'FeatureCollection', features: mostrados });
   updateLegend(thresholds, prices);
 }
 
@@ -567,11 +551,15 @@ function updateLegend(thresholds, prices) {
   const bounds = [prices[0], ...thresholds, prices[prices.length - 1]];
   const fmt = (v) => v.toFixed(3) + ' €';
   legendTitleEl.textContent = 'Precio ' + FUEL_LABELS[selectedFuel] + ' en la zona';
-  legendRowsEl.innerHTML = PRICE_COLORS.map((color, i) =>
-    '<div class="legend-row">' +
+  const fila = (id, color, texto) =>
+    '<label class="legend-row">' +
+    '<input type="checkbox" value="' + id + '"' + (selectedRanges.has(id) ? ' checked' : '') + ' />' +
     '<span class="legend-swatch" style="background:' + color + '"></span>' +
-    '<span>' + fmt(bounds[i]) + ' - ' + fmt(bounds[i + 1]) + '</span>' +
-    '</div>'
+    '<span>' + texto + '</span>' +
+    '</label>';
+
+  legendRowsEl.innerHTML = PRICE_COLORS.map((color, i) =>
+    fila(BADGE_IDS[i], color, fmt(bounds[i]) + ' - ' + fmt(bounds[i + 1]))
   ).join('');
   legendBlockEl.hidden = false;
 }
