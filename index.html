@@ -654,7 +654,9 @@ map.on('load', async () => {
     `;
 
     if (popup) popup.remove();
-    popup = new maplibregl.Popup()
+    // Sin botón de cierre: 'closeOnClick' viene activado por defecto, así que se cierra tocando
+    // cualquier otro punto del mapa.
+    popup = new maplibregl.Popup({ closeButton: false })
       .setLngLat(coords)
       .setHTML(popupContent)
       .addTo(map);
