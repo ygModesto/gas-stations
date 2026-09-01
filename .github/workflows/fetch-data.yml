@@ -40,8 +40,29 @@ jobs:
           # 2. Procesamiento y generación de FlatGeobuf con Python
           python3 -c '
           import json
+          import re
           import geopandas as gpd
           from shapely.geometry import Point
+
+          # Marcas reconocidas sobre el rotulo, por numero de estaciones. Estas 14 cubren el 63,4%
+          # del parque; el resto queda a None. El orden importa: gana la primera que casa.
+          BRANDS = ["REPSOL", "BP", "MOEVE", "CEPSA", "GALP", "BALLENOIL", "SHELL",
+                    "PLENERGY", "PETROPRIX", "PETRONOR", "CARREFOUR", "DISA", "AVIA", "Q8"]
+          NON_ALNUM = re.compile(r"[^A-Z0-9]+")
+
+          # El rotulo de MITECO no esta normalizado (3.486 valores distintos para 11.384
+          # gasolineras): la misma marca aparece como BP, BP OIL ESPANA o BP <localidad>, y hasta
+          # entrecomillada. Por eso no se compara la cadena entera: se trocea en palabras y se
+          # busca la marca entre ellas. Solo asi BP pasa de 150 a 672 estaciones.
+          # Devolver None y no "Otras" es intencionado: en FlatGeobuf un nulo no ocupa bytes, y
+          # como el 36,6% de las estaciones no casa con ninguna marca eso recorta un 35% el coste
+          # de la columna. El cliente lo lee como "Otras".
+          def brand_of(rotulo):
+              words = set(NON_ALNUM.split(rotulo.upper()))
+              for b in BRANDS:
+                  if b in words:
+                      return b
+              return None
 
           with open("raw.json", "r", encoding="utf-8") as f:
               data = json.load(f)
@@ -66,10 +87,10 @@ jobs:
                       "geometry": geometry,
                       "id": e.get("IDEESS"),
                       "rotulo": e.get("Rótulo", "").strip(),
+                      "brand": brand_of(e.get("Rótulo", "")),
                       "direccion": e.get("Dirección", "").strip(),
                       "municipio": e.get("Municipio", "").strip(),
                       "provincia": e.get("Provincia", "").strip(),
-                      "cp": e.get("C.P.", ""),
                       "horario": e.get("Horario", ""),
                       "ga": ga,
                       "g95": g95,
@@ -86,10 +107,16 @@ jobs:
               # Exportar a FlatGeobuf (crea un archivo binario indexado espacialmente)
               gdf.to_file("public/gasolineras.fgb", driver="FlatGeobuf")
 
-              # Versión ligera para el zoom alejado (solo puntos de color): geometría + los 4 precios,
-              # sin los campos de texto pesados. Pesa ~55% menos y evita bajar todo el país completo
-              # cuando en pantalla solo se ven puntos. La web elige un fichero u otro según el zoom.
-              gdf[["geometry", "g95", "g98", "ga", "gapp"]].to_file(
+              # Versión ligera para el zoom alejado (solo puntos de color): geometría, los 4 precios
+              # y la marca, sin los campos de texto pesados (rotulo, direccion, horario...). Evita
+              # bajar todo el pais completo cuando en pantalla solo se ven puntos; la web elige un
+              # fichero u otro segun el zoom.
+              #
+              # "brand" entra aqui a proposito aunque sea texto: cuesta ~84 KB (+5,1%) y a cambio el
+              # filtro de marcas funciona en zoom alejado sin bajar el completo, que son 2,90 MB
+              # frente a 1,73 MB. Un id numerico con la tabla en meta.json solo ahorraria ~15 KB mas
+              # y obligaria a mantener los dos ficheros sincronizados.
+              gdf[["geometry", "brand", "g95", "g98", "ga", "gapp"]].to_file(
                   "public/gasolineras-lite.fgb", driver="FlatGeobuf")
 
               # Guardar metadatos adicionales (como la fecha de actualización) en un json ligero

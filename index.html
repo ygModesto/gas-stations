@@ -47,9 +47,9 @@
   }
   #search-btn:hover { background: #475569; }
 
-  /* Desplegable multiselección de combustibles */
-  #fuel-dropdown { position: relative; }
-  #fuel-toggle-btn {
+  /* Desplegables de la cabecera: combustible (radio) y marcas (casillas) */
+  #fuel-dropdown, #brand-dropdown { position: relative; }
+  #fuel-toggle-btn, #brand-toggle-btn {
     padding: 6px 10px;
     border-radius: 6px;
     border: none;
@@ -59,8 +59,8 @@
     font-size: 0.85rem;
     white-space: nowrap;
   }
-  #fuel-toggle-btn:hover { background: #475569; }
-  #fuel-panel {
+  #fuel-toggle-btn:hover, #brand-toggle-btn:hover { background: #475569; }
+  #fuel-panel, #brand-panel {
     display: none;
     position: absolute;
     top: calc(100% + 4px);
@@ -73,8 +73,8 @@
     z-index: 1000;
     min-width: 170px;
   }
-  #fuel-panel.open { display: block; }
-  #fuel-panel label {
+  #fuel-panel.open, #brand-panel.open { display: block; }
+  #fuel-panel label, #brand-panel label {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -82,6 +82,21 @@
     padding: 4px 2px;
     cursor: pointer;
   }
+
+  /* Son 15 marcas: el panel necesita desplazarse en pantallas bajas */
+  #brand-panel { max-height: 60vh; overflow-y: auto; min-width: 190px; }
+  #brand-actions { display: flex; gap: 6px; margin-bottom: 6px; }
+  #brand-actions button {
+    flex: 1;
+    padding: 4px 6px;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+  #brand-actions button:hover { background: #e2e8f0; }
 
   .popup-title { font-weight: bold; font-size: 1.05rem; color: #0f172a; margin-bottom: 4px; }
   .popup-sub { font-size: 0.8rem; color: #64748b; margin-bottom: 6px; }
@@ -146,6 +161,16 @@
       <label><input type="radio" name="fuel" value="g98" /> Gasolina 98</label>
       <label><input type="radio" name="fuel" value="ga" /> Diésel A</label>
       <label><input type="radio" name="fuel" value="gapp" /> Diésel Premium</label>
+    </div>
+  </div>
+  <div id="brand-dropdown">
+    <button id="brand-toggle-btn"></button>
+    <div id="brand-panel">
+      <div id="brand-actions">
+        <button type="button" data-all="1">Todas</button>
+        <button type="button" data-all="0">Ninguna</button>
+      </div>
+      <div id="brand-list"></div>
     </div>
   </div>
   <div class="info-bar" id="last-update">Cargando datos...</div>
@@ -263,6 +288,37 @@ const FUEL_SHORT_LABELS = { g95: '95', g98: '98', ga: 'GO-A', gapp: 'GO-P' };
 let selectedFuel = 'g95'; // debe coincidir con el radio marcado en el HTML
 let currentFeatures = []; // últimas features crudas cargadas desde el .fgb (sin etiqueta calculada)
 
+// Marcas que puede traer la columna 'brand' del .fgb, en el mismo orden que usa el workflow al
+// clasificar (ver fetch-data.yml). Aquí solo sirven para construir el desplegable: la asignación
+// de marca ya viene hecha desde el build, así que el cliente no vuelve a mirar el rótulo.
+// Si se toca este listado hay que tocar también el del workflow.
+const BRANDS = ['REPSOL', 'BP', 'MOEVE', 'CEPSA', 'GALP', 'BALLENOIL', 'SHELL', 'PLENERGY',
+                'PETROPRIX', 'PETRONOR', 'CARREFOUR', 'DISA', 'AVIA', 'Q8'];
+const OTHER_BRAND = 'Otras';
+const ALL_BRANDS = [...BRANDS, OTHER_BRAND];
+
+// El workflow deja la columna a NULL cuando el rótulo no casa con ninguna marca, porque en
+// FlatGeobuf un nulo no ocupa bytes y ese es el 36,6% de las estaciones. Ese hueco es OTHER_BRAND.
+//
+// El segundo caso del || es transitorio: los .fgb ya publicados todavía no traen 'brand', así que
+// hasta que el workflow los regenere se clasifica en cliente a partir del rótulo, como antes.
+// Cuando haya corrido una vez, brandFromRotulo() y NON_ALNUM se pueden borrar.
+const NON_ALNUM = /[^A-Z0-9]+/;
+function brandFromRotulo(rotulo) {
+  const words = new Set(String(rotulo || '').toUpperCase().split(NON_ALNUM));
+  return BRANDS.find(b => words.has(b));
+}
+function brandOf(properties) {
+  return properties.brand || brandFromRotulo(properties.rotulo) || OTHER_BRAND;
+}
+
+// 'REPSOL' -> 'Repsol', pero 'BP' y 'Q8' se quedan como están: en siglas la capitalización chirría
+function brandLabel(brand) {
+  return brand.length <= 2 ? brand : brand.charAt(0) + brand.slice(1).toLowerCase();
+}
+
+let selectedBrands = new Set(ALL_BRANDS); // por defecto se muestran todas
+
 // Panel desplegable de combustibles
 const fuelToggleBtn = document.getElementById('fuel-toggle-btn');
 const fuelPanel = document.getElementById('fuel-panel');
@@ -290,6 +346,58 @@ fuelPanel.querySelectorAll('input[name="fuel"]').forEach((radio) => {
   });
 });
 syncFuelButton(fuelPanel.querySelector('input[name="fuel"]:checked'));
+
+// Panel desplegable de marcas
+const brandToggleBtn = document.getElementById('brand-toggle-btn');
+const brandPanel = document.getElementById('brand-panel');
+const brandListEl = document.getElementById('brand-list');
+
+// Las casillas se generan desde ALL_BRANDS para no repetir el listado en el HTML
+brandListEl.innerHTML = ALL_BRANDS.map(b =>
+  '<label><input type="checkbox" value="' + b + '" checked /> ' + brandLabel(b) + '</label>'
+).join('');
+
+brandToggleBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  brandPanel.classList.toggle('open');
+});
+document.addEventListener('click', (e) => {
+  if (!brandPanel.contains(e.target) && e.target !== brandToggleBtn) {
+    brandPanel.classList.remove('open');
+  }
+});
+
+function syncBrandButton() {
+  const n = selectedBrands.size;
+  let texto;
+  if (n === ALL_BRANDS.length) texto = 'Todas las marcas';
+  else if (n === 0) texto = 'Ninguna marca';
+  else if (n === 1) texto = brandLabel([...selectedBrands][0]);
+  else texto = n + ' marcas';
+  brandToggleBtn.textContent = texto + ' ▾';
+}
+
+// El filtro puede obligar a cambiar de fichero .fgb (ver updateMarkers), por eso se recarga en
+// lugar de limitarse a repintar con applyLabels()
+function onBrandsChanged() {
+  selectedBrands = new Set(
+    Array.from(brandPanel.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value)
+  );
+  syncBrandButton();
+  updateMarkers();
+}
+
+brandPanel.addEventListener('change', (e) => {
+  if (e.target.type === 'checkbox') onBrandsChanged();
+});
+brandPanel.querySelectorAll('#brand-actions button').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const marcar = btn.dataset.all === '1';
+    brandPanel.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = marcar; });
+    onBrandsChanged();
+  });
+});
+syncBrandButton();
 
 // Precio centinela de las gasolineras que no sirven el combustible seleccionado. Al ser mayor que
 // cualquier precio real, son las últimas en la prioridad de colisión: si compiten por el sitio con
@@ -354,14 +462,17 @@ function badgeFor(refPrice, thresholds) {
 
 // Recalcula etiquetas, prioridades y color sobre las features ya cargadas y actualiza la capa
 function applyLabels() {
-  const markerProps = currentFeatures.map(f => buildMarkerProps(f.properties));
+  // El filtro se aplica antes de calcular cuartiles y leyenda: la escala de color compara solo lo
+  // que se está viendo, así que al dejar una sola marca el degradado se recalcula dentro de ella.
+  const visibles = currentFeatures.filter(f => selectedBrands.has(brandOf(f.properties)));
+  const markerProps = visibles.map(f => buildMarkerProps(f.properties));
   const prices = markerProps
     .map(m => m.refPrice)
     .filter(k => k !== NO_PRICE_REF)
     .sort((a, b) => a - b);
   const thresholds = computeThresholds(prices);
 
-  const labeled = currentFeatures.map((f, i) => ({
+  const labeled = visibles.map((f, i) => ({
     ...f,
     properties: {
       ...f.properties,
@@ -580,6 +691,8 @@ async function updateMarkers() {
 
   // En zoom alejado (solo puntos) basta el fichero ligero; al acercarse, con recuadros y popups,
   // se necesita el completo. El corte coincide con el de las capas (LABEL_MIN_ZOOM).
+  // El ligero incluye la columna 'brand', así que el filtro de marcas funciona también aquí sin
+  // tener que bajar el completo: son 1,73 MB frente a 2,90 MB para el país entero.
   const src = map.getZoom() < LABEL_MIN_ZOOM ? FGB_LITE : FGB_FULL;
 
   const features = [];
