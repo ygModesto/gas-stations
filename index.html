@@ -47,56 +47,101 @@
   }
   #search-btn:hover { background: #475569; }
 
-  /* Desplegables de la cabecera: combustible (radio) y marcas (casillas) */
-  #fuel-dropdown, #brand-dropdown { position: relative; }
-  #fuel-toggle-btn, #brand-toggle-btn {
-    padding: 6px 10px;
-    border-radius: 6px;
-    border: none;
-    background: #334155;
-    color: white;
-    cursor: pointer;
-    font-size: 0.85rem;
-    white-space: nowrap;
-  }
-  #fuel-toggle-btn:hover, #brand-toggle-btn:hover { background: #475569; }
-  #fuel-panel, #brand-panel {
-    display: none;
+  /* Panel de control sobre el mapa. Sustituye a los desplegables que estaban en la cabecera:
+     colapsado hace de leyenda, expandido contiene todos los ajustes. */
+  .panel {
     position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    background: #ffffff;
+    bottom: calc(25px + env(safe-area-inset-bottom, 0px));
+    left: 10px;
+    max-width: calc(100% - 20px);
+    width: 210px;
+    background: rgba(255, 255, 255, 0.96);
     color: #0f172a;
     border-radius: 8px;
-    padding: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    font-size: 0.75rem;
+    line-height: 1.5;
     z-index: 1000;
-    min-width: 170px;
+    overflow: hidden;
   }
-  #fuel-panel.open, #brand-panel.open { display: block; }
-  #fuel-panel label, #brand-panel label {
+  #panel-toggle {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1px;
+    width: 100%;
+    padding: 7px 10px;
+    border: none;
+    /* Fondo lleno y en el azul pizarra de la cabecera: sobre la tarjeta blanca del panel se lee
+       como control y no como titulo. El :hover no basta, en tactil no existe. */
+    background: #334155;
+    color: #ffffff;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  #panel-toggle:hover { background: #475569; }
+  #panel-toggle-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-weight: bold;
+  }
+  /* El embudo dice "filtro" sin gastar ancho, que en 210 px escasea */
+  #panel-toggle-label { display: flex; align-items: center; gap: 5px; }
+  /* El resumen es secundario: la accion es "Filtrar", esto solo dice el estado actual */
+  #panel-summary {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #cbd5e1;
+    font-size: 0.95em;
+  }
+  /* El acento gira al abrir, para que se lea como desplegable */
+  #panel-caret { flex: none; transition: transform 0.15s; }
+  #panel-toggle[aria-expanded="true"] #panel-caret { transform: rotate(180deg); }
+
+  /* Cuerpo desplegable: se limita en alto porque las 15 marcas no caben en un movil apaisado */
+  #panel-body { max-height: 55vh; overflow-y: auto; padding: 0 10px 8px; }
+  .panel-section { border-top: 1px solid #e2e8f0; padding-top: 6px; margin-top: 6px; }
+  .panel-section:first-child { border-top: none; margin-top: 0; }
+  .panel-heading { font-weight: bold; color: #334155; margin-bottom: 2px; }
+  .panel label {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.85rem;
-    padding: 4px 2px;
+    padding: 3px 2px;
     cursor: pointer;
   }
-
-  /* Son 15 marcas: el panel necesita desplazarse en pantallas bajas */
-  #brand-panel { max-height: 60vh; overflow-y: auto; min-width: 190px; }
-  #brand-actions { display: flex; gap: 6px; margin-bottom: 6px; }
+  #brand-actions { display: flex; gap: 6px; margin: 4px 0; }
   #brand-actions button {
     flex: 1;
-    padding: 4px 6px;
+    padding: 3px 6px;
     border: 1px solid #cbd5e1;
     border-radius: 5px;
     background: #f8fafc;
     color: #334155;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     cursor: pointer;
   }
   #brand-actions button:hover { background: #e2e8f0; }
+
+  /* Los rangos de precio viven fuera de #panel-body: siguen visibles con el panel plegado, que es
+     lo que hace que el panel siga funcionando como leyenda. */
+  #legend-block { padding: 0 10px 8px; }
+  .legend-title { font-weight: bold; color: #334155; margin-bottom: 2px; }
+  .legend-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .legend-swatch { width: 12px; height: 12px; border-radius: 2px; flex: none; }
+
+  @media (max-width: 480px) {
+    .panel {
+      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+      left: 8px;
+      font-size: 0.7rem;
+      line-height: 1.35;
+    }
+  }
 
   .popup-title { font-weight: bold; font-size: 1.05rem; color: #0f172a; margin-bottom: 4px; }
   .popup-sub { font-size: 0.8rem; color: #64748b; margin-bottom: 6px; }
@@ -117,33 +162,6 @@
   }
   .popup-nav:hover { background: #15803d; }
 
-  .legend {
-    position: absolute;
-    bottom: calc(25px + env(safe-area-inset-bottom, 0px));
-    left: 10px;
-    max-width: calc(100% - 20px);
-    background: rgba(255, 255, 255, 0.95);
-    color: #0f172a;
-    padding: 8px 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    font-size: 0.75rem;
-    line-height: 1.5;
-    z-index: 1000;
-  }
-  .legend-title { font-weight: bold; color: #334155; margin-bottom: 4px; }
-  .legend-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-  .legend-swatch { width: 12px; height: 12px; border-radius: 2px; flex: none; }
-
-  @media (max-width: 480px) {
-    .legend {
-      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-      left: 8px;
-      padding: 6px 8px;
-      font-size: 0.7rem;
-      line-height: 1.35;
-    }
-  }
 </style>
 </head>
 <body>
@@ -154,32 +172,44 @@
     <input id="search-input" type="text" placeholder="Buscar municipio o calle..." />
     <button id="search-btn">Buscar</button>
   </div>
-  <div id="fuel-dropdown">
-    <button id="fuel-toggle-btn"></button>
-    <div id="fuel-panel">
-      <label><input type="radio" name="fuel" value="g95" checked /> Gasolina 95</label>
-      <label><input type="radio" name="fuel" value="g98" /> Gasolina 98</label>
-      <label><input type="radio" name="fuel" value="ga" /> Diésel A</label>
-      <label><input type="radio" name="fuel" value="gapp" /> Diésel Premium</label>
-    </div>
-  </div>
-  <div id="brand-dropdown">
-    <button id="brand-toggle-btn"></button>
-    <div id="brand-panel">
-      <div id="brand-actions">
-        <button type="button" data-all="1">Todas</button>
-        <button type="button" data-all="0">Ninguna</button>
-      </div>
-      <div id="brand-list"></div>
-    </div>
-  </div>
   <div class="info-bar" id="last-update">Cargando datos...</div>
 </header>
 
 <div id="map">
-  <div id="legend" class="legend" hidden>
-    <div id="legend-title" class="legend-title"></div>
-    <div id="legend-rows"></div>
+  <div id="panel" class="panel">
+    <button id="panel-toggle" type="button" aria-expanded="false" aria-controls="panel-body">
+      <span id="panel-toggle-top">
+        <span id="panel-toggle-label">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true">
+            <path d="M3 4h18l-7 8.5V21l-4-2v-6.5L3 4z" />
+          </svg>
+          Filtrar
+        </span>
+        <span id="panel-caret" aria-hidden="true">▾</span>
+      </span>
+      <span id="panel-summary"></span>
+    </button>
+    <div id="panel-body" hidden>
+      <div class="panel-section">
+        <div class="panel-heading">Combustible</div>
+        <div id="fuel-list"></div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-heading">Marcas</div>
+        <div id="brand-actions">
+          <button type="button" data-all="1">Todas</button>
+          <button type="button" data-all="0">Ninguna</button>
+        </div>
+        <div id="brand-list"></div>
+      </div>
+      <div class="panel-section">
+        <label><input type="checkbox" id="show-ranges" checked /> Mostrar rangos de precio</label>
+      </div>
+    </div>
+    <div id="legend-block" hidden>
+      <div id="legend-title" class="legend-title"></div>
+      <div id="legend-rows"></div>
+    </div>
   </div>
 </div>
 
@@ -218,7 +248,7 @@ const geolocate = new maplibregl.GeolocateControl({
 });
 map.addControl(geolocate, 'top-right');
 
-const legendEl = document.getElementById('legend');
+const legendBlockEl = document.getElementById('legend-block');
 const legendTitleEl = document.getElementById('legend-title');
 const legendRowsEl = document.getElementById('legend-rows');
 
@@ -305,7 +335,8 @@ function savePrefs() {
       // Se guardan las marcas EXCLUIDAS, no las seleccionadas. Así "todas" es una lista vacía, y
       // si en un despliegue futuro se añade una marca a BRANDS, a quien tenía todas marcadas le
       // aparece marcada también la nueva, en vez de oculta por no estar en la lista guardada.
-      excluded: ALL_BRANDS.filter(b => !selectedBrands.has(b))
+      excluded: ALL_BRANDS.filter(b => !selectedBrands.has(b)),
+      showRanges
     }));
   } catch { /* sin persistencia disponible: la sesión funciona igual, solo no se recuerda */ }
 }
@@ -313,9 +344,12 @@ function savePrefs() {
 const prefs = loadPrefs();
 
 // Combustibles disponibles: clave del dato -> etiqueta corta a mostrar en el marcador
-const FUEL_SHORT_LABELS = { g95: '95', g98: '98', ga: 'GO-A', gapp: 'GO-P' };
+// Nombre de cada combustible, único en toda la app: rellena los radios del panel, el resumen y el
+// título de los rangos. Antes el panel decía "Diésel A" y el marcador "GO-A" porque el rótulo
+// estaba escrito en dos sitios; generando el listado desde aquí no pueden volver a divergir.
+const FUEL_LABELS = { g95: 'Gasolina 95', g98: 'Gasolina 98', ga: 'Diésel', gapp: 'Diésel Premium' };
 // Se valida contra la lista actual: un valor guardado por una versión anterior puede ya no existir
-let selectedFuel = FUEL_SHORT_LABELS[prefs.fuel] ? prefs.fuel : 'g95';
+let selectedFuel = FUEL_LABELS[prefs.fuel] ? prefs.fuel : 'g95';
 let currentFeatures = []; // últimas features crudas cargadas desde el .fgb (sin etiqueta calculada)
 
 // Marcas que puede traer la columna 'brand' del .fgb, en el mismo orden que usa el workflow al
@@ -351,91 +385,90 @@ function brandLabel(brand) {
 const excludedBrands = new Set(Array.isArray(prefs.excluded) ? prefs.excluded : []);
 let selectedBrands = new Set(ALL_BRANDS.filter(b => !excludedBrands.has(b))); // por defecto, todas
 
-// Panel desplegable de combustibles
-const fuelToggleBtn = document.getElementById('fuel-toggle-btn');
-const fuelPanel = document.getElementById('fuel-panel');
-fuelToggleBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  fuelPanel.classList.toggle('open');
+// Los rangos se muestran salvo que el usuario los haya apagado. El !== false y no un Boolean() es
+// deliberado: si la preferencia no existe todavía (undefined), el valor por defecto es mostrarlos.
+let showRanges = prefs.showRanges !== false;
+
+// Panel de control sobre el mapa. Colapsado hace de leyenda (los rangos de precio viven fuera de
+// #panel-body, así que siguen viendose); expandido muestra combustible, marcas y el interruptor
+// de los rangos. Sustituye a los dos desplegables que estaban en la cabecera.
+const panelToggle = document.getElementById('panel-toggle');
+const panelBody = document.getElementById('panel-body');
+const panelSummary = document.getElementById('panel-summary');
+const fuelListEl = document.getElementById('fuel-list');
+const brandListEl = document.getElementById('brand-list');
+const showRangesInput = document.getElementById('show-ranges');
+
+panelToggle.addEventListener('click', () => {
+  const abierto = panelBody.hidden;
+  panelBody.hidden = !abierto;
+  panelToggle.setAttribute('aria-expanded', String(abierto));
 });
-document.addEventListener('click', (e) => {
-  if (!fuelPanel.contains(e.target) && e.target !== fuelToggleBtn) {
-    fuelPanel.classList.remove('open');
-  }
-});
-// Con selección única el botón ya no rotula un genérico "Combustibles": muestra el activo,
-// que es información útil sin desplegar el panel.
-function syncFuelButton(radio) {
-  fuelToggleBtn.textContent = radio.parentElement.textContent.trim() + ' ▾';
+
+// Plegado no se ve ningún control, así que el resumen tiene que decir qué se está mirando
+function syncSummary() {
+  const combustible = FUEL_LABELS[selectedFuel];
+  const n = selectedBrands.size;
+  let marcas;
+  if (n === ALL_BRANDS.length) marcas = 'todas las marcas';
+  else if (n === 0) marcas = 'ninguna marca';
+  else if (n === 1) marcas = brandLabel([...selectedBrands][0]);
+  else marcas = n + ' marcas';
+  panelSummary.textContent = combustible + ' · ' + marcas;
 }
 
-fuelPanel.querySelectorAll('input[name="fuel"]').forEach((radio) => {
+// --- Combustible ---
+// Generados desde FUEL_LABELS, ya con la preferencia guardada aplicada
+fuelListEl.innerHTML = Object.entries(FUEL_LABELS).map(([clave, nombre]) =>
+  '<label><input type="radio" name="fuel" value="' + clave + '"' +
+  (clave === selectedFuel ? ' checked' : '') + ' /> ' + nombre + '</label>'
+).join('');
+
+fuelListEl.querySelectorAll('input').forEach((radio) => {
   radio.addEventListener('change', () => {
     selectedFuel = radio.value;
-    syncFuelButton(radio);
+    syncSummary();
     savePrefs();
-    fuelPanel.classList.remove('open'); // elegir uno ya cierra: no queda nada más que marcar
     applyLabels(); // recalcula las etiquetas sin volver a leer el .fgb
   });
 });
-// El HTML marca siempre g95; si había preferencia guardada, se traslada al DOM
-const initialFuelRadio = fuelPanel.querySelector('input[name="fuel"][value="' + selectedFuel + '"]');
-initialFuelRadio.checked = true;
-syncFuelButton(initialFuelRadio);
 
-// Panel desplegable de marcas
-const brandToggleBtn = document.getElementById('brand-toggle-btn');
-const brandPanel = document.getElementById('brand-panel');
-const brandListEl = document.getElementById('brand-list');
-
+// --- Marcas ---
 // Las casillas se generan desde ALL_BRANDS para no repetir el listado en el HTML
 brandListEl.innerHTML = ALL_BRANDS.map(b =>
-  '<label><input type="checkbox" value="' + b + '"' + (selectedBrands.has(b) ? ' checked' : '') +
-  ' /> ' + brandLabel(b) + '</label>'
+  '<label><input type="checkbox" name="brand" value="' + b + '"' +
+  (selectedBrands.has(b) ? ' checked' : '') + ' /> ' + brandLabel(b) + '</label>'
 ).join('');
-
-brandToggleBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  brandPanel.classList.toggle('open');
-});
-document.addEventListener('click', (e) => {
-  if (!brandPanel.contains(e.target) && e.target !== brandToggleBtn) {
-    brandPanel.classList.remove('open');
-  }
-});
-
-function syncBrandButton() {
-  const n = selectedBrands.size;
-  let texto;
-  if (n === ALL_BRANDS.length) texto = 'Todas las marcas';
-  else if (n === 0) texto = 'Ninguna marca';
-  else if (n === 1) texto = brandLabel([...selectedBrands][0]);
-  else texto = n + ' marcas';
-  brandToggleBtn.textContent = texto + ' ▾';
-}
 
 // El filtro puede obligar a cambiar de fichero .fgb (ver updateMarkers), por eso se recarga en
 // lugar de limitarse a repintar con applyLabels()
 function onBrandsChanged() {
   selectedBrands = new Set(
-    Array.from(brandPanel.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value)
+    Array.from(brandListEl.querySelectorAll('input:checked')).map(cb => cb.value)
   );
-  syncBrandButton();
+  syncSummary();
   savePrefs();
   updateMarkers();
 }
 
-brandPanel.addEventListener('change', (e) => {
-  if (e.target.type === 'checkbox') onBrandsChanged();
-});
-brandPanel.querySelectorAll('#brand-actions button').forEach((btn) => {
+brandListEl.addEventListener('change', onBrandsChanged);
+panelBody.querySelectorAll('#brand-actions button').forEach((btn) => {
   btn.addEventListener('click', () => {
     const marcar = btn.dataset.all === '1';
-    brandPanel.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = marcar; });
+    brandListEl.querySelectorAll('input').forEach(cb => { cb.checked = marcar; });
     onBrandsChanged();
   });
 });
-syncBrandButton();
+
+// --- Rangos de precio ---
+showRangesInput.checked = showRanges;
+showRangesInput.addEventListener('change', () => {
+  showRanges = showRangesInput.checked;
+  savePrefs();
+  applyLabels(); // recalcula y, de paso, muestra u oculta el bloque de rangos
+});
+
+syncSummary();
 
 // Precio centinela de las gasolineras que no sirven el combustible seleccionado. Al ser mayor que
 // cualquier precio real, son las últimas en la prioridad de colisión: si compiten por el sitio con
@@ -468,7 +501,8 @@ function buildMarkerProps(properties) {
   const refPrice = raw ? Number(raw) : NO_PRICE_REF;
   return {
     title: buildTitle(properties),
-    price: raw ? `${FUEL_SHORT_LABELS[selectedFuel]}: ${refPrice.toFixed(3)}€` : '—',
+    // Sin prefijo de combustible: solo se muestra uno a la vez, y cuál es lo dice el panel
+    price: raw ? refPrice.toFixed(3) + ' €' : '—',
     refPrice
   };
 }
@@ -524,20 +558,22 @@ function applyLabels() {
 
 // La leyenda muestra los tramos reales que hay en pantalla, no una escala fija
 function updateLegend(thresholds, prices) {
-  if (!thresholds) {
-    legendEl.hidden = true;
+  // Dos motivos para no pintarlos: que el usuario los haya apagado, o que no haya escala válida
+  // (pocas gasolineras a la vista, ver computeThresholds).
+  if (!thresholds || !showRanges) {
+    legendBlockEl.hidden = true;
     return;
   }
   const bounds = [prices[0], ...thresholds, prices[prices.length - 1]];
   const fmt = (v) => v.toFixed(3) + ' €';
-  legendTitleEl.textContent = 'Precio ' + FUEL_SHORT_LABELS[selectedFuel] + ' en la zona';
+  legendTitleEl.textContent = 'Precio ' + FUEL_LABELS[selectedFuel] + ' en la zona';
   legendRowsEl.innerHTML = PRICE_COLORS.map((color, i) =>
     '<div class="legend-row">' +
     '<span class="legend-swatch" style="background:' + color + '"></span>' +
     '<span>' + fmt(bounds[i]) + ' - ' + fmt(bounds[i + 1]) + '</span>' +
     '</div>'
   ).join('');
-  legendEl.hidden = false;
+  legendBlockEl.hidden = false;
 }
 
 // Recuadro que hace de fondo del marcador. Se registra como imagen estirable: las esquinas
@@ -603,14 +639,14 @@ map.on('load', async () => {
       'text-allow-overlap': false,
       'icon-ignore-placement': false,
       'text-ignore-placement': false,
-      // El rótulo y los precios son dos secciones de una misma etiqueta: 'format' permite
-      // darle al título tamaño completo y blanco puro, y a los precios algo menos de
-      // cuerpo y un verde pálido, para que se lean como subtítulo.
+      // Rótulo y precio son dos secciones de una misma etiqueta. La jerarquía va al revés que
+      // antes: el precio es el dato que se busca de un vistazo, así que se lleva el cuerpo entero
+      // y el blanco puro, y el rótulo queda de apoyo, más pequeño y en verde pálido.
       'text-field': [
         'format',
-        ['get', 'title'], { 'font-scale': 1 },
+        ['get', 'title'], { 'font-scale': 0.78, 'text-color': '#dcfce7' },
         '\n', {},
-        ['get', 'price'], { 'font-scale': 0.9, 'text-color': '#dcfce7' }
+        ['get', 'price'], { 'font-scale': 1 }
       ],
       'text-max-width': 20, // en ems: evita que un rótulo de 16 caracteres se parta en dos
       'text-font': ['Noto Sans Bold'],
@@ -681,7 +717,7 @@ map.on('load', async () => {
       <div class="popup-sub">${p.municipio || ''} (${p.provincia || ''}) | ${p.horario || ''}</div>
       <hr style="margin: 6px 0; border: none; border-top: 1px solid #e2e8f0;">
       <div class="popup-price">
-        ${p.ga ? `<div>Diésel A: <span class="price-tag">${Number(p.ga).toFixed(3)} €</span></div>` : ''}
+        ${p.ga ? `<div>Diésel: <span class="price-tag">${Number(p.ga).toFixed(3)} €</span></div>` : ''}
         ${p.gapp ? `<div>Diésel Premium: <span class="price-tag">${Number(p.gapp).toFixed(3)} €</span></div>` : ''}
         ${p.g95 ? `<div>Gasolina 95: <span class="price-tag">${Number(p.g95).toFixed(3)} €</span></div>` : ''}
         ${p.g98 ? `<div>Gasolina 98: <span class="price-tag">${Number(p.g98).toFixed(3)} €</span></div>` : ''}
