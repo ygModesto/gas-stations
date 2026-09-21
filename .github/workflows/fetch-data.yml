@@ -16,115 +16,20 @@ jobs:
       - name: Checkout del repositorio
         uses: actions/checkout@v7
 
-      - name: Configurar Python
-        uses: actions/setup-python@v5
+      - name: Cachear dependencias de Rust
+        uses: actions/cache@v4
         with:
-          python-version: '3.11'
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            fetch-data/target
+          key: cargo-${{ hashFiles('fetch-data/Cargo.lock') }}
 
-      - name: Instalar dependencias del sistema y Python
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgdal-dev
-          pip install --upgrade pip
-          pip install geopandas shapely fiona
-
+      # Descarga el JSON de MITECO y genera public/*.fgb y public/meta.json (ver fetch-data/src/main.rs).
+      # Usa el TLS del sistema (OpenSSL): el servidor de MITECO solo admite TLS 1.2 con intercambio
+      # de claves RSA, que rustls no soporta.
       - name: Descargar y convertir a FlatGeobuf
-        run: |
-          mkdir -p public
-
-          # 1. Descarga del JSON original de MITECO
-          curl -sS --compressed -H "Accept: application/json" \
-            "https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/" \
-            -o raw.json
-
-          # 2. Procesamiento y generación de FlatGeobuf con Python
-          python3 -c '
-          import json
-          import re
-          import geopandas as gpd
-          from shapely.geometry import Point
-
-          # Marcas reconocidas sobre el rotulo, por numero de estaciones. Estas 14 cubren el 63,4%
-          # del parque; el resto queda a None. El orden importa: gana la primera que casa.
-          BRANDS = ["REPSOL", "BP", "MOEVE", "CEPSA", "GALP", "BALLENOIL", "SHELL",
-                    "PLENERGY", "PETROPRIX", "PETRONOR", "CARREFOUR", "DISA", "AVIA", "Q8"]
-          NON_ALNUM = re.compile(r"[^A-Z0-9]+")
-
-          # El rotulo de MITECO no esta normalizado (3.486 valores distintos para 11.384
-          # gasolineras): la misma marca aparece como BP, BP OIL ESPANA o BP <localidad>, y hasta
-          # entrecomillada. Por eso no se compara la cadena entera: se trocea en palabras y se
-          # busca la marca entre ellas. Solo asi BP pasa de 150 a 672 estaciones.
-          # Devolver None y no "Otras" es intencionado: en FlatGeobuf un nulo no ocupa bytes, y
-          # como el 36,6% de las estaciones no casa con ninguna marca eso recorta un 35% el coste
-          # de la columna. El cliente lo lee como "Otras".
-          def brand_of(rotulo):
-              words = set(NON_ALNUM.split(rotulo.upper()))
-              for b in BRANDS:
-                  if b in words:
-                      return b
-              return None
-
-          with open("raw.json", "r", encoding="utf-8") as f:
-              data = json.load(f)
-
-          features = []
-          for e in data.get("ListaEESSPrecio", []):
-              try:
-                  # Limpieza de coordenadas con coma decimal
-                  lat = float(e["Latitud"].replace(",", "."))
-                  lng = float(e["Longitud (WGS84)"].replace(",", "."))
-
-                  # Asignación espacial (Point toma X/Longitud primero, Y/Latitud después)
-                  geometry = Point(lng, lat)
-
-                  # Extracción y formateo de precios
-                  ga = float(e["Precio Gasoleo A"].replace(",", ".")) if e.get("Precio Gasoleo A") else None
-                  g95 = float(e["Precio Gasolina 95 E5"].replace(",", ".")) if e.get("Precio Gasolina 95 E5") else None
-                  g98 = float(e["Precio Gasolina 98 E5"].replace(",", ".")) if e.get("Precio Gasolina 98 E5") else None
-                  gapp = float(e["Precio Gasoleo Premium"].replace(",", ".")) if e.get("Precio Gasoleo Premium") else None
-
-                  features.append({
-                      "geometry": geometry,
-                      "id": e.get("IDEESS"),
-                      "rotulo": e.get("Rótulo", "").strip(),
-                      "brand": brand_of(e.get("Rótulo", "")),
-                      "direccion": e.get("Dirección", "").strip(),
-                      "municipio": e.get("Municipio", "").strip(),
-                      "provincia": e.get("Provincia", "").strip(),
-                      "horario": e.get("Horario", ""),
-                      "ga": ga,
-                      "g95": g95,
-                      "g98": g98,
-                      "gapp": gapp
-                  })
-              except (ValueError, TypeError, KeyError):
-                  continue
-
-          if features:
-              # Crear GeoDataFrame con CRS WGS84 (EPSG:4326)
-              gdf = gpd.GeoDataFrame(features, crs="EPSG:4326")
-
-              # Exportar a FlatGeobuf (crea un archivo binario indexado espacialmente)
-              gdf.to_file("public/gasolineras.fgb", driver="FlatGeobuf")
-
-              # Versión ligera para el zoom alejado (solo puntos de color): geometría, los 4 precios
-              # y la marca, sin los campos de texto pesados (rotulo, direccion, horario...). Evita
-              # bajar todo el pais completo cuando en pantalla solo se ven puntos; la web elige un
-              # fichero u otro segun el zoom.
-              #
-              # "brand" entra aqui a proposito aunque sea texto: cuesta ~84 KB (+5,1%) y a cambio el
-              # filtro de marcas funciona en zoom alejado sin bajar el completo, que son 2,90 MB
-              # frente a 1,73 MB. Un id numerico con la tabla en meta.json solo ahorraria ~15 KB mas
-              # y obligaria a mantener los dos ficheros sincronizados.
-              gdf[["geometry", "brand", "g95", "g98", "ga", "gapp"]].to_file(
-                  "public/gasolineras-lite.fgb", driver="FlatGeobuf")
-
-              # Guardar metadatos adicionales (como la fecha de actualización) en un json ligero
-              with open("public/meta.json", "w", encoding="utf-8") as f_meta:
-                  json.dump({"fecha": data.get("Fecha"), "total": len(features)}, f_meta)
-          '
-          # Limpiar archivo temporal pesado
-          rm raw.json
+        run: cargo run --release --locked --manifest-path fetch-data/Cargo.toml
 
       - name: Commit y Push del archivo binario
         run: |
