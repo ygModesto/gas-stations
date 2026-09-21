@@ -20,18 +20,98 @@
      que el final de la página queda por debajo del borde visible y se comía la leyenda. La regla
      100vh se deja delante como respaldo para navegadores sin soporte de dvh. */
   body { font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
-  header { padding: 10px 16px; background: #1e293b; color: white; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+  header {
+    /* Por encima del mapa: los menús desplegables se abren sobre él */
+    position: relative;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: #1e293b;
+    color: white;
+  }
   #map { flex: 1; width: 100%; position: relative; }
-  .info-bar { font-size: 0.85rem; color: #94a3b8; }
+  /* El título ya no se ve (la barra son los filtros), pero se mantiene para lectores de pantalla */
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-  /* Panel de control sobre el mapa. Sustituye a los desplegables que estaban en la cabecera:
-     colapsado hace de leyenda, expandido contiene todos los ajustes. */
-  .panel {
+  /* La cabecera son los controles de filtro: combustible, marcas y rangos de precio. Cada botón
+     abre un menú bajo él; en móvil el menú ocupa todo el ancho (ver el @media de más abajo). */
+  .menu-wrap { position: relative; min-width: 0; }
+  .bar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    min-height: 36px;
+    padding: 6px 12px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: #334155;
+    color: #ffffff;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .bar-btn > span:first-child { overflow: hidden; text-overflow: ellipsis; }
+  .bar-btn:hover { background: #475569; }
+  .bar-btn:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
+  /* Abierto: borde claro. Los rangos no abren menú sino que se activan: van en el gris más claro. */
+  .bar-btn[aria-expanded="true"] { background: #475569; border-color: #cbd5e1; }
+  .bar-btn[aria-pressed="true"] { background: #475569; }
+  .caret { flex: none; font-size: 0.8em; transition: transform 0.15s; }
+  .bar-btn[aria-expanded="true"] .caret { transform: rotate(180deg); }
+
+  .menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 230px;
+    /* Las 15 marcas no caben en un móvil apaisado: el menú scrollea en vez de salirse de pantalla */
+    max-height: 70vh;
+    max-height: min(70dvh, 480px);
+    overflow-y: auto;
+    padding: 6px;
+    background: #ffffff;
+    color: #0f172a;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+    font-size: 0.9rem;
+  }
+  .menu label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .menu label:hover { background: #f1f5f9; }
+  .menu input { flex: none; width: 16px; height: 16px; margin: 0; }
+  #brand-list { display: grid; grid-template-columns: 1fr 1fr; }
+  #brand-actions { display: flex; gap: 6px; padding: 2px 2px 6px; }
+  #brand-actions button {
+    flex: 1;
+    padding: 7px 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #334155;
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+  #brand-actions button:hover { background: #e2e8f0; }
+
+  /* Leyenda de los rangos de precio: tarjeta sobre el mapa. Cada fila es además un filtro. */
+  #legend-block {
     position: absolute;
     bottom: calc(25px + env(safe-area-inset-bottom, 0px));
     left: 10px;
     max-width: calc(100% - 20px);
-    width: 210px;
+    padding: 7px 10px 8px;
     background: rgba(255, 255, 255, 0.96);
     color: #0f172a;
     border-radius: 8px;
@@ -39,89 +119,28 @@
     font-size: 0.75rem;
     line-height: 1.5;
     z-index: 1000;
-    overflow: hidden;
   }
-  #panel-toggle {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1px;
-    width: 100%;
-    padding: 7px 10px;
-    border: none;
-    /* Fondo lleno y en el azul pizarra de la cabecera: sobre la tarjeta blanca del panel se lee
-       como control y no como titulo. El :hover no basta, en tactil no existe. */
-    background: #334155;
-    color: #ffffff;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-  }
-  #panel-toggle:hover { background: #475569; }
-  #panel-toggle-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    font-weight: bold;
-  }
-  /* El embudo dice "filtro" sin gastar ancho, que en 210 px escasea */
-  #panel-toggle-label { display: flex; align-items: center; gap: 5px; }
-  /* El resumen es secundario: la accion es "Filtrar", esto solo dice el estado actual */
-  #panel-summary {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #cbd5e1;
-    font-size: 0.95em;
-  }
-  /* El acento gira al abrir, para que se lea como desplegable */
-  #panel-caret { flex: none; transition: transform 0.15s; }
-  #panel-toggle[aria-expanded="true"] #panel-caret { transform: rotate(180deg); }
-
-  /* Cuerpo desplegable: se limita en alto porque las 15 marcas no caben en un movil apaisado */
-  #panel-body { max-height: 55vh; overflow-y: auto; padding: 0 10px 8px; }
-  .panel-section { border-top: 1px solid #e2e8f0; padding-top: 6px; margin-top: 6px; }
-  .panel-section:first-child { border-top: none; margin-top: 0; }
-  .panel-heading { font-weight: bold; color: #334155; margin-bottom: 2px; }
-  .panel label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 2px;
-    cursor: pointer;
-  }
-  #brand-actions { display: flex; gap: 6px; margin: 4px 0; }
-  #brand-actions button {
-    flex: 1;
-    padding: 3px 6px;
-    border: 1px solid #cbd5e1;
-    border-radius: 5px;
-    background: #f8fafc;
-    color: #334155;
-    font-size: 0.7rem;
-    cursor: pointer;
-  }
-  #brand-actions button:hover { background: #e2e8f0; }
-
-  /* Los rangos de precio viven fuera de #panel-body: siguen visibles con el panel plegado, que es
-     lo que hace que el panel siga funcionando como leyenda. */
-  #legend-block { padding: 0 10px 8px; }
   .legend-title { font-weight: bold; color: #334155; margin-bottom: 2px; }
   .legend-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; cursor: pointer; }
   .legend-row input { flex: none; margin: 0; }
   .legend-swatch { width: 12px; height: 12px; border-radius: 2px; flex: none; }
 
-  @media (max-width: 480px) {
-    .panel {
-      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  @media (max-width: 600px) {
+    header { gap: 6px; padding: 6px 8px; }
+    .bar-btn { padding: 6px 10px; font-size: 0.8rem; }
+    /* Sin posicionar el contenedor, el menú se ancla a la cabecera y ocupa todo el ancho */
+    .menu-wrap { position: static; }
+    .menu { left: 8px; right: 8px; top: calc(100% + 6px); min-width: 0; }
+    /* Más alta que antes: la atribución lleva ahora la fecha y, al abrirse, ocupa dos líneas */
+    #legend-block {
+      bottom: calc(50px + env(safe-area-inset-bottom, 0px));
       left: 8px;
       font-size: 0.7rem;
       line-height: 1.35;
     }
   }
 
-  /* La ventana de la gasolinera hereda el lenguaje del panel: misma tarjeta, mismos grises y
+  /* La ventana de la gasolinera hereda el lenguaje de la leyenda: misma tarjeta, mismos grises y
      ninguna de las dos cosas que la desentonaban -- el verde #16a34a de la paleta vieja, que ya
      no existe en el resto de la app, y los cuatro precios en lista plana. */
   .maplibregl-popup-content {
@@ -182,45 +201,40 @@
 <body>
 
 <header>
-  <h1>Gasolineras España</h1>
-  <div class="info-bar" id="last-update">Cargando datos...</div>
+  <h1 class="sr-only">Gasolineras España</h1>
+
+  <div class="menu-wrap">
+    <button id="fuel-btn" class="bar-btn" type="button" aria-expanded="false" aria-controls="fuel-menu">
+      <span id="fuel-btn-label"></span><span class="caret" aria-hidden="true">▾</span>
+    </button>
+    <div id="fuel-menu" class="menu" hidden>
+      <div id="fuel-list"></div>
+    </div>
+  </div>
+
+  <div class="menu-wrap">
+    <button id="brand-btn" class="bar-btn" type="button" aria-expanded="false" aria-controls="brand-menu">
+      <span id="brand-btn-label">Marcas</span><span class="caret" aria-hidden="true">▾</span>
+    </button>
+    <div id="brand-menu" class="menu" hidden>
+      <div id="brand-actions">
+        <button type="button" data-all="1">Todas</button>
+        <button type="button" data-all="0">Ninguna</button>
+      </div>
+      <div id="brand-list"></div>
+    </div>
+  </div>
+
+  <!-- No abre menú: muestra u oculta la leyenda de rangos de precio del mapa -->
+  <button id="ranges-btn" class="bar-btn" type="button" aria-pressed="true">
+    <span id="ranges-btn-label">Rangos</span>
+  </button>
 </header>
 
 <div id="map">
-  <div id="panel" class="panel">
-    <button id="panel-toggle" type="button" aria-expanded="false" aria-controls="panel-body">
-      <span id="panel-toggle-top">
-        <span id="panel-toggle-label">
-          <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true">
-            <path d="M3 4h18l-7 8.5V21l-4-2v-6.5L3 4z" />
-          </svg>
-          Filtrar
-        </span>
-        <span id="panel-caret" aria-hidden="true">▾</span>
-      </span>
-      <span id="panel-summary"></span>
-    </button>
-    <div id="panel-body" hidden>
-      <div class="panel-section">
-        <div class="panel-heading">Combustible</div>
-        <div id="fuel-list"></div>
-      </div>
-      <div class="panel-section">
-        <div class="panel-heading">Marcas</div>
-        <div id="brand-actions">
-          <button type="button" data-all="1">Todas</button>
-          <button type="button" data-all="0">Ninguna</button>
-        </div>
-        <div id="brand-list"></div>
-      </div>
-      <div class="panel-section">
-        <label><input type="checkbox" id="show-ranges" checked /> Mostrar rangos de precio</label>
-      </div>
-    </div>
-    <div id="legend-block" hidden>
-      <div id="legend-title" class="legend-title"></div>
-      <div id="legend-rows"></div>
-    </div>
+  <div id="legend-block" hidden>
+    <div id="legend-title" class="legend-title"></div>
+    <div id="legend-rows"></div>
   </div>
 </div>
 
@@ -238,9 +252,6 @@ const map = new maplibregl.Map({
   attributionControl: false
 });
 
-map.addControl(new maplibregl.AttributionControl({
-  customAttribution: 'Datos: MITECO'
-}));
 map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
 // Botón de geolocalización: centra el mapa en la posición GPS del usuario
@@ -263,15 +274,15 @@ const legendBlockEl = document.getElementById('legend-block');
 const legendTitleEl = document.getElementById('legend-title');
 const legendRowsEl = document.getElementById('legend-rows');
 
-// 3. Cargar la fecha desde meta.json ligero
+// 3. Cargar la fecha desde meta.json ligero. Va en la atribución del mapa y no en la cabecera: la
+// cabecera son los filtros y en móvil no cabe nada más. Por eso el control se añade aquí, cuando ya
+// se sabe el texto, en lugar de arrancar con 'Datos: MITECO' y tener que reescribirlo después.
+const addAttribution = (texto) =>
+  map.addControl(new maplibregl.AttributionControl({ customAttribution: texto }));
 fetch('./public/meta.json')
   .then(res => res.json())
-  .then(meta => {
-    document.getElementById('last-update').textContent = `Actualizado: ${meta.fecha}`;
-  })
-  .catch(() => {
-    document.getElementById('last-update').textContent = 'Datos disponibles';
-  });
+  .then(meta => addAttribution('Datos: MITECO · Actualizado: ' + meta.fecha))
+  .catch(() => addAttribution('Datos: MITECO'));
 
 // 4. Fuente y capa de marcadores con el precio (sustituye a L.marker por elemento DOM)
 const SOURCE_ID = 'gasolineras';
@@ -336,8 +347,8 @@ function savePrefs() {
 const prefs = loadPrefs();
 
 // Combustibles disponibles: clave del dato -> etiqueta corta a mostrar en el marcador
-// Nombre de cada combustible, único en toda la app: rellena los radios del panel, el resumen y el
-// título de los rangos. Antes el panel decía "Diésel A" y el marcador "GO-A" porque el rótulo
+// Nombre de cada combustible, único en toda la app: rellena los radios del menú, el botón de la barra y el
+// título de los rangos. Antes el menú decía "Diésel A" y el marcador "GO-A" porque el rótulo
 // estaba escrito en dos sitios; generando el listado desde aquí no pueden volver a divergir.
 const FUEL_LABELS = { g95: 'Gasolina 95', g98: 'Gasolina 98', ga: 'Diésel', gapp: 'Diésel Premium' };
 // Se valida contra la lista actual: un valor guardado por una versión anterior puede ya no existir
@@ -387,36 +398,58 @@ let showRanges = prefs.showRanges !== false;
 const excludedRanges = new Set(Array.isArray(prefs.excludedRanges) ? prefs.excludedRanges : []);
 let selectedRanges = new Set(BADGE_IDS.filter(id => !excludedRanges.has(id)));
 
-// Panel de control sobre el mapa. Colapsado hace de leyenda (los rangos de precio viven fuera de
-// #panel-body, así que siguen viendose); expandido muestra combustible, marcas y el interruptor
-// de los rangos. Sustituye a los dos desplegables que estaban en la cabecera.
-const panelToggle = document.getElementById('panel-toggle');
-const panelBody = document.getElementById('panel-body');
-const panelSummary = document.getElementById('panel-summary');
+// Barra de filtros de la cabecera: dos botones que abren un menú (combustible y marcas) y uno que
+// activa o no la leyenda de rangos. Con los menús cerrados, cada botón dice en su etiqueta qué está
+// filtrado.
+const fuelBtn = document.getElementById('fuel-btn');
+const brandBtn = document.getElementById('brand-btn');
+const rangesBtn = document.getElementById('ranges-btn');
+const fuelBtnLabel = document.getElementById('fuel-btn-label');
+const brandBtnLabel = document.getElementById('brand-btn-label');
+const rangesBtnLabel = document.getElementById('ranges-btn-label');
 const fuelListEl = document.getElementById('fuel-list');
+const brandMenuEl = document.getElementById('brand-menu');
 const brandListEl = document.getElementById('brand-list');
-const showRangesInput = document.getElementById('show-ranges');
 
-panelToggle.addEventListener('click', () => {
-  const abierto = panelBody.hidden;
-  panelBody.hidden = !abierto;
-  panelToggle.setAttribute('aria-expanded', String(abierto));
-});
+// Solo un menú abierto a la vez; se cierran al tocar fuera (mapa incluido) o con Escape
+const menus = [
+  { btn: fuelBtn, menu: document.getElementById('fuel-menu') },
+  { btn: brandBtn, menu: brandMenuEl }
+];
+function closeMenus() {
+  for (const { btn, menu } of menus) {
+    menu.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+  }
+}
+for (const { btn, menu } of menus) {
+  btn.addEventListener('click', () => {
+    const abrir = menu.hidden;
+    closeMenus();
+    menu.hidden = !abrir;
+    btn.setAttribute('aria-expanded', String(abrir));
+  });
+}
+// En captura: MapLibre gestiona sus propios eventos de puntero y podría no dejarlos llegar
+document.addEventListener('pointerdown', (e) => {
+  if (!e.target.closest('.menu-wrap')) closeMenus();
+}, true);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenus(); });
 
-// Plegado no se ve ningún control, así que el resumen tiene que decir qué se está mirando
-function syncSummary() {
-  const combustible = FUEL_LABELS[selectedFuel];
+// Con los menús cerrados no se ve ningún control, así que las etiquetas tienen que decir qué se
+// está mirando: el combustible, y un contador en marcas y rangos cuando hay filtro activo.
+function syncBar() {
+  fuelBtnLabel.textContent = FUEL_LABELS[selectedFuel];
+
   const n = selectedBrands.size;
-  let marcas;
-  if (n === ALL_BRANDS.length) marcas = 'todas las marcas';
-  else if (n === 0) marcas = 'ninguna marca';
-  else if (n === 1) marcas = brandLabel([...selectedBrands][0]);
-  else marcas = n + ' marcas';
+  brandBtnLabel.textContent = n === ALL_BRANDS.length ? 'Marcas'
+    : n === 1 ? brandLabel([...selectedBrands][0])
+    : 'Marcas · ' + n;
+
   // Un filtro de rango activo con la leyenda apagada sería invisible: se anuncia aquí
-  const rangos = selectedRanges.size < BADGE_IDS.length
-    ? ' · ' + selectedRanges.size + '/' + BADGE_IDS.length + ' rangos'
-    : '';
-  panelSummary.textContent = combustible + ' · ' + marcas + rangos;
+  const r = selectedRanges.size;
+  rangesBtnLabel.textContent = r < BADGE_IDS.length ? 'Rangos · ' + r + '/' + BADGE_IDS.length : 'Rangos';
+  rangesBtn.setAttribute('aria-pressed', String(showRanges));
 }
 
 // --- Combustible ---
@@ -429,8 +462,9 @@ fuelListEl.innerHTML = Object.entries(FUEL_LABELS).map(([clave, nombre]) =>
 fuelListEl.querySelectorAll('input').forEach((radio) => {
   radio.addEventListener('change', () => {
     selectedFuel = radio.value;
-    syncSummary();
+    syncBar();
     savePrefs();
+    closeMenus(); // es una elección única: no hay motivo para dejar el menú abierto
     applyLabels(); // recalcula las etiquetas sin volver a leer el .fgb
   });
 });
@@ -448,13 +482,13 @@ function onBrandsChanged() {
   selectedBrands = new Set(
     Array.from(brandListEl.querySelectorAll('input:checked')).map(cb => cb.value)
   );
-  syncSummary();
+  syncBar();
   savePrefs();
   updateMarkers();
 }
 
 brandListEl.addEventListener('change', onBrandsChanged);
-panelBody.querySelectorAll('#brand-actions button').forEach((btn) => {
+brandMenuEl.querySelectorAll('#brand-actions button').forEach((btn) => {
   btn.addEventListener('click', () => {
     const marcar = btn.dataset.all === '1';
     brandListEl.querySelectorAll('input').forEach(cb => { cb.checked = marcar; });
@@ -468,19 +502,19 @@ legendRowsEl.addEventListener('change', () => {
   selectedRanges = new Set(
     Array.from(legendRowsEl.querySelectorAll('input:checked')).map(cb => cb.value)
   );
-  syncSummary();
+  syncBar();
   savePrefs();
   applyLabels();
 });
 
-showRangesInput.checked = showRanges;
-showRangesInput.addEventListener('change', () => {
-  showRanges = showRangesInput.checked;
+rangesBtn.addEventListener('click', () => {
+  showRanges = !showRanges;
+  syncBar();
   savePrefs();
   applyLabels(); // recalcula y, de paso, muestra u oculta el bloque de rangos
 });
 
-syncSummary();
+syncBar();
 
 // Precio centinela de las gasolineras que no sirven el combustible seleccionado. Al ser mayor que
 // cualquier precio real, son las últimas en la prioridad de colisión: si compiten por el sitio con
@@ -500,7 +534,7 @@ function buildTitle(properties) {
 }
 
 // Construye el contenido del marcador y su prioridad de colisión según los combustibles
-// seleccionados (respeta el orden del panel).
+// seleccionados.
 //
 // - title: el rótulo de la gasolinera, recortado. Va en propiedad aparte, y no concatenado a los
 //   precios, para poder darle otro tamaño y color con la expresión 'format' de la capa.
@@ -513,7 +547,7 @@ function buildMarkerProps(properties) {
   const refPrice = raw ? Number(raw) : NO_PRICE_REF;
   return {
     title: buildTitle(properties),
-    // Sin prefijo de combustible: solo se muestra uno a la vez, y cuál es lo dice el panel
+    // Sin prefijo de combustible: solo se muestra uno a la vez, y cuál es lo dice el botón de la barra
     price: raw ? refPrice.toFixed(3) + ' €' : '—',
     refPrice
   };
