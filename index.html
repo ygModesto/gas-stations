@@ -811,6 +811,23 @@ function createAddressSearch({ inputEl, statusEl, resultsEl, onPick, afterRender
     }
     setStatus('Buscando...');
     try {
+      // Un código postal (5 dígitos exactos) no es un nombre de calle: /buscar nunca lo
+      // encontraría, porque el índice FTS5 solo cubre nombre de vía, tipo de vía y municipio,
+      // nunca dígitos. Se resuelve aparte, contra /cp, que sí filtra por él directamente.
+      if (/^\d{5}$/.test(q)) {
+        const cps = await addrApiGet(`/cp/${q}`);
+        render(cps.map((cp) => ({
+          tipo_vial: null,
+          nombre: 'Código postal ' + cp.cod_postal,
+          municipio: cp.municipio,
+          provincia: cp.provincia,
+          n_portales: cp.n_portales,
+          lat: cp.lat,
+          lon: cp.lon,
+          distancia_m: null
+        })), null);
+        return;
+      }
       // Sesgo de cercanía al centro visible del mapa: si el nombre se repite en varios municipios
       // ("Rosalía de Castro" existe en decenas), prioriza el más próximo a lo que ya se está viendo.
       const center = map.getCenter();
