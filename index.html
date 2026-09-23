@@ -216,6 +216,85 @@
     }
   }
 
+  /* Pantalla de arranque: scrim sobre TODO (incluida la cabecera, position:fixed + z-index por
+     encima de header) para que la única acción posible sea elegir dónde empezar. El scrim es
+     translúcido a propósito: "que se vea el mapa al fondo" mientras carga detrás. */
+  .start-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.45);
+  }
+  /* .start-overlay ya fija display:flex, con la MISMA especificidad que el [hidden] del navegador
+     (display:none) -- y al declararse despues, gana la nuestra: poner hidden=true por JS no
+     ocultaba nada. Esta regla, mas especifica, es la que de verdad lo oculta. */
+  .start-overlay[hidden] { display: none; }
+  .start-card {
+    width: 100%;
+    max-width: 360px;
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    background: #ffffff;
+    color: #0f172a;
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    padding: 20px;
+  }
+  .start-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 14px; text-align: center; }
+  .start-search-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+  }
+  .start-search-row svg { flex: none; color: #64748b; }
+  .start-search-row input { flex: 1; min-width: 0; border: none; outline: none; font: inherit; font-size: 0.9rem; }
+  #start-status { padding: 6px 2px 0; font-size: 0.78rem; color: #64748b; min-height: 1.1em; }
+  #start-status.error { color: #b91c1c; }
+  /* Reutiliza .address-result (mismo estilo de fila que el buscador de la cabecera) con algo más
+     de aire, porque aquí no compite con nada más dentro de un desplegable estrecho. */
+  #start-results .address-result { padding: 9px 8px; }
+  .start-divider { display: flex; align-items: center; gap: 10px; margin: 14px 0; color: #94a3b8; font-size: 0.78rem; }
+  .start-divider::before, .start-divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+  .start-locate-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #334155;
+    color: #ffffff;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .start-locate-btn:hover { background: #475569; }
+  .start-locate-btn:disabled { opacity: 0.7; cursor: default; }
+  .start-skip-btn {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 6px;
+    border: none;
+    background: none;
+    color: #64748b;
+    font: inherit;
+    font-size: 0.82rem;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .start-skip-btn:hover { color: #334155; }
+
   /* La ventana de la gasolinera hereda el lenguaje de la leyenda: misma tarjeta, mismos grises y
      ninguna de las dos cosas que la desentonaban -- el verde #16a34a de la paleta vieja, que ya
      no existe en el resto de la app, y los cuatro precios en lista plana. */
@@ -275,6 +354,33 @@
 </style>
 </head>
 <body>
+
+<!-- Pantalla de arranque: tapa el mapa (que ya se ve borroso al fondo, cargando) hasta que el
+     usuario elige de dónde partir. Se salta sola si el permiso de geolocalización ya estaba
+     concedido de antes (ver el chequeo de permissions.query más abajo, en map.on('load')); si no,
+     evita pedir TODAS las gasolineras de España en el primer pintado. -->
+<div id="start-overlay" class="start-overlay" role="dialog" aria-modal="true" aria-label="Elige dónde empezar" hidden>
+  <div class="start-card">
+    <div class="start-title">¿Dónde quieres ver los precios?</div>
+    <div class="start-search-row">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <input id="start-input" type="text" placeholder="Busca una calle o dirección..." autocomplete="off" />
+    </div>
+    <div id="start-status" class="start-status"></div>
+    <div id="start-results"></div>
+    <div class="start-divider"><span>o</span></div>
+    <button id="start-locate-btn" type="button" class="start-locate-btn">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+      </svg>
+      <span id="start-locate-label">Usar mi ubicación</span>
+    </button>
+    <button id="start-skip-btn" type="button" class="start-skip-btn">Ver todo el país</button>
+  </div>
+</div>
 
 <header>
   <h1 class="sr-only">Gasolineras España</h1>
@@ -548,7 +654,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenus
 //
 // Mismo servicio de direcciones (API nacional sobre datos de CartoCiudad/IGN) que ya usan
 // ../localizaciones y ../studio en este mismo usuario. Aquí no hace falta el listado de portales
-// por número que tienen esos clientes: basta con centrar el mapa, así que selectAddress() resuelve
+// por número que tienen esos clientes: basta con centrar el mapa, así que flyToAddress() resuelve
 // el número de portal (si lo hay) y vuela directamente, sin paso intermedio.
 const ADDR_API_BASE = 'https://cu44cd5pmg.execute-api.eu-south-2.amazonaws.com';
 const searchPillEl = document.getElementById('search-pill');
@@ -592,7 +698,9 @@ addressToggle.addEventListener('click', () => {
 addressCloseBtn.addEventListener('click', () => {
   addressInput.value = '';
   addressResultsEl.innerHTML = '';
-  setAddressStatus('');
+  addressStatusEl.textContent = '';
+  addressStatusEl.classList.remove('error');
+  syncAddressMenuVisibility();
   collapseSearch();
 });
 
@@ -604,12 +712,6 @@ async function addrApiGet(path, params) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(res.statusText);
   return res.json();
-}
-
-function setAddressStatus(texto, esError) {
-  addressStatusEl.textContent = texto || '';
-  addressStatusEl.classList.toggle('error', !!esError);
-  syncAddressMenuVisibility();
 }
 
 // "calle mayor 15" -> ['calle mayor', '15']: si hay EXACTAMENTE un token puramente numérico, se
@@ -642,34 +744,11 @@ async function filtrarPorPortalExistente(vias, numero) {
   return resultados.filter(Boolean);
 }
 
-function renderAddressResults(vias, numero) {
-  addressResultsEl.innerHTML = '';
-  if (vias.length === 0) {
-    setAddressStatus('Sin resultados.');
-    return;
-  }
-  setAddressStatus('');
-  vias.forEach((via) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'address-result';
-    const dist = via.distancia_m != null
-      ? '<span class="addr-dist">' + Math.round(via.distancia_m) + ' m</span> · '
-      : '';
-    btn.innerHTML =
-      '<div class="addr-name">' + esc(via.tipo_vial ? via.tipo_vial + ' ' : '') + esc(via.nombre) +
-        (numero ? ' ' + esc(numero) : '') + '</div>' +
-      '<div class="addr-meta">' + dist + esc(via.municipio) + ' (' + esc(via.provincia) + ')</div>';
-    btn.addEventListener('click', () => selectAddress(via, numero));
-    addressResultsEl.appendChild(btn);
-  });
-  syncAddressMenuVisibility();
-}
-
 // Vuela al punto elegido: al portal exacto si se detectó un número y la vía lo tiene, o si no al
 // centroide de la vía (ya viene en el resultado de /buscar). El 'moveend' del vuelo ya dispara
-// updateMarkers(), así que no hace falta llamarlo aquí.
-async function selectAddress(via, numero) {
+// updateMarkers(), así que no hace falta llamarlo aquí. Devuelve la etiqueta ya formada: cada
+// buscador decide qué hacer con ella (la de la cabecera la deja en su input, la de arranque no).
+async function flyToAddress(via, numero) {
   let lat = via.lat, lon = via.lon;
   const etiqueta = (via.tipo_vial ? via.tipo_vial + ' ' : '') + via.nombre + (numero ? ' ' + numero : '');
   if (numero) {
@@ -684,45 +763,157 @@ async function selectAddress(via, numero) {
     .setPopup(new maplibregl.Popup().setHTML(esc(etiqueta) + '<br>' + esc(via.municipio)))
     .addTo(map);
   map.flyTo({ center: [lon, lat], zoom: 15 });
-  addressInput.value = etiqueta;
-  collapseSearch();
+  return etiqueta;
 }
 
-async function searchAddress(q) {
-  if (q.length < 3) {
-    addressResultsEl.innerHTML = '';
-    setAddressStatus('');
-    return;
+// Fábrica de buscador de direcciones: la cabecera y la pantalla de arranque son dos cuadros de
+// texto distintos sobre el mismo servicio, con el mismo truco de número de portal. En vez de
+// duplicar debounce+fetch+render en los dos sitios, cada uno instancia esto pasando sus propios
+// elementos y qué hacer al elegir un resultado (onPick).
+function createAddressSearch({ inputEl, statusEl, resultsEl, onPick, afterRender }) {
+  let debounce = null;
+
+  function setStatus(texto, esError) {
+    statusEl.textContent = texto || '';
+    statusEl.classList.toggle('error', !!esError);
+    afterRender?.();
   }
-  setAddressStatus('Buscando...');
-  try {
-    // Sesgo de cercanía al centro visible del mapa: si el nombre se repite en varios municipios
-    // ("Rosalía de Castro" existe en decenas), prioriza el más próximo a lo que ya se está viendo.
-    const center = map.getCenter();
-    let vias = await addrApiGet('/buscar', { q, limit: 8, lat: center.lat, lon: center.lng });
-    let numero = null;
-    // Sin resultados: puede que un token sea un número de portal, que /buscar no indexa (solo
-    // nombres de calle). Se reintenta sin él y se filtra por si esa vía tiene de verdad ese
-    // número (ver filtrarPorPortalExistente).
+
+  function render(vias, numero) {
+    resultsEl.innerHTML = '';
     if (vias.length === 0) {
-      const partido = splitNumero(q);
-      if (partido) {
-        const [resto, num] = partido;
-        const viasSinNumero = await addrApiGet('/buscar', { q: resto, limit: 8, lat: center.lat, lon: center.lng });
-        const conPortal = await filtrarPorPortalExistente(viasSinNumero, num);
-        if (conPortal.length) { vias = conPortal; numero = num; }
-      }
+      setStatus('Sin resultados.');
+      return;
     }
-    renderAddressResults(vias, numero);
-  } catch (err) {
-    setAddressStatus('Error buscando: ' + err.message, true);
+    setStatus('');
+    vias.forEach((via) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'address-result';
+      const dist = via.distancia_m != null
+        ? '<span class="addr-dist">' + Math.round(via.distancia_m) + ' m</span> · '
+        : '';
+      btn.innerHTML =
+        '<div class="addr-name">' + esc(via.tipo_vial ? via.tipo_vial + ' ' : '') + esc(via.nombre) +
+          (numero ? ' ' + esc(numero) : '') + '</div>' +
+        '<div class="addr-meta">' + dist + esc(via.municipio) + ' (' + esc(via.provincia) + ')</div>';
+      btn.addEventListener('click', () => onPick(via, numero));
+      resultsEl.appendChild(btn);
+    });
+    afterRender?.();
   }
+
+  async function run(q) {
+    if (q.length < 3) {
+      resultsEl.innerHTML = '';
+      setStatus('');
+      return;
+    }
+    setStatus('Buscando...');
+    try {
+      // Sesgo de cercanía al centro visible del mapa: si el nombre se repite en varios municipios
+      // ("Rosalía de Castro" existe en decenas), prioriza el más próximo a lo que ya se está viendo.
+      const center = map.getCenter();
+      let vias = await addrApiGet('/buscar', { q, limit: 8, lat: center.lat, lon: center.lng });
+      let numero = null;
+      // Sin resultados: puede que un token sea un número de portal, que /buscar no indexa (solo
+      // nombres de calle). Se reintenta sin él y se filtra por si esa vía tiene de verdad ese
+      // número (ver filtrarPorPortalExistente).
+      if (vias.length === 0) {
+        const partido = splitNumero(q);
+        if (partido) {
+          const [resto, num] = partido;
+          const viasSinNumero = await addrApiGet('/buscar', { q: resto, limit: 8, lat: center.lat, lon: center.lng });
+          const conPortal = await filtrarPorPortalExistente(viasSinNumero, num);
+          if (conPortal.length) { vias = conPortal; numero = num; }
+        }
+      }
+      render(vias, numero);
+    } catch (err) {
+      setStatus('Error buscando: ' + err.message, true);
+    }
+  }
+
+  inputEl.addEventListener('input', () => {
+    clearTimeout(debounce);
+    const q = inputEl.value.trim();
+    debounce = setTimeout(() => run(q), 300);
+  });
 }
 
-addressInput.addEventListener('input', () => {
-  clearTimeout(addressDebounce);
-  const q = addressInput.value.trim();
-  addressDebounce = setTimeout(() => searchAddress(q), 300);
+createAddressSearch({
+  inputEl: addressInput,
+  statusEl: addressStatusEl,
+  resultsEl: addressResultsEl,
+  afterRender: syncAddressMenuVisibility,
+  onPick: async (via, numero) => {
+    addressInput.value = await flyToAddress(via, numero);
+    collapseSearch();
+  }
+});
+
+// --- Pantalla de arranque ---
+// Se muestra (ver map.on('load') más abajo) solo si el permiso de geolocalización NO estaba ya
+// concedido: si lo estaba, se va directa a la posición sin preguntar nada, que es justo lo que
+// pide no repetir esta pantalla en cada visita una vez que el usuario ya dijo que sí una vez.
+const startOverlayEl = document.getElementById('start-overlay');
+const startInput = document.getElementById('start-input');
+const startStatusEl = document.getElementById('start-status');
+const startResultsEl = document.getElementById('start-results');
+const startLocateBtn = document.getElementById('start-locate-btn');
+const startLocateLabel = document.getElementById('start-locate-label');
+const startSkipBtn = document.getElementById('start-skip-btn');
+
+function showStartOverlay() {
+  startOverlayEl.hidden = false;
+  startInput.focus();
+}
+function hideStartOverlay() {
+  startOverlayEl.hidden = true;
+}
+
+createAddressSearch({
+  inputEl: startInput,
+  statusEl: startStatusEl,
+  resultsEl: startResultsEl,
+  onPick: async (via, numero) => {
+    await flyToAddress(via, numero);
+    hideStartOverlay();
+  }
+});
+
+function resetStartLocateBtn() {
+  startLocateBtn.disabled = false;
+  startLocateLabel.textContent = 'Usar mi ubicación';
+}
+startLocateBtn.addEventListener('click', () => {
+  startLocateBtn.disabled = true;
+  startLocateLabel.textContent = 'Localizando...';
+  // geolocate.trigger() dispara el permiso del navegador si aún no se había pedido; el resultado
+  // (éxito o error) llega por los eventos de abajo, no por el valor de retorno de trigger().
+  const iniciado = geolocate.trigger();
+  if (!iniciado) {
+    resetStartLocateBtn();
+    startStatusEl.textContent = 'Geolocalización no disponible en este navegador.';
+    startStatusEl.classList.add('error');
+  }
+});
+// Éxito: cierra la pantalla de arranque igual con el disparo manual que con el automático de
+// map.on('load'). Error: solo interesa aquí si la pantalla sigue visible -- si no, ya lo habrá
+// gestionado el 'error' que registra map.on('load') para el intento silencioso.
+geolocate.on('geolocate', hideStartOverlay);
+geolocate.on('error', () => {
+  if (startOverlayEl.hidden) return;
+  resetStartLocateBtn();
+  startStatusEl.textContent = 'No se pudo obtener tu ubicación. Prueba a buscar una dirección.';
+  startStatusEl.classList.add('error');
+});
+startSkipBtn.addEventListener('click', () => {
+  hideStartOverlay();
+  updateMarkers(); // sin flyTo de por medio no hay 'moveend' que lo dispare solo
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !startOverlayEl.hidden) startSkipBtn.click();
 });
 
 // Con los menús cerrados no se ve ningún control, así que las etiquetas tienen que decir qué se
@@ -1123,7 +1314,9 @@ map.on('load', async () => {
   // Arranque: si el usuario YA concedió el permiso de localización (sin volver a preguntar), se
   // centra el mapa en su posición y se marca, y solo entonces se piden las gasolineras de esa zona
   // —el 'moveend' del vuelo dispara updateMarkers—, evitando la carga de todo el país en zoom 6.
-  // Si no hay permiso concedido (o la API no está), se mantiene la vista general de España.
+  // Si no hay permiso concedido de antemano (o la API no está), se muestra la pantalla de arranque
+  // (buscar una dirección, pedir el permiso con "Usar mi ubicación", o saltarla) en vez de cargar
+  // España entera de golpe sin haber preguntado nada.
   let autoLocating = false;
   if (navigator.permissions?.query) {
     try {
@@ -1134,7 +1327,7 @@ map.on('load', async () => {
   // Si la geolocalización falla tras concederse (GPS caído, etc.), no dejamos el mapa vacío
   geolocate.on('error', () => { if (autoLocating) { autoLocating = false; updateMarkers(); } });
 
-  if (!autoLocating) updateMarkers();
+  if (!autoLocating) showStartOverlay();
 });
 
 // 5. Cargar únicamente las gasolineras visibles con FlatGeobuf, vía HTTP Range Request
