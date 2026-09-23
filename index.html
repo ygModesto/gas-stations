@@ -303,10 +303,12 @@ const FGB_LITE = './public/gasolineras-lite.fgb';
 // Dos restricciones la determinan:
 //  - Todos los tonos son oscuros: el texto del marcador es blanco y pequeño, y necesita 4,5:1.
 //    El peor de los cuatro queda en 5,2:1.
-//  - La rampa va de frío a cálido SIN pasar por el verde, que es el eje que se pierde con el
-//    daltonismo más común. Simulando deuteranopia, el peor par de tramos queda a dE 34; la paleta
-//    anterior (teal/oliva/ámbar/rojo) tenía el oliva y el ámbar a dE 3,4, o sea indistinguibles.
-const PRICE_COLORS = ['#1e40af', '#0e7490', '#c2410c', '#9f1239'];
+//  - El orden es el del semáforo (verde barato -> naranja -> morado -> rojo caro), a petición
+//    expresa: es el más intuitivo, aunque para daltonismo rojo-verde (el más común) el rojo, el
+//    naranja e incluso el verde caen en el mismo eje y pueden confundirse entre sí. El morado se
+//    libra porque lleva componente azul, canal que ese daltonismo no afecta. El texto con el
+//    precio, que ya iba encima del badge, sigue siendo la referencia que no depende del color.
+const PRICE_COLORS = ['#15803d', '#c2410c', '#7e22ce', '#b91c1c'];
 // Más oscuro que el #64748b anterior: así se separa de los tramos en deuteranopia (dE 12 -> 15).
 // No se baja más porque con Gasolina 98 o Diésel Premium cerca de la mitad del parque es gris, y
 // un gris muy oscuro dominaría el mapa en vez de leerse como "sin dato".
