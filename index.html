@@ -31,6 +31,10 @@
     background: #1e293b;
     color: white;
   }
+  /* Combustible, marcas y rangos van juntos en su propio grupo para poder ocultarlos enteros
+     mientras se busca (ver header.searching más abajo): el buscador necesita ese hueco. */
+  .filters { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  header.searching .filters { display: none; }
   #map { flex: 1; width: 100%; position: relative; }
   /* El título ya no se ve (la barra son los filtros), pero se mantiene para lectores de pantalla */
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -104,6 +108,78 @@
     cursor: pointer;
   }
   #brand-actions button:hover { background: #e2e8f0; }
+
+  /* Buscador de direcciones: la lupa ES el botón (mismo aspecto que el resto de .bar-btn en
+     reposo) y se convierte en el campo de texto al pulsarla, en vez de abrir un desplegable
+     aparte con un input dentro. #address-wrap crece con la cabecera al buscar (ver
+     header.searching arriba) para tener sitio; en reposo ocupa justo lo que ocupa el icono. */
+  #address-wrap { flex: none; }
+  header.searching #address-wrap { flex: 1; min-width: 0; }
+  .search-pill {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    background: #334155;
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+  .search-pill:focus-within, .search-pill.expanded { background: #475569; }
+  #address-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: none;
+    color: #ffffff;
+    cursor: pointer;
+  }
+  #address-toggle:hover { background: rgba(255, 255, 255, 0.12); }
+  #address-toggle:focus-visible { outline: 2px solid #93c5fd; outline-offset: -2px; }
+  /* Ancho 0 -> el ancho real es lo que hace crecer la píldora: es el "convertirse en input". */
+  #address-input {
+    width: 0;
+    min-width: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #ffffff;
+    font: inherit;
+    font-size: 0.875rem;
+    transition: width 0.2s ease, padding 0.2s ease;
+  }
+  #address-input::placeholder { color: #94a3b8; }
+  #address-input:focus { outline: none; }
+  .search-pill.expanded #address-input { width: 220px; padding: 0 2px; }
+  header.searching .search-pill.expanded #address-input { width: auto; flex: 1; }
+  #address-close {
+    flex: none;
+    width: 0;
+    overflow: hidden;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    color: #cbd5e1;
+    cursor: pointer;
+  }
+  .search-pill.expanded #address-close { width: 32px; height: 32px; margin-right: 2px; }
+  #address-close:hover { color: #ffffff; }
+  #address-close svg { display: block; margin: auto; }
+
+  .menu-search { width: 280px; max-width: calc(100vw - 20px); padding: 8px; }
+  #address-status { padding: 4px 2px 2px; font-size: 0.78rem; color: #64748b; }
+  #address-status.error { color: #b91c1c; }
+  .address-result { display: block; width: 100%; padding: 7px 6px; border: none; background: none;
+    text-align: left; font: inherit; cursor: pointer; border-radius: 6px; }
+  .address-result:hover { background: #f1f5f9; }
+  .address-result .addr-name { font-weight: 600; font-size: 0.85rem; color: #0f172a; }
+  .address-result .addr-meta { font-size: 0.75rem; color: #64748b; margin-top: 1px; }
+  .address-result .addr-dist { color: #334155; font-weight: 600; }
 
   /* Leyenda de los rangos de precio: tarjeta sobre el mapa. Cada fila es además un filtro. */
   #legend-block {
@@ -203,32 +279,55 @@
 <header>
   <h1 class="sr-only">Gasolineras España</h1>
 
-  <div class="menu-wrap">
-    <button id="fuel-btn" class="bar-btn" type="button" aria-expanded="false" aria-controls="fuel-menu">
-      <span id="fuel-btn-label"></span><span class="caret" aria-hidden="true">▾</span>
-    </button>
-    <div id="fuel-menu" class="menu" hidden>
-      <div id="fuel-list"></div>
+  <div class="menu-wrap" id="address-wrap">
+    <div class="search-pill" id="search-pill">
+      <button id="address-toggle" type="button" aria-expanded="false" aria-controls="address-menu" aria-label="Buscar dirección">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+      </button>
+      <input id="address-input" type="text" placeholder="Calle, dirección..." autocomplete="off" />
+      <button id="address-close" type="button" aria-label="Cerrar búsqueda" tabindex="-1">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+          <line x1="5" y1="5" x2="19" y2="19" /><line x1="19" y1="5" x2="5" y2="19" />
+        </svg>
+      </button>
+    </div>
+    <div id="address-menu" class="menu menu-search" hidden>
+      <div id="address-status"></div>
+      <div id="address-results"></div>
     </div>
   </div>
 
-  <div class="menu-wrap">
-    <button id="brand-btn" class="bar-btn" type="button" aria-expanded="false" aria-controls="brand-menu">
-      <span id="brand-btn-label">Marcas</span><span class="caret" aria-hidden="true">▾</span>
-    </button>
-    <div id="brand-menu" class="menu" hidden>
-      <div id="brand-actions">
-        <button type="button" data-all="1">Todas</button>
-        <button type="button" data-all="0">Ninguna</button>
+  <div class="filters">
+    <div class="menu-wrap">
+      <button id="fuel-btn" class="bar-btn" type="button" aria-expanded="false" aria-controls="fuel-menu">
+        <span id="fuel-btn-label"></span><span class="caret" aria-hidden="true">▾</span>
+      </button>
+      <div id="fuel-menu" class="menu" hidden>
+        <div id="fuel-list"></div>
       </div>
-      <div id="brand-list"></div>
     </div>
-  </div>
 
-  <!-- No abre menú: muestra u oculta la leyenda de rangos de precio del mapa -->
-  <button id="ranges-btn" class="bar-btn" type="button" aria-pressed="true">
-    <span id="ranges-btn-label">Rangos</span>
-  </button>
+    <div class="menu-wrap">
+      <button id="brand-btn" class="bar-btn" type="button" aria-expanded="false" aria-controls="brand-menu">
+        <span id="brand-btn-label">Marcas</span><span class="caret" aria-hidden="true">▾</span>
+      </button>
+      <div id="brand-menu" class="menu" hidden>
+        <div id="brand-actions">
+          <button type="button" data-all="1">Todas</button>
+          <button type="button" data-all="0">Ninguna</button>
+        </div>
+        <div id="brand-list"></div>
+      </div>
+    </div>
+
+    <!-- No abre menú: muestra u oculta la leyenda de rangos de precio del mapa -->
+    <button id="ranges-btn" class="bar-btn" type="button" aria-pressed="true">
+      <span id="ranges-btn-label">Rangos</span>
+    </button>
+  </div>
 </header>
 
 <div id="map">
@@ -400,9 +499,10 @@ let showRanges = prefs.showRanges !== false;
 const excludedRanges = new Set(Array.isArray(prefs.excludedRanges) ? prefs.excludedRanges : []);
 let selectedRanges = new Set(BADGE_IDS.filter(id => !excludedRanges.has(id)));
 
-// Barra de filtros de la cabecera: dos botones que abren un menú (combustible y marcas) y uno que
-// activa o no la leyenda de rangos. Con los menús cerrados, cada botón dice en su etiqueta qué está
-// filtrado.
+// Barra de filtros de la cabecera: el buscador de direcciones, dos botones que abren un menú
+// (combustible y marcas) y uno que activa o no la leyenda de rangos. Con los menús cerrados, cada
+// botón dice en su etiqueta qué está filtrado.
+const headerEl = document.querySelector('header');
 const fuelBtn = document.getElementById('fuel-btn');
 const brandBtn = document.getElementById('brand-btn');
 const rangesBtn = document.getElementById('ranges-btn');
@@ -413,7 +513,9 @@ const fuelListEl = document.getElementById('fuel-list');
 const brandMenuEl = document.getElementById('brand-menu');
 const brandListEl = document.getElementById('brand-list');
 
-// Solo un menú abierto a la vez; se cierran al tocar fuera (mapa incluido) o con Escape
+// Solo un menú abierto a la vez; se cierran al tocar fuera (mapa incluido) o con Escape. El
+// buscador de direcciones no está aquí: no es un desplegable, es la píldora que se expande (ver
+// más abajo), y closeMenus() la colapsa también para que siga contando como "cerrar todo".
 const menus = [
   { btn: fuelBtn, menu: document.getElementById('fuel-menu') },
   { btn: brandBtn, menu: brandMenuEl }
@@ -423,6 +525,7 @@ function closeMenus() {
     menu.hidden = true;
     btn.setAttribute('aria-expanded', 'false');
   }
+  collapseSearch();
 }
 for (const { btn, menu } of menus) {
   btn.addEventListener('click', () => {
@@ -437,6 +540,190 @@ document.addEventListener('pointerdown', (e) => {
   if (!e.target.closest('.menu-wrap')) closeMenus();
 }, true);
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenus(); });
+
+// --- Buscar dirección ---
+// La lupa es el propio botón (mismo aspecto que el resto de .bar-btn en reposo) y se transforma en
+// el campo de texto al pulsarla -- en vez de abrir un desplegable aparte con un input dentro, como
+// antes-- para que quede claro de un vistazo que es UN control, no un menú más.
+//
+// Mismo servicio de direcciones (API nacional sobre datos de CartoCiudad/IGN) que ya usan
+// ../localizaciones y ../studio en este mismo usuario. Aquí no hace falta el listado de portales
+// por número que tienen esos clientes: basta con centrar el mapa, así que selectAddress() resuelve
+// el número de portal (si lo hay) y vuela directamente, sin paso intermedio.
+const ADDR_API_BASE = 'https://cu44cd5pmg.execute-api.eu-south-2.amazonaws.com';
+const searchPillEl = document.getElementById('search-pill');
+const addressToggle = document.getElementById('address-toggle');
+const addressCloseBtn = document.getElementById('address-close');
+const addressMenuEl = document.getElementById('address-menu');
+const addressInput = document.getElementById('address-input');
+const addressStatusEl = document.getElementById('address-status');
+const addressResultsEl = document.getElementById('address-results');
+let addressMarker = null;
+let addressDebounce = null;
+
+// El desplegable de resultados solo se muestra si hay algo que enseñar (resultados o un estado
+// como "Buscando..." o un error): con la píldora recién abierta y el campo aún vacío no hay nada
+// que listar, y una caja blanca vacía debajo del input se leería como un bug.
+function syncAddressMenuVisibility() {
+  addressMenuEl.hidden = addressResultsEl.children.length === 0 && !addressStatusEl.textContent.trim();
+}
+
+function collapseSearch() {
+  searchPillEl.classList.remove('expanded');
+  headerEl.classList.remove('searching');
+  addressToggle.setAttribute('aria-expanded', 'false');
+  addressCloseBtn.tabIndex = -1;
+  addressMenuEl.hidden = true;
+}
+function expandSearch() {
+  closeMenus(); // solo un control abierto a la vez (colapsa fuel/marcas si estuvieran abiertos)
+  searchPillEl.classList.add('expanded');
+  headerEl.classList.add('searching');
+  addressToggle.setAttribute('aria-expanded', 'true');
+  addressCloseBtn.tabIndex = 0;
+  addressInput.focus();
+}
+addressToggle.addEventListener('click', () => {
+  if (searchPillEl.classList.contains('expanded')) collapseSearch();
+  else expandSearch();
+});
+// La X limpia Y cierra: es tanto "borrar lo escrito" como "ya no quiero buscar", y separarlas en
+// dos controles sería un botón más para algo que en la práctica se pide siempre junto.
+addressCloseBtn.addEventListener('click', () => {
+  addressInput.value = '';
+  addressResultsEl.innerHTML = '';
+  setAddressStatus('');
+  collapseSearch();
+});
+
+async function addrApiGet(path, params) {
+  const url = new URL(ADDR_API_BASE + path);
+  Object.entries(params || {}).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v);
+  });
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(res.statusText);
+  return res.json();
+}
+
+function setAddressStatus(texto, esError) {
+  addressStatusEl.textContent = texto || '';
+  addressStatusEl.classList.toggle('error', !!esError);
+  syncAddressMenuVisibility();
+}
+
+// "calle mayor 15" -> ['calle mayor', '15']: si hay EXACTAMENTE un token puramente numérico, se
+// separa de ahí (en cualquier posición, no solo al final) para poder pedir luego el portal exacto.
+// null si no hay ninguno o si hay más de uno (ambiguo). Igual que en ../studio/index.html.
+function splitNumero(q) {
+  const tokens = q.split(/\s+/).filter(Boolean);
+  const numericos = tokens.map((t, i) => (/^\d+$/.test(t) ? i : -1)).filter((i) => i !== -1);
+  if (numericos.length !== 1) return null;
+  const [idx] = numericos;
+  const numero = tokens[idx];
+  const resto = [...tokens.slice(0, idx), ...tokens.slice(idx + 1)];
+  return resto.length ? [resto.join(' '), numero] : null;
+}
+
+// /buscar solo indexa nombres de calle: "Calle Mayor 15" no encuentra nada tal cual. De las vías
+// candidatas sin el número, nos quedamos solo con las que de verdad tienen un portal con ese
+// número exacto (una consulta a /vias/{id}/portales por vía candidata).
+async function filtrarPorPortalExistente(vias, numero) {
+  const resultados = await Promise.all(
+    vias.map(async (via) => {
+      try {
+        const portales = await addrApiGet(`/vias/${via.via_id}/portales`, { numero });
+        return portales.length ? via : null;
+      } catch {
+        return null;
+      }
+    })
+  );
+  return resultados.filter(Boolean);
+}
+
+function renderAddressResults(vias, numero) {
+  addressResultsEl.innerHTML = '';
+  if (vias.length === 0) {
+    setAddressStatus('Sin resultados.');
+    return;
+  }
+  setAddressStatus('');
+  vias.forEach((via) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'address-result';
+    const dist = via.distancia_m != null
+      ? '<span class="addr-dist">' + Math.round(via.distancia_m) + ' m</span> · '
+      : '';
+    btn.innerHTML =
+      '<div class="addr-name">' + esc(via.tipo_vial ? via.tipo_vial + ' ' : '') + esc(via.nombre) +
+        (numero ? ' ' + esc(numero) : '') + '</div>' +
+      '<div class="addr-meta">' + dist + esc(via.municipio) + ' (' + esc(via.provincia) + ')</div>';
+    btn.addEventListener('click', () => selectAddress(via, numero));
+    addressResultsEl.appendChild(btn);
+  });
+  syncAddressMenuVisibility();
+}
+
+// Vuela al punto elegido: al portal exacto si se detectó un número y la vía lo tiene, o si no al
+// centroide de la vía (ya viene en el resultado de /buscar). El 'moveend' del vuelo ya dispara
+// updateMarkers(), así que no hace falta llamarlo aquí.
+async function selectAddress(via, numero) {
+  let lat = via.lat, lon = via.lon;
+  const etiqueta = (via.tipo_vial ? via.tipo_vial + ' ' : '') + via.nombre + (numero ? ' ' + numero : '');
+  if (numero) {
+    try {
+      const portales = await addrApiGet(`/vias/${via.via_id}/portales`, { numero });
+      if (portales.length) { lat = portales[0].lat; lon = portales[0].lon; }
+    } catch { /* si falla la segunda consulta, se vuela igual al centroide ya calculado arriba */ }
+  }
+  if (addressMarker) addressMarker.remove();
+  addressMarker = new maplibregl.Marker({ color: '#1e293b' })
+    .setLngLat([lon, lat])
+    .setPopup(new maplibregl.Popup().setHTML(esc(etiqueta) + '<br>' + esc(via.municipio)))
+    .addTo(map);
+  map.flyTo({ center: [lon, lat], zoom: 15 });
+  addressInput.value = etiqueta;
+  collapseSearch();
+}
+
+async function searchAddress(q) {
+  if (q.length < 3) {
+    addressResultsEl.innerHTML = '';
+    setAddressStatus('');
+    return;
+  }
+  setAddressStatus('Buscando...');
+  try {
+    // Sesgo de cercanía al centro visible del mapa: si el nombre se repite en varios municipios
+    // ("Rosalía de Castro" existe en decenas), prioriza el más próximo a lo que ya se está viendo.
+    const center = map.getCenter();
+    let vias = await addrApiGet('/buscar', { q, limit: 8, lat: center.lat, lon: center.lng });
+    let numero = null;
+    // Sin resultados: puede que un token sea un número de portal, que /buscar no indexa (solo
+    // nombres de calle). Se reintenta sin él y se filtra por si esa vía tiene de verdad ese
+    // número (ver filtrarPorPortalExistente).
+    if (vias.length === 0) {
+      const partido = splitNumero(q);
+      if (partido) {
+        const [resto, num] = partido;
+        const viasSinNumero = await addrApiGet('/buscar', { q: resto, limit: 8, lat: center.lat, lon: center.lng });
+        const conPortal = await filtrarPorPortalExistente(viasSinNumero, num);
+        if (conPortal.length) { vias = conPortal; numero = num; }
+      }
+    }
+    renderAddressResults(vias, numero);
+  } catch (err) {
+    setAddressStatus('Error buscando: ' + err.message, true);
+  }
+}
+
+addressInput.addEventListener('input', () => {
+  clearTimeout(addressDebounce);
+  const q = addressInput.value.trim();
+  addressDebounce = setTimeout(() => searchAddress(q), 300);
+});
 
 // Con los menús cerrados no se ve ningún control, así que las etiquetas tienen que decir qué se
 // está mirando: el combustible, y un contador en marcas y rangos cuando hay filtro activo.
