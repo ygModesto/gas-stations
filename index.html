@@ -520,6 +520,17 @@ const PRICE_COLORS = ['#15803d', '#c2410c', '#7e22ce', '#b91c1c'];
 const NO_PRICE_COLOR = '#475569';
 const BADGE_IDS = PRICE_COLORS.map((_, i) => 'badge-' + i);
 const NO_PRICE_BADGE_ID = 'badge-sin-precio';
+// Expresión compartida: traduce la propiedad 'badge' de una feature a su color de tramo. La usan
+// tanto el texto del precio (dentro del bocadillo) como el punto de zoom alejado (DOTS_LAYER_ID),
+// para que ambas representaciones de la misma gasolinera se lean con el mismo color.
+const BADGE_COLOR_MATCH = [
+  'match', ['get', 'badge'],
+  BADGE_IDS[0], PRICE_COLORS[0],
+  BADGE_IDS[1], PRICE_COLORS[1],
+  BADGE_IDS[2], PRICE_COLORS[2],
+  BADGE_IDS[3], PRICE_COLORS[3],
+  NO_PRICE_COLOR // badge-sin-precio o cualquier valor sin clasificar
+];
 let popup = null;
 
 // Preferencias del usuario. localStorage y no otra cosa porque el sitio es estático (GitHub Pages,
@@ -1018,34 +1029,22 @@ syncBar();
 // una que sí tiene precio, ceden y se quedan en punto.
 const NO_PRICE_REF = 9999;
 
-// Longitud máxima del rótulo dentro del marcador. Los datos de MITECO no vienen normalizados:
-// la mediana son 6 caracteres (REPSOL, GALP, SHELL...), pero cerca del 10% pasa de 18 y hay rótulos
-// de hasta 86 que estirarían el recuadro por media pantalla. El nombre completo sigue en el popup.
-const MAX_TITLE_CHARS = 16;
-
-function buildTitle(properties) {
-  const rotulo = String(properties.rotulo || '').trim() || 'Gasolinera';
-  return rotulo.length > MAX_TITLE_CHARS
-    ? rotulo.slice(0, MAX_TITLE_CHARS - 1).trimEnd() + '…'
-    : rotulo;
-}
-
 // Construye el contenido del marcador y su prioridad de colisión según los combustibles
 // seleccionados.
 //
-// - title: el rótulo de la gasolinera, recortado. Va en propiedad aparte, y no concatenado a los
-//   precios, para poder darle otro tamaño y color con la expresión 'format' de la capa.
-// - price: nunca va vacío. El recuadro se dimensiona con el texto, y sin texto no habría
-//   marcador ni área clicable para las gasolineras sin el combustible seleccionado.
+// - price: nunca va vacío. El marcador siempre necesita texto que mostrar, y sin él no habría
+//   área clicable para las gasolineras sin el combustible seleccionado. El rótulo ya no va en el
+//   marcador (solo el precio, ver makeBadgeImage): el nombre completo sigue en el popup.
 // - refPrice: el precio del combustible seleccionado. Es la referencia tanto del color como del
 //   orden de dibujo.
 function buildMarkerProps(properties) {
   const raw = properties[selectedFuel];
   const refPrice = raw ? Number(raw) : NO_PRICE_REF;
   return {
-    title: buildTitle(properties),
-    // Sin prefijo de combustible: solo se muestra uno a la vez, y cuál es lo dice el botón de la barra
-    price: raw ? refPrice.toFixed(3) + ' €' : '—',
+    // Sin prefijo de combustible ni símbolo de moneda: solo se muestra un precio a la vez, y cuál
+    // es y en qué unidad lo dice el botón de la barra. Sin el ' €' el bocadillo puede ser más
+    // estrecho (ver PIN_W); el euro completo sigue en el popup y en la leyenda.
+    price: raw ? refPrice.toFixed(3) : '—',
     refPrice
   };
 }
@@ -1156,23 +1155,95 @@ function updateLegend(thresholds, prices) {
   legendBlockEl.hidden = false;
 }
 
-// Recuadro que hace de fondo del marcador. Se registra como imagen estirable: las esquinas
-// (BADGE_CORNER px) se mantienen fijas y sólo se estira la banda central, así el mismo recuadro
-// vale para un precio o para cuatro sin deformar el borde ni las esquinas.
-const BADGE_SIZE = 24;    // px de imagen (a pixelRatio 2 → 12 px en pantalla)
-const BADGE_CORNER = 8;   // zona no estirable de cada esquina
+// Marcador con forma de bocadillo de cómic: cuerpo blanco con el precio y borde del color de su
+// tramo, con una punta abajo que señala la posición exacta de la gasolinera (de ahí que la capa
+// use 'icon-anchor: bottom': el ancla cae justo en la punta, no en el centro del cuerpo).
+//
+// Tamaño fijo, sin 9-slice: a diferencia del recuadro anterior (rótulo + precio, longitud muy
+// variable), el precio solo tiene dos formatos posibles ("1.999 €" o "—"), así que un tamaño fijo
+// que quepa siempre es más simple que estirar el icono al texto, y evita tener que recolocar la
+// punta cada vez que cambiara el ancho.
+//
+// El círculo de la izquierda es el hueco para el logo de la marca: se deja vacío (un relleno
+// neutro, sin icono) porque hoy no tenemos las imágenes de cada marca, pero el sitio ya queda
+// reservado para no tener que rediseñar el marcador cuando se añadan.
+const PIN_W = 140;         // px de imagen (a pixelRatio 2 → 70 px en pantalla)
+const PIN_BODY_H = 36;     // alto del cuerpo, sin la punta
+const PIN_TAIL_H = 12;     // alto de la punta
+const PIN_H = PIN_BODY_H + PIN_TAIL_H;
+const PIN_RADIUS = 9;      // radio de las esquinas del cuerpo
+const PIN_TAIL_HALF_W = 8; // medio ancho de la base de la punta
+const PIN_BORDER = 3;
+const LOGO_HOLE_CX = 19;
+const LOGO_HOLE_CY = PIN_BODY_H / 2;
+const LOGO_HOLE_R = 12;
+
+// El precio se posiciona con su propio 'text-offset' (ver el addLayer de LAYER_ID), no encajado
+// dentro del icono, así que si estos números salen de aquí a mano y luego se cambia PIN_W o el
+// hueco del logo, el texto se descoloca sin avisar -- fue justo lo que pasó al estrechar el
+// bocadillo, que precio y hueco acabaron pisándose. Calculándolo a partir de las mismas constantes
+// del icono, cambiar el tamaño del bocadillo no puede volver a romper esto.
+const TEXT_SIZE = 13;
+const LOGO_HOLE_GAP = 3; // separación mínima, en px de pantalla, entre el hueco y el precio
+// Ambos desplazamientos son relativos al ancla común de icono y texto (la punta, ver 'icon-anchor'
+// y 'text-anchor: bottom-left' más abajo), en ems de TEXT_SIZE tal como pide 'text-offset'.
+// Horizontal: del centro del bocadillo (el ancla cae ahí, por eso -PIN_W/4: la mitad del ancho en
+// pantalla, que ya está a mitad de resolución por el pixelRatio 2) al borde derecho del hueco
+// (a mitad de resolución también) más el margen.
+const TEXT_OFFSET_X = (-PIN_W / 4 + (LOGO_HOLE_CX + LOGO_HOLE_R) / 2 + LOGO_HOLE_GAP) / TEXT_SIZE;
+// Vertical: de la punta (abajo del todo) al centro vertical del cuerpo, compensando que el ancla
+// 'bottom' del texto es su borde inferior y no su centro (de ahí el + TEXT_SIZE/2).
+const TEXT_OFFSET_Y = (-PIN_H / 2 + PIN_BODY_H / 4 + TEXT_SIZE / 2) / TEXT_SIZE;
+
+// Contorno del bocadillo en un único trazo (cuerpo redondeado + muesca de la punta), para que el
+// borde de color lo rodee entero sin costura entre las dos formas.
+function tracePinOutline(ctx, inset) {
+  const left = inset;
+  const right = PIN_W - inset;
+  const top = inset;
+  const bodyBottom = PIN_BODY_H; // costura con la punta: no toca el borde del canvas, sin inset
+  const tailTip = PIN_H - inset;
+  const r = PIN_RADIUS;
+  const cx = PIN_W / 2;
+  ctx.beginPath();
+  ctx.moveTo(left + r, top);
+  ctx.lineTo(right - r, top);
+  ctx.arcTo(right, top, right, top + r, r);
+  ctx.lineTo(right, bodyBottom - r);
+  ctx.arcTo(right, bodyBottom, right - r, bodyBottom, r);
+  ctx.lineTo(cx + PIN_TAIL_HALF_W, bodyBottom);
+  ctx.lineTo(cx, tailTip);
+  ctx.lineTo(cx - PIN_TAIL_HALF_W, bodyBottom);
+  ctx.lineTo(left + r, bodyBottom);
+  ctx.arcTo(left, bodyBottom, left, bodyBottom - r, r);
+  ctx.lineTo(left, top + r);
+  ctx.arcTo(left, top, left + r, top, r);
+  ctx.closePath();
+}
+
 function makeBadgeImage(color) {
   const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = BADGE_SIZE;
+  canvas.width = PIN_W;
+  canvas.height = PIN_H;
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = color;
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.roundRect(1.5, 1.5, BADGE_SIZE - 3, BADGE_SIZE - 3, 3); // radio 0 = esquinas vivas
+
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = color;
+  ctx.lineWidth = PIN_BORDER;
+  tracePinOutline(ctx, PIN_BORDER / 2);
   ctx.fill();
   ctx.stroke();
-  return ctx.getImageData(0, 0, BADGE_SIZE, BADGE_SIZE);
+
+  // Hueco del logo: círculo neutro, sin marca todavía
+  ctx.beginPath();
+  ctx.arc(LOGO_HOLE_CX, LOGO_HOLE_CY, LOGO_HOLE_R, 0, Math.PI * 2);
+  ctx.fillStyle = '#eef2f7';
+  ctx.fill();
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.stroke();
+
+  return ctx.getImageData(0, 0, PIN_W, PIN_H);
 }
 
 map.on('load', async () => {
@@ -1181,24 +1252,21 @@ map.on('load', async () => {
     data: { type: 'FeatureCollection', features: [] }
   });
 
-  // Un badge por clase de precio, todos con la misma geometría estirable
-  const badgeMeta = {
-    content: [BADGE_CORNER, BADGE_CORNER, BADGE_SIZE - BADGE_CORNER, BADGE_SIZE - BADGE_CORNER],
-    stretchX: [[BADGE_CORNER, BADGE_SIZE - BADGE_CORNER]],
-    stretchY: [[BADGE_CORNER, BADGE_SIZE - BADGE_CORNER]],
-    pixelRatio: 2
-  };
-  PRICE_COLORS.forEach((color, i) => map.addImage(BADGE_IDS[i], makeBadgeImage(color), badgeMeta));
-  map.addImage(NO_PRICE_BADGE_ID, makeBadgeImage(NO_PRICE_COLOR), badgeMeta);
+  // Un bocadillo por clase de precio, todos del mismo tamaño fijo (ver makeBadgeImage)
+  PRICE_COLORS.forEach((color, i) => map.addImage(BADGE_IDS[i], makeBadgeImage(color), { pixelRatio: 2 }));
+  map.addImage(NO_PRICE_BADGE_ID, makeBadgeImage(NO_PRICE_COLOR), { pixelRatio: 2 });
 
-  // Capa de recuadros: el fondo se ajusta al texto con 'icon-text-fit', y como el texto nunca va
-  // vacío (ver buildMarkerProps) el símbolo siempre existe.
+  // Capa de bocadillos: sin 'icon-text-fit' (tamaño fijo, ver makeBadgeImage), así que icono y
+  // texto se posicionan cada uno por su cuenta con su propio anchor/offset, ambos relativos al
+  // mismo punto (la gasolinera). 'icon-anchor: bottom' pone la PUNTA del bocadillo exactamente
+  // sobre la gasolinera; 'text-offset' desplaza el precio hacia dentro del cuerpo, a la derecha
+  // del hueco del logo.
   //
   // Los cuatro '*-allow-overlap' y '*-ignore-placement' van en false: MapLibre detecta colisiones y
-  // descarta los recuadros que se pisan, quedándose con el de 'symbol-sort-key' más bajo, o sea el
-  // más barato. La que cede el sitio NO desaparece del mapa: sigue pintada como punto en
+  // descarta los bocadillos que se pisan, quedándose con el de 'symbol-sort-key' más bajo, o sea
+  // el más barato. La que cede el sitio NO desaparece del mapa: sigue pintada como punto en
   // DOTS_LAYER_ID, justo debajo. Estar en el índice de colisión además aparta las etiquetas del
-  // mapa base (nombres de calle), que si no se leerían por debajo del recuadro.
+  // mapa base (nombres de calle), que si no se leerían por debajo del bocadillo.
   map.addLayer({
     id: LAYER_ID,
     type: 'symbol',
@@ -1206,9 +1274,8 @@ map.on('load', async () => {
     minzoom: LABEL_MIN_ZOOM, // por debajo se muestran los puntos de DOTS_LAYER_ID en su lugar
     layout: {
       'icon-image': ['get', 'badge'], // color asignado en applyLabels() por cuartiles
-      'icon-text-fit': 'both',
-      'icon-text-fit-padding': [5, 7, 5, 7], // arriba, derecha, abajo, izquierda
-      'icon-padding': 4,                     // margen extra de colisión: evita recuadros pegados
+      'icon-anchor': 'bottom',
+      'icon-padding': 4, // margen extra de colisión: evita bocadillos pegados
       // Con colisión activa (los '*-allow-overlap' de abajo en false) MapLibre coloca antes las
       // claves más BAJAS y esas son las que sobreviven al solape, así que la clave es el precio
       // tal cual: gana la más barata. Las que pierden no desaparecen, quedan como punto en
@@ -1219,25 +1286,17 @@ map.on('load', async () => {
       'text-allow-overlap': false,
       'icon-ignore-placement': false,
       'text-ignore-placement': false,
-      // Rótulo y precio son dos secciones de una misma etiqueta. El precio es el dato que se busca
-      // de un vistazo, así que se lleva el cuerpo entero y el blanco puro; el rótulo queda de
-      // apoyo, más pequeño y en un gris claro neutro. Ese #f1f5f9 es el neutro más oscuro que
-      // aún pasa el 4,5:1 sobre los cuatro fondos (4,73:1 en el naranja, el peor).
-      'text-field': [
-        'format',
-        ['get', 'title'], { 'font-scale': 0.78, 'text-color': '#f1f5f9' },
-        '\n', {},
-        ['get', 'price'], { 'font-scale': 1 }
-      ],
-      'text-max-width': 20, // en ems: evita que un rótulo de 16 caracteres se parta en dos
+      'text-field': ['get', 'price'],
       'text-font': ['Noto Sans Bold'],
-      'text-size': 13,
-      'text-line-height': 1.15,
-      'text-anchor': 'center',
-      'text-justify': 'center'
+      'text-size': TEXT_SIZE,
+      'text-anchor': 'bottom-left',
+      // Calculado a partir de las constantes del icono (ver junto a LOGO_HOLE_*), no a mano: así
+      // no se puede descolocar del hueco del logo si se cambia el tamaño del bocadillo.
+      'text-offset': [TEXT_OFFSET_X, TEXT_OFFSET_Y],
+      'text-justify': 'left'
     },
     paint: {
-      'text-color': '#ffffff'
+      'text-color': BADGE_COLOR_MATCH // mismo color que el borde: refuerza el tramo con dos señales
     }
   });
 
@@ -1256,14 +1315,7 @@ map.on('load', async () => {
       // Crece con el zoom: en vista de país no debe emborronar, y de cerca tiene que verse y
       // poder tocarse con el dedo, porque ahí es donde representa a una gasolinera oculta
       'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 2.5, 8, 4.5, 14, 5.5],
-      'circle-color': [
-        'match', ['get', 'badge'],
-        BADGE_IDS[0], PRICE_COLORS[0],
-        BADGE_IDS[1], PRICE_COLORS[1],
-        BADGE_IDS[2], PRICE_COLORS[2],
-        BADGE_IDS[3], PRICE_COLORS[3],
-        NO_PRICE_COLOR // badge-sin-precio o cualquier valor sin clasificar
-      ],
+      'circle-color': BADGE_COLOR_MATCH,
       'circle-stroke-width': 1,
       'circle-stroke-color': '#ffffff' // borde blanco para separar el punto del mapa base
     }
@@ -1347,6 +1399,42 @@ map.on('load', async () => {
   if (!autoLocating) showStartOverlay();
 });
 
+// Caché del último tramo pedido al .fgb: si el bbox que hace falta ahora cae DENTRO del que ya se
+// pidió (mismo fichero), nos ahorramos la petición de red y filtramos lo que ya tenemos en memoria.
+// Guarda solo el último tramo, no un histórico: cada fetch real lo sustituye entero.
+let cachedBbox = null;
+let cachedSrc = null;
+let cachedFeatures = [];
+
+function bboxContains(outer, inner) {
+  return inner.minX >= outer.minX && inner.maxX <= outer.maxX &&
+         inner.minY >= outer.minY && inner.maxY <= outer.maxY;
+}
+
+// geometry.coordinates de una Feature de FlatGeobuf viene en [lng, lat], como cualquier GeoJSON
+// (así lo construye fetch-data: Point(lng, lat), no al revés).
+function featureInBbox(feature, bbox) {
+  const [lng, lat] = feature.geometry.coordinates;
+  return lng >= bbox.minX && lng <= bbox.maxX && lat >= bbox.minY && lat <= bbox.maxY;
+}
+
+// Amplía el bbox un 50% de su ancho/alto a cada lado antes de pedirlo: así un paneo corto dentro
+// de ese margen no vuelve a tocar la red (sirve del caché de arriba) y solo hace falta un fetch
+// nuevo al salirse de la zona ya cubierta o al cruzar LABEL_MIN_ZOOM (cambia de fichero). Con toda
+// España en pantalla el margen no cuesta nada de verdad -- el bbox ya cubre el país entero, así
+// que ampliarlo no trae ni un punto más --; en zooms cercanos sí baja algo más de lo estrictamente
+// visible, a cambio de bastantes menos peticiones al mover el mapa dentro de la misma zona.
+function padBbox(bbox, factor) {
+  const dx = (bbox.maxX - bbox.minX) * factor;
+  const dy = (bbox.maxY - bbox.minY) * factor;
+  return {
+    minX: bbox.minX - dx,
+    minY: bbox.minY - dy,
+    maxX: bbox.maxX + dx,
+    maxY: bbox.maxY + dy
+  };
+}
+
 // 5. Cargar únicamente las gasolineras visibles con FlatGeobuf, vía HTTP Range Request
 async function updateMarkers() {
   // Se carga a cualquier zoom: en vista alejada las estaciones se pintan como puntos (DOTS_LAYER_ID)
@@ -1365,13 +1453,28 @@ async function updateMarkers() {
   // tener que bajar el completo: son 1,73 MB frente a 2,90 MB para el país entero.
   const src = map.getZoom() < LABEL_MIN_ZOOM ? FGB_LITE : FGB_FULL;
 
+  // El bbox visible ya está cubierto por el último tramo pedido a este mismo fichero: no hace
+  // falta red, solo filtrar lo que ya tenemos. El caso más habitual es hacer zoom in (el bbox se
+  // encoge) o moverse poco dentro de una zona ya cargada (gracias al margen de padBbox).
+  if (cachedSrc === src && cachedBbox && bboxContains(cachedBbox, bbox)) {
+    currentFeatures = cachedFeatures.filter((f) => featureInBbox(f, bbox));
+    applyLabels();
+    return;
+  }
+
+  const fetchBbox = padBbox(bbox, 0.5);
   const features = [];
   try {
-    const iter = flatgeobuf.deserialize(src, bbox);
+    const iter = flatgeobuf.deserialize(src, fetchBbox);
     for await (const feature of iter) {
       features.push(feature);
     }
-    currentFeatures = features;
+    cachedBbox = fetchBbox;
+    cachedSrc = src;
+    cachedFeatures = features;
+    // Solo lo que cae en el bbox real, no en el margen: éste es puro caché, no debe colar
+    // gasolineras fuera de pantalla en el cálculo de cuartiles de applyLabels().
+    currentFeatures = features.filter((f) => featureInBbox(f, bbox));
     // Una sola actualización de la capa por movimiento, con el precio ya calculado
     applyLabels();
   } catch (err) {
