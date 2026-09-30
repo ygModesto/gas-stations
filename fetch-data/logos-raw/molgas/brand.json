@@ -1,0 +1,167 @@
+{
+  "id": "id0m9n18mh",
+  "name": "Molgas Energy",
+  "domain": "molgasenergy.com",
+  "claimed": false,
+  "description": "Molgas is a marketer, distributor and supplier of LNG and bioLNG, with the strongest logistics network in Europe and over […]",
+  "longDescription": "Molgas Energía is a leading energy services company specializing in liquefied natural gas (LNG) distribution and installation across Spain, France, Belgium, Italy, and Portugal. With over 20 years of experience, Molgas provides a comprehensive service that includes energy management, engineering, and the manufacturing of LNG equipment. Their offerings cater to various applications, including industrial, cogeneration, automotive, and maritime sectors, aimed at enhancing business efficiency while promoting environmental sustainability.\n\nMolgas ensures safety and economic viability throughout the energy supply chain, and they actively contribute to the development of alternative fuels in Europe. The company has significantly expanded its network of refueling stations (gasineras) and recently announced collaborations to enhance infrastructure and services. Notable achievements include executing major LNG bunkering operations and launching new refueling stations in strategic locations. With a commitment to quality, professionalism, and innovative solutions, Molgas Energía is dedicated to reducing energy costs and environmental impact for its clients while moving towards a sustainable energy future.",
+  "links": [
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/molgas-energ-a-sau"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id0m9n18mh/w/1490/h/627/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 627,
+          "width": 1490,
+          "size": 91608
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id0m9n18mh/w/200/h/200/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 200,
+          "width": 200,
+          "size": 667265
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#59af39",
+      "type": "accent",
+      "brightness": 148
+    },
+    {
+      "hex": "#202020",
+      "type": "dark",
+      "brightness": 32
+    },
+    {
+      "hex": "#fafafa",
+      "type": "light",
+      "brightness": 250
+    }
+  ],
+  "fonts": [
+    {
+      "name": "var( --e-global-typography-8158991-font-family )",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "-apple-system",
+      "type": "body",
+      "origin": "system",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id0m9n18mh/w/400/h/67/id9x6K5_P9.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 67,
+          "width": 400,
+          "size": 2841
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    }
+  ],
+  "qualityScore": 0.5128205128205129,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.4515126347541809,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 0.3663579821586609,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 0.27322739362716675,
+        "id": "28",
+        "name": "Computers Electronics and Technology",
+        "emoji": "🖥",
+        "parent": null,
+        "slug": "computers-electronics-and-technology"
+      },
+      {
+        "score": 0.24334006011486053,
+        "id": "233",
+        "name": "Green and Renewable Technology",
+        "emoji": "🖥",
+        "parent": {
+          "emoji": "🖥",
+          "id": "28",
+          "name": "Computers Electronics and Technology",
+          "slug": "computers-electronics-and-technology"
+        },
+        "slug": "green-and-renewable-technology"
+      },
+      {
+        "score": 0.23151932656764984,
+        "id": "10",
+        "name": "Business and Consumer Services",
+        "emoji": "📊",
+        "parent": null,
+        "slug": "business-and-consumer-services"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": null,
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": null,
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:id0m9n18mh"
+}

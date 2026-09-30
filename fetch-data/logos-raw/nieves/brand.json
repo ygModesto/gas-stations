@@ -1,0 +1,160 @@
+{
+  "id": "idZ0rPhYke",
+  "name": "Grupo Nieves",
+  "domain": "nievesenergia.com",
+  "claimed": false,
+  "description": "Somos un grupo energético familiar con más de 30 años de experiencia en el sector para proporcionarte la energía que necesitas. Conoce nuestros servicios.",
+  "longDescription": "Grupo Energético is a family-owned brand with over 30 years of experience in the energy sector. We specialize in providing the energy solutions you need, offering a diverse range of products and services. As an oil operator, we ensure the transportation and distribution of fuel through our network of service stations for both businesses and individuals. Additionally, we are a trusted provider of electricity, natural gas, and renewable energy, including solar panels and aerothermal systems. We prioritize building close relationships with our clients, adapting to their evolving needs and delivering personalized services. Our values of reliability, adaptability, and customer focus drive everything we do. Whether you're a business or individual, our dedicated team is here to provide you with the energy solutions you require. Contact us today for more information.",
+  "links": [
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/nievesenergia"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/nievesenergia"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/nievesenergia"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idZ0rPhYke/w/833/h/833/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 833,
+          "width": 833,
+          "size": 18550
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    },
+    {
+      "theme": "light",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idZ0rPhYke/theme/light/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 73,
+          "width": 187,
+          "size": 7411
+        },
+        {
+          "src": "https://cdn.brandfetch.io/idZ0rPhYke/w/820/h/320/theme/light/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 320,
+          "width": 820,
+          "size": 21017
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#003566",
+      "type": "dark",
+      "brightness": 45
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    },
+    {
+      "hex": "#ec7b23",
+      "type": "accent",
+      "brightness": 141
+    }
+  ],
+  "fonts": [
+    {
+      "name": "-apple-system",
+      "type": "body",
+      "origin": "system",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idZ0rPhYke/w/1536/h/768/id2RaebYls.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 768,
+          "width": 1536,
+          "size": 37890
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1080,
+        "alt": "",
+        "sourceUrl": "https://nievesenergia.com/wp-content/uploads/2025/05/nieves_responsive_home-1.jpeg.webp",
+        "score": 71,
+        "rank": 1,
+        "naturalWidth": 1920
+      }
+    }
+  ],
+  "qualityScore": 0.5,
+  "company": {
+    "employees": 51,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": 1991,
+    "industries": [
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": "SELF_OWNED",
+    "location": {
+      "city": "",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idZ0rPhYke"
+}

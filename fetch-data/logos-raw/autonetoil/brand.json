@@ -1,0 +1,240 @@
+{
+  "id": "idlXmJztwP",
+  "name": "Autonetoil",
+  "domain": "autonetoil.com",
+  "claimed": false,
+  "description": "Autonetoil gasolinera Quality LowCost. Descubre nuestras ubicaciones y disfruta de combustible para tu vehículo al mejor precio.",
+  "longDescription": "Autonetoil is a leading brand in the automotive industry, offering a range of products and services to meet the needs of customers. With a wealth of experience in the sector, Autonetoil has established itself with its own resources and solid economic solvency. At Autonetoil, we prioritize customer trust and satisfaction. We provide quality low-cost fuel at our gas stations, ensuring that your vehicle's engine is well taken care of. Our stations are equipped with self-service 24-hour pumps, allowing you to pay with ease using either a card or cash. What sets us apart is our commitment to innovation, which has been a key factor in our success over the years. If you're interested in joining our network, we welcome franchisees who align with our business and investors who have land to set up a gas station. Additionally, our loyalty card offers benefits such as detailed billing, monthly automatic invoices, and access to discounts and promotions. Choose Autonetoil for quality fuel, convenience, and a trusted partner in the automotive industry.",
+  "links": [
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/channel/UCUHcOBX3BJKhViL1e7HbRyg"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/autonetoil"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/autonetoil"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/autonet-oil"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/autonetoil"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "light",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idlXmJztwP/w/820/h/820/theme/light/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 820,
+          "width": 820,
+          "size": 31706
+        },
+        {
+          "src": "https://cdn.brandfetch.io/idlXmJztwP/theme/light/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 1000,
+          "width": 1000,
+          "size": 4985
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idlXmJztwP/w/400/h/400/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "width": 400,
+          "size": 12383
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#ff8d09",
+      "type": "accent",
+      "brightness": 156
+    },
+    {
+      "hex": "#008996",
+      "type": "dark",
+      "brightness": 109
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    }
+  ],
+  "fonts": [
+    {
+      "name": "gilroy-bold",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "gilroy-medium",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idlXmJztwP/w/1500/h/500/idLFqOT4q1.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 94337
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 918,
+        "alt": "",
+        "sourceUrl": "https://autonetoil.com/wp-content/uploads/2021/02/lema-background-5.jpg",
+        "score": 78,
+        "rank": 1,
+        "naturalWidth": 1920
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1080,
+        "alt": "",
+        "sourceUrl": "https://autonetoil.com/wp-content/uploads/2026/03/Slide-web-Autonetoil-3.png",
+        "score": 76,
+        "rank": 2,
+        "naturalWidth": 1920
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1000,
+        "alt": "",
+        "sourceUrl": "https://autonetoil.com/wp-content/uploads/2021/03/home-calltoaction-2.jpg",
+        "score": 67,
+        "rank": 3,
+        "naturalWidth": 1000
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1000,
+        "alt": "",
+        "sourceUrl": "https://autonetoil.com/wp-content/uploads/2021/03/home-calltoaction-1.jpg",
+        "score": 66,
+        "rank": 4,
+        "naturalWidth": 1000
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1000,
+        "alt": "",
+        "sourceUrl": "https://autonetoil.com/wp-content/uploads/2021/02/home-calltoaction-3.jpg",
+        "score": 65,
+        "rank": 5,
+        "naturalWidth": 1000
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 846,
+        "alt": "",
+        "sourceUrl": "https://autonetoil.com/wp-content/uploads/2021/02/corp-contact-background-5.jpg",
+        "score": 62,
+        "rank": 6,
+        "naturalWidth": 1920
+      }
+    }
+  ],
+  "qualityScore": 0.5,
+  "company": {
+    "employees": 51,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": 2012,
+    "industries": [
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": "SELF_OWNED",
+    "location": {
+      "city": "Alella",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Barcelona",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idlXmJztwP"
+}

@@ -1,0 +1,167 @@
+{
+  "id": "id15F3J2LB",
+  "name": "AVIA",
+  "domain": "aviaenergias.es",
+  "claimed": false,
+  "description": "Estaciones de Servicio, distribución, lubricantes y energías alternativas http://t.co/3unMmFH7o2 \n+34 943 31 67 66",
+  "longDescription": "AVIA Energias is a renowned brand in the energy sector, offering a wide range of products and services to both individuals and professionals. With a strong commitment to innovation, AVIA provides cutting-edge solutions while prioritizing environmental sustainability. For individuals, AVIA offers a comprehensive network of service stations, providing a convenient and reliable source of fuel for cars and homes. Their range of products includes high-quality gasoline, diesel, and heating oil, ensuring optimal performance and efficiency. Moreover, their lubricants and additives are designed to enhance the lifespan and performance of your vehicle. AVIA also caters to professionals by offering distribution of fuel and lubricants, in addition to services such as station management and leasing. Their expertise and dedication have made them a trusted partner in the industry. In addition to their products and services, AVIA has a customer-centric approach, providing excellent support through their user-friendly online platform. With AVIA Energias, you can expect top-notch quality, reliability, and a commitment to the environment.",
+  "links": [
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/channel/UCaB_mtoN9uKvX5_JDNhmHAg"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/aviaenergias"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/aviaenergias"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/aviaenergias"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/avia-energ-as"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id15F3J2LB/w/400/h/400/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "width": 400,
+          "size": 11937
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id15F3J2LB/w/101/h/71/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 71,
+          "width": 101,
+          "size": 953
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#830303",
+      "type": "dark",
+      "brightness": 30
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    },
+    {
+      "hex": "#e30613",
+      "type": "accent",
+      "brightness": 54
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Lato",
+      "type": "body",
+      "origin": "google",
+      "originId": "Lato",
+      "weights": []
+    },
+    {
+      "name": "Lato",
+      "type": "body",
+      "origin": "google",
+      "originId": "Lato",
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id15F3J2LB/w/1500/h/500/idL8a8ivbl.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 64280
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "alt": "",
+        "score": 78,
+        "naturalHeight": 534,
+        "sourceUrl": "https://www.aviaenergias.es/sites/default/files/cab-power.jpg",
+        "rank": 1,
+        "naturalWidth": 1920
+      }
+    }
+  ],
+  "qualityScore": 0.5,
+  "company": {
+    "employees": 201,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": 1983,
+    "industries": [
+      {
+        "id": "100",
+        "score": 1,
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": "PRIVATELY_HELD",
+    "location": {
+      "city": "Donostia San Sebastin",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Gipuzkoa",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:id15F3J2LB"
+}

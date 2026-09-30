@@ -1,0 +1,174 @@
+# Marcas de gasolineras con más de 10 estaciones en el dato de MITECO (gasolineras.json),
+# pensado para alimentar un futuro script que descargue el logo de cada una por su web.
+# Cifras de un volcado puntual del feed, no se recalculan solas -- si quieres números al día,
+# hay que rehacer el recuento contra un gasolineras.json reciente.
+#
+# "gasolineras" cuenta coincidencia EXACTA del texto del rótulo, no la normalización por palabra
+# que usa BRANDS en src/main.rs (que junta p.ej. "BP" y "BP OIL ESPAÑA" bajo la misma marca) --
+# por eso aquí BP sale con 150 y no con 672. De estas marcas, las que además están en BRANDS
+# (src/main.rs) ya se reconocen y colorean en el mapa; las que no, hoy caen en "Otras".
+#
+# "web" viene rellena solo en las que pude confirmar mirando su web oficial; el resto queda a
+# "null" a propósito, para no meter una URL adivinada en un script que va a hacer peticiones
+# reales -- complétalas a mano según las vayas confirmando. El destino es Brandfetch
+# (brandfetch.com), así que interesa más el dominio raíz que un servicio de logos reconoce que la
+# URL más "oficial" o geográficamente exacta -- ver la nota de Q8 más abajo.
+#
+# (SIN RÓTULO) y LIBRE no son marcas de verdad -- son gasolineras sin marca o independientes --
+# se quedan aquí solo porque superan las 10 estaciones; no tiene sentido buscarles web ni logo.
+#
+# Q8 ya suma su rótulo IDS (la red de tarjeta de gasóleo para transporte de Kuwait Petroleum,
+# renombrada Q8Truck en 2025), y GM OIL ya suma su rótulo GMOIL (misma cadena, dos grafías) --
+# mismo criterio que aplica ahora BRANDS en src/main.rs.
+
+marcas:
+  - marca: REPSOL
+    gasolineras: 2741
+    web: repsol.com
+  - marca: MOEVE
+    gasolineras: 588
+    web: moeveglobal.com # moeve.es cae en "Moeve Clientes" (marca distinta y sin SVG en Brandfetch);
+    # moeveglobal.com es la ficha verificada (quality score 0.96 vs 0.72) y sí tiene SVG, aunque
+    # solo del wordmark completo (180x49), no de un icono/símbolo compacto -- el icono para el
+    # hueco circular del pin sigue siendo un jpeg (ver fetch-data/logos-raw/moeve/)
+  - marca: CEPSA
+    gasolineras: 562
+    web: cepsa.com
+  - marca: GALP
+    gasolineras: 463
+    web: galp.com
+  - marca: BALLENOIL
+    gasolineras: 413
+    web: ballenoil.es
+  - marca: PLENERGY
+    gasolineras: 388
+    web: plenergy.es
+  - marca: SHELL
+    gasolineras: 341
+    web: shell.com
+  - marca: PETROPRIX
+    gasolineras: 177
+    web: petroprix.com
+  - marca: PETRONOR
+    gasolineras: 159
+    web: petronor.eus
+  - marca: BP
+    gasolineras: 150
+    web: bp.com
+  - marca: CARREFOUR
+    gasolineras: 146
+    web: carrefour.es
+  - marca: Q8
+    gasolineras: 105
+    web: q8.dk # alternativa: q8spain.q8.it (la de Q8 España, pero es un subdominio poco indexado)
+  - marca: AVIA
+    gasolineras: 102
+    web: aviaenergias.es
+  - marca: ESCLATOIL
+    gasolineras: 71
+    web: bonpreuesclat.cat
+  - marca: BONAREA
+    gasolineras: 68
+    web: bonarea-energia.com
+  - marca: CAMPSA
+    gasolineras: 56
+    web: null
+  - marca: VALCARCE
+    gasolineras: 51
+    web: grupovalcarce.com
+  - marca: AGLA
+    gasolineras: 50
+    web: agla.es/
+  - marca: ALCAMPO
+    gasolineras: 44
+    web: alcampo.es
+  - marca: ENI
+    gasolineras: 42
+    web: eni.com
+  - marca: HAM
+    gasolineras: 41
+    web: ham.es
+  - marca: EROSKI
+    gasolineras: 40
+    web: eroski.es
+  - marca: GASEXPRESS
+    gasolineras: 40
+    web: gasexpress.es
+  - marca: MEROIL
+    gasolineras: 39
+    web: meroil.es
+  - marca: BEROIL
+    gasolineras: 37
+    web: beroil.es
+  - marca: TAMOIL
+    gasolineras: 30
+    web: tamoil.com # tamoil.es (la de España) no tiene logo en Brandfetch, tamoil.com sí
+  - marca: DISA
+    gasolineras: 26
+    web: disagrupo.es
+  - marca: MOLGAS
+    gasolineras: 25
+    web: molgasenergy.com
+  - marca: GM OIL
+    gasolineras: 25
+    web: null
+  - marca: AUTONETOIL
+    gasolineras: 21
+    web: autonetoil.com
+  - marca: NATURGY
+    gasolineras: 21
+    web: naturgy.es
+  - marca: NIEVES
+    gasolineras: 21
+    web: nievesenergia.com
+  - marca: IBERDOEX
+    gasolineras: 20
+    web: iberdoex.com
+  - marca: AGROPAL
+    gasolineras: 18
+    web: agropal.com
+  - marca: EASYGAS
+    gasolineras: 18
+    web: easygasgroup.com
+  - marca: PETROCAT
+    gasolineras: 18
+    web: petrocatdistribucio.com
+  - marca: ASC CARBURANTES
+    gasolineras: 17
+    web: estacionesasc.es
+  - marca: PETROMIRALLES
+    gasolineras: 16
+    web: petromiralles.com
+  - marca: PCAN
+    gasolineras: 13
+    web: pcan.es
+  - marca: CONFORT AUTO
+    gasolineras: 12
+    web: confortauto.com/
+  - marca: FAMILY ENERGY
+    gasolineras: 12
+    web: https://familyenergy.es/
+  - marca: FARRUCO S.A.
+    gasolineras: 12
+    web: null
+  - marca: PETROCAT DIRECTE
+    gasolineras: 12
+    web: petrocatdistribucio.com
+  - marca: (SIN RÓTULO)
+    gasolineras: 11
+    web: null
+  - marca: CAMPSA EXPRESS
+    gasolineras: 11
+    web: null
+  - marca: DST
+    gasolineras: 11
+    web: dstgroup.es
+  - marca: LIBRE
+    gasolineras: 11
+    web: null
+  - marca: SUPECO
+    gasolineras: 11
+    web: supeco.es
+  - marca: T9
+    gasolineras: 11
+    web: tnueve.com/

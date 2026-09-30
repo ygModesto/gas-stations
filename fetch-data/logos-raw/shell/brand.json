@@ -1,0 +1,186 @@
+{
+  "id": "idBvD8kBit",
+  "name": "Shell",
+  "domain": "shell.com",
+  "claimed": true,
+  "description": "Shell is a global group of energy and petrochemical companies. We serve commercial and industrial customers, and around 33 million customers daily at our Shell-branded retail service stations.",
+  "longDescription": "Royal Dutch Shell, commonly known as Shell, is a multinational energy company based in the Netherlands. It is one of the largest oil companies in the world, operating in over 70 countries. Shell's history traces back to the late 19th century when a small London-based company called The Shell Transport and Trading Company sold seashells to tourists. In the early 1900s, it merged with the Royal Dutch Petroleum Company, which had been formed to develop oilfields in the Dutch East Indies (now Indonesia). This merger created Royal Dutch Shell. The company's headquarters are located in The Hague, Netherlands. The headquarters complex is known as the Shell Centre and consists of several buildings, including the iconic Shell Tower. The site houses various departments, including executive offices, finance, human resources, and research and development. Shell operates in three main segments: Upstream, Downstream, and Integrated Gas. The Upstream segment focuses on exploration, development, and production of oil and gas resources. The Downstream segment involves refining, marketing, and trading of oil and gas products. The Integrated Gas segment deals with the liquefaction and transportation of natural gas. Shell has a vast global presence, with operations in the Americas, Europe, Asia, Oceania, and Africa. It has numerous subsidiaries, joint ventures, and partnerships. Noteworthy subsidiaries include Shell Oil Company in the United States, Shell Canada, and Shell Nigeria. Shell also has joint ventures with major companies such as Saudi Aramco and Mitsubishi Corporation. In terms of market position, Shell is one of the world's leading integrated energy companies. It consistently ranks among the top oil companies in terms of global sales and market capitalization. Shell faces competition from other multinational oil companies like ExxonMobil, Chevron, and BP. Over the years, Shell has experienced significant events and achievements. In 2016, it acquired BG Group, a major player in the liquefied natural gas (LNG) industry, expanding its position in the gas market. Shell has also been actively involved in renewable energy projects and has invested in wind, solar, and biofuels. As of the latest information available, Shell is focused on transitioning to cleaner energy sources in response to the global shift towards sustainability. It aims to become a net-zero emissions energy company by 2050 and is investing in low-carbon technologies and renewable energy solutions. In conclusion, Royal Dutch Shell is a prominent energy company with a rich history and a global presence. It offers a wide range of products and services in the oil and gas industry and is actively adapting its strategy to align with the changing energy landscape.",
+  "links": [
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/user/Shell"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/shell"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/shell"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/shell"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/Shell"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idBvD8kBit/w/384/h/384/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 384,
+          "width": 384,
+          "size": 11133
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idBvD8kBit/w/800/h/741/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 741,
+          "width": 800,
+          "size": 54763
+        },
+        {
+          "src": "https://cdn.brandfetch.io/idBvD8kBit/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 126,
+          "width": 136,
+          "size": 2545
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#DD1C21",
+      "type": "brand",
+      "brightness": 69
+    },
+    {
+      "hex": "#1D232A",
+      "type": "dark",
+      "brightness": 34
+    },
+    {
+      "hex": "#fbce07",
+      "type": "accent",
+      "brightness": 201
+    },
+    {
+      "hex": "#FFFFFF",
+      "type": "light",
+      "brightness": 255
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Times",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "Arial",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idBvD8kBit/w/1500/h/500/theme/dark/idkkOR9ccY.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 116560
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    }
+  ],
+  "qualityScore": 0.9996406345255433,
+  "company": {
+    "employees": 10001,
+    "financialIdentifiers": {
+      "isin": [
+        "US7802592060",
+        "US7802591070",
+        "US7802593050",
+        "GB00BP6MXD84"
+      ],
+      "ticker": [
+        "RDSB.AS",
+        "RDS-A",
+        "R6C3.DE",
+        "RDSB.L",
+        "RDSA.L",
+        "R6C.DE",
+        "RDS-B",
+        "RDSA.AS",
+        "SHEL",
+        "RYDAF",
+        "SHEL.L",
+        "L3H.F",
+        "SHELL.AS"
+      ]
+    },
+    "foundedYear": 1907,
+    "industries": [
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      }
+    ],
+    "kind": "PUBLIC_COMPANY",
+    "location": {
+      "city": "London",
+      "country": "United Kingdom",
+      "countryCode": "GB",
+      "region": "Europe",
+      "state": "England",
+      "subregion": "Northern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idBvD8kBit"
+}

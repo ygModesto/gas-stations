@@ -1,0 +1,205 @@
+{
+  "id": "id-BMcBYdh",
+  "name": "bonÀrea Energia",
+  "domain": "bonarea-energia.com",
+  "claimed": false,
+  "description": "bonÀrea Agrupa cuenta con una amplia experiencia en el sector agroalimentario. Desarrolla todas las actividades ganaderas, industriales y comerciales necesarias para poder llegar al consumidor sin intermediarios.\n\nEl grupo realiza todos los procesos, desde el nacimiento de aves y ganado, pasando por la fabricación de piensos, cría y engorde de los animales, sacrificio,  transformación y elaboración de los productos, hasta su distribución y venta directa mediante las tiendas bonÀrea.\n\nLa plantilla actual de la empresa es de más de 4700 empleados. Más de 500 son titulados universitarios, más de 760 especialistas y más de 3440 operarios. Cuenta además con 530 tiendas \"bonArea\" situadas en Catalunya, Aragón, Castellón, Madrid, Guadalajara y Andorra. En las tiendas trabajan más de 1800 dependientes/as.",
+  "longDescription": "bonÀrea is a comprehensive energy provider that excels in delivering fuel, electricity, and gas solutions for both residential and business customers. With an extensive network of over 60 service stations across the region, bonÀrea offers high-quality fuels, including diesel and gasoline, at competitive prices. Customers can enjoy convenient services like automated car washes and truck refueling options. \n\nIn addition to traditional fuels, bonÀrea is committed to sustainable energy solutions, offering photovoltaic systems that enable users to generate their own energy while benefiting from economic savings. Their competitive electricity and gas tariffs cater to varying needs, from small households to large businesses. \n\nThe bonÀrea CarPay app simplifies transactions and minimizes waiting times, enhancing customer satisfaction. With a strong emphasis on quality, affordability, and eco-friendly initiatives, bonÀrea aims to empower consumers in their energy decisions while keeping costs manageable. This dedication to service and sustainability makes bonÀrea an ideal choice for all energy needs.",
+  "links": [
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/bonarea.energia"
+    },
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/c/bonareaoficial"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/bonarea-agrupa"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/bonarea.energia"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id-BMcBYdh/w/820/h/298/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 298,
+          "width": 820,
+          "size": 23452
+        },
+        {
+          "src": "https://cdn.brandfetch.io/id-BMcBYdh/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 32,
+          "width": 88,
+          "size": 3433
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id-BMcBYdh/w/1801/h/1801/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 1801,
+          "width": 1801,
+          "size": 170881
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#784d27",
+      "type": "accent",
+      "brightness": 83
+    },
+    {
+      "hex": "#220a03",
+      "type": "dark",
+      "brightness": 15
+    },
+    {
+      "hex": "#f7f7f7",
+      "type": "light",
+      "brightness": 247
+    }
+  ],
+  "fonts": [
+    {
+      "name": "var(--bs-font-sans-serif)",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "var(--bs-body-font-family)",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id-BMcBYdh/w/400/h/100/idoHo39Sz1.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 100,
+          "width": 400,
+          "size": 16367
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "sourceUrl": "https://bonarea-energia.com/assets/img/back-fuel.png",
+        "naturalWidth": 662,
+        "score": 66,
+        "alt": "",
+        "rank": 1,
+        "naturalHeight": 450
+      }
+    }
+  ],
+  "qualityScore": 0.6598341841893153,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.46813806891441345,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 0.3914554715156555,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 0.2789361774921417,
+        "id": "28",
+        "name": "Computers Electronics and Technology",
+        "emoji": "🖥",
+        "parent": null,
+        "slug": "computers-electronics-and-technology"
+      },
+      {
+        "score": 0.23214560747146606,
+        "id": "233",
+        "name": "Green and Renewable Technology",
+        "emoji": "🖥",
+        "parent": {
+          "emoji": "🖥",
+          "id": "28",
+          "name": "Computers Electronics and Technology",
+          "slug": "computers-electronics-and-technology"
+        },
+        "slug": "green-and-renewable-technology"
+      },
+      {
+        "score": 0.2252061814069748,
+        "id": "101",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": null,
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": null,
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:id-BMcBYdh"
+}

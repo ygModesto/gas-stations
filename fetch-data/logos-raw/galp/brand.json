@@ -1,0 +1,208 @@
+{
+  "id": "id7z_OoBZB",
+  "name": "Galp",
+  "domain": "galp.com",
+  "claimed": true,
+  "description": "Sustainability, innovation, investment, corporate governance.",
+  "longDescription": "Galp Energia, commonly known as Galp, is a Portuguese energy company that specializes in the production, refining, distribution, and marketing of petroleum products. It is headquartered in Lisbon, Portugal. Galp traces its roots back to 1953 when it was formed as a state-owned company called Petrogal. In 1999, it was privatized and became a publicly traded company. Since then, Galp has grown significantly and expanded its operations both domestically and internationally. The company's headquarters, known as Galp Tower, is located in Lisbon, Portugal. It is a modern, iconic building that serves as a symbol of Galp's presence in the capital city. Galp offers a wide range of products and services, including the exploration and production of crude oil and natural gas, refining, marketing and distribution of petroleum products, as well as power production from renewable sources. The company operates in various segments, including oil and gas exploration and production (E&P), refining and distribution, and renewables. On a global scale, Galp has a presence in over 20 countries, including Angola, Brazil, Mozambique, and Cape Verde. It has established numerous subsidiaries, joint ventures, and partnerships to expand its reach and enhance its operations. Notable subsidiaries and partners include Petrogal Brasil, Galp Trading, and Enersis. Galp is a major player in the global energy market and has a strong market position both domestically and internationally. It has been consistently ranked among the top energy companies in Portugal and is a significant contributor to the country's economy. In terms of global sales, Galp has achieved impressive growth over the years. The company has expanded its customer base and diversified its product offerings to meet the changing needs of the market. It faces strong competition from other multinational energy companies but has managed to maintain a competitive edge through continuous innovation and strategic partnerships. Galp has achieved several significant milestones and successes throughout its history. In recent years, the company has focused on diversifying its energy sources and investing in renewable energy projects, including solar and wind power. It has also made efforts to reduce its carbon footprint and promote sustainable practices. As of the latest updates, Galp is continuing to invest in the development of its renewable energy portfolio and exploring new opportunities in emerging markets. The company remains committed to driving sustainable growth and providing reliable energy solutions to its customers. In conclusion, Galp Energia is a leading Portuguese energy company with a strong presence both domestically and internationally. It offers a wide range of petroleum products and has expanded its operations through subsidiaries, joint ventures, and partnerships. Galp is well-positioned in the global market and is dedicated to sustainable growth and innovation.",
+  "links": [
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/galp"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/galppress"
+    },
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/user/canalgalpenergia"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/galp"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id7z_OoBZB/w/2105/h/1043/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 1043,
+          "width": 2105,
+          "size": 100842
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id7z_OoBZB/w/400/h/400/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "width": 400,
+          "size": 9883
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    },
+    {
+      "theme": null,
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id7z_OoBZB/iddSq_h0xX.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 580,
+          "width": 611,
+          "size": 833
+        },
+        {
+          "src": "https://cdn.brandfetch.io/id7z_OoBZB/w/800/h/759/iddSq_h0xX.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 759,
+          "width": 800,
+          "size": 17721
+        }
+      ],
+      "tags": [],
+      "type": "other"
+    },
+    {
+      "theme": null,
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id7z_OoBZB/idq69mvGfF.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 1329,
+          "width": 1400,
+          "size": 836
+        },
+        {
+          "src": "https://cdn.brandfetch.io/id7z_OoBZB/w/800/h/759/idq69mvGfF.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 759,
+          "width": 800,
+          "size": 22775
+        }
+      ],
+      "tags": [],
+      "type": "other"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#212529",
+      "type": "brand",
+      "brightness": 36
+    },
+    {
+      "hex": "#676C6F",
+      "type": "brand",
+      "brightness": 107
+    },
+    {
+      "hex": "#FA551E",
+      "type": "accent",
+      "brightness": 116
+    },
+    {
+      "hex": "#FFFFFF",
+      "type": "light",
+      "brightness": 255
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Ping",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "Ping",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id7z_OoBZB/w/1128/h/191/theme/dark/idWvqL4cF7.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 191,
+          "width": 1128,
+          "size": 59550
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    }
+  ],
+  "qualityScore": 0.9928193251279082,
+  "company": {
+    "employees": 5001,
+    "financialIdentifiers": {
+      "isin": [
+        "US3640971053",
+        "PTGAL0AM0009"
+      ],
+      "ticker": [
+        "GLPEY",
+        "GLPEF",
+        "GALP.LS"
+      ]
+    },
+    "foundedYear": 1999,
+    "industries": [
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      }
+    ],
+    "kind": "PUBLIC_COMPANY",
+    "location": {
+      "city": "Alcntara",
+      "country": "Portugal",
+      "countryCode": "PT",
+      "region": "Europe",
+      "state": "",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:id7z_OoBZB"
+}

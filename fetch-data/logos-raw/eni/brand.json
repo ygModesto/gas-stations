@@ -1,0 +1,256 @@
+{
+  "id": "id07a97M3H",
+  "name": "Eni",
+  "domain": "eni.com",
+  "claimed": false,
+  "description": "We are an energy company. We concretely support a just energy transition, with the objective of preserving our planet and promoting an efficient and sustainable access to energy for all.",
+  "longDescription": "Eni S.p.A., founded in 1953, is a multinational oil and gas company based in Rome, Italy. Originally focused on oil extraction, Eni has evolved into one of the largest integrated energy companies in the world. The company's headquarters is located in the historic EUR district of Rome. Eni's primary products include crude oil, natural gas, electricity, and refined petroleum products. The company engages in exploration, production, refining, and distribution of both conventional and renewable energy sources. Notably, Eni has invested significantly in renewable energy projects, including solar, wind, and biofuels, as part of its commitment to sustainability. Globally, Eni operates in over 70 countries and is recognized for its joint ventures in various regions, particularly in Africa, the Middle East, and Europe. Key subsidiaries include Saipem, a leader in engineering and contract services in the oil and gas sector, and Eni Gas & Power, which specializes in natural gas supply and electricity. Eni collaborates with major companies such as ExxonMobil and TotalEnergies to enhance its capabilities and market presence. As of 2022, Eni held a strong market position, ranking among the top ten oil and gas companies globally by sales. The company has focused on transitioning to a low-carbon future, aiming for net-zero emissions by 2050, which positions it competitively as the energy sector shifts. Recent strategic changes include increasing investments in sustainable technologies and a commitment to reducing its carbon footprint. In 2023, Eni continued to enhance its renewable energy portfolio and developed innovative projects in hydrogen and carbon capture. Overall, Eni's current status reflects its adaptive strategies aiming at growth amidst the global energy transition, aligning traditional energy production with future sustainable solutions.",
+  "links": [
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/eni"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/eni"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/EniItalia"
+    },
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/enivideochannel"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/eni"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id07a97M3H/w/400/h/400/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "width": 400,
+          "size": 10558
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    },
+    {
+      "theme": "light",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id07a97M3H/theme/light/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 40,
+          "width": 109,
+          "size": 13685
+        },
+        {
+          "src": "https://cdn.brandfetch.io/id07a97M3H/w/800/h/294/theme/light/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 294,
+          "width": 800,
+          "size": 17599
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id07a97M3H/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 40,
+          "width": 109,
+          "size": 14202
+        },
+        {
+          "src": "https://cdn.brandfetch.io/id07a97M3H/w/800/h/294/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 294,
+          "width": 800,
+          "size": 27389
+        },
+        {
+          "src": "https://cdn.brandfetch.io/id07a97M3H/w/800/h/293/theme/dark/logo.webp?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "webp",
+          "height": 293,
+          "width": 800,
+          "size": 31494
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "light",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id07a97M3H/theme/light/symbol.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 65,
+          "width": 81,
+          "size": 5202
+        },
+        {
+          "src": "https://cdn.brandfetch.io/id07a97M3H/w/800/h/643/theme/light/symbol.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 643,
+          "width": 800,
+          "size": 31287
+        }
+      ],
+      "tags": [],
+      "type": "symbol"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id07a97M3H/theme/dark/symbol.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 65,
+          "width": 81,
+          "size": 5205
+        },
+        {
+          "src": "https://cdn.brandfetch.io/id07a97M3H/w/800/h/642/theme/dark/symbol.webp?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "webp",
+          "height": 642,
+          "width": 800,
+          "size": 56016
+        }
+      ],
+      "tags": [],
+      "type": "symbol"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    },
+    {
+      "hex": "#FFD300",
+      "type": "accent",
+      "brightness": 205
+    },
+    {
+      "hex": "#030551",
+      "type": "dark",
+      "brightness": 10
+    },
+    {
+      "hex": "#A1D0FD",
+      "type": "brand",
+      "brightness": 201
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Eni Tab",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "Open Sans",
+      "type": "body",
+      "origin": "google",
+      "originId": "Open+Sans",
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id07a97M3H/w/1500/h/500/theme/dark/id1fSbCTON.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 115763
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    }
+  ],
+  "qualityScore": 0.9602903458418173,
+  "company": {
+    "employees": 10001,
+    "financialIdentifiers": {
+      "isin": [
+        "US26874R1086",
+        "IT0003132476"
+      ],
+      "ticker": [
+        "ENI.BR",
+        "E",
+        "ENI.F",
+        "0N9S.IL",
+        "EIPAF",
+        "ENI.DE",
+        "ENI.MI",
+        "ENI1.F"
+      ]
+    },
+    "foundedYear": 1953,
+    "industries": [
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      }
+    ],
+    "kind": "PUBLIC_COMPANY",
+    "location": {
+      "city": "",
+      "country": "Italy",
+      "countryCode": "IT",
+      "region": "Europe",
+      "state": "",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:id07a97M3H"
+}

@@ -1,0 +1,239 @@
+{
+  "id": "id-eZxErRz",
+  "name": "Plenergy",
+  "domain": "plenergy.es",
+  "claimed": false,
+  "description": "Energía al mejor precio para su vehículo. Líderes en España en venta y distribución automatizada de combustible. Cientos de gasolineras operativas en toda España.",
+  "longDescription": "Plenoil, a leading brand in Spain, is renowned for its automated fuel distribution services, providing motorists with energy at competitive prices. With a vast network of operational gas stations across the country, Plenoil ensures customers can easily find the nearest fueling station to meet their needs. The brand specializes in offering high-quality fuel products while maintaining a strong commitment to sustainability and customer satisfaction. Plenoil’s innovative solutions include a user-friendly app to locate gas stations and a dedicated customer service area for inquiries and support. \n\nIn addition to fuel, Plenoil is dedicated to community engagement, recently providing aid through cleaning materials to those affected by natural disasters. The company exemplifies corporate responsibility by not only focusing on energy provision but also enhancing customer experience with loyalty programs and exciting promotional offers linked to gaming and entertainment. Overall, Plenoil stands out as a reliable and forward-thinking choice for fuel distribution in Spain, prioritizing affordability and customer service.",
+  "links": [
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/plenoil"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/plenergy.spain"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/plenergy"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/plenoil"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id-eZxErRz/w/820/h/797/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 797,
+          "width": 820,
+          "size": 37385
+        },
+        {
+          "src": "https://cdn.brandfetch.io/id-eZxErRz/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 486,
+          "width": 500,
+          "size": 1810
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id-eZxErRz/w/400/h/400/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "width": 400,
+          "size": 9754
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#fd830b",
+      "type": "accent",
+      "brightness": 148
+    },
+    {
+      "hex": "#012257",
+      "type": "dark",
+      "brightness": 31
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Roboto",
+      "type": "title",
+      "origin": "google",
+      "originId": "Roboto",
+      "weights": []
+    },
+    {
+      "name": "Red Hat Display",
+      "type": "body",
+      "origin": "google",
+      "originId": "Red+Hat+Display",
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id-eZxErRz/w/1500/h/500/idiAAQPheK.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 14220
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "rank": 1,
+        "sourceUrl": "https://plenergy.es/wp-content/uploads/2026/07/Fondo-Portada-Web-Plenergy-1-1.jpg",
+        "score": 75,
+        "naturalHeight": 1090,
+        "naturalWidth": 2047,
+        "alt": ""
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "score": 74,
+        "naturalWidth": 2560,
+        "naturalHeight": 1445,
+        "sourceUrl": "https://plenergy.es/wp-content/uploads/2023/06/contaminacion-petroleo-agua-creada-tecnologia-ia-generativa-scaled.jpg",
+        "alt": "",
+        "rank": 2
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "score": 69,
+        "sourceUrl": "https://plenergy.es/wp-content/uploads/2023/10/reabastecimiento-min-1536x541.jpg",
+        "alt": "",
+        "rank": 3,
+        "naturalHeight": 541,
+        "naturalWidth": 1536
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 695,
+        "rank": 4,
+        "score": 68,
+        "naturalWidth": 1920,
+        "alt": "",
+        "sourceUrl": "https://plenergy.es/wp-content/uploads/2023/12/ChicaHomeBanner-min.jpg"
+      }
+    }
+  ],
+  "qualityScore": 0.683123334242372,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.28935593366622925,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "id": "10",
+        "score": 0.2772483825683594,
+        "name": "Business and Consumer Services",
+        "emoji": "📊",
+        "parent": null,
+        "slug": "business-and-consumer-services"
+      },
+      {
+        "score": 0.2715798318386078,
+        "id": "28",
+        "name": "Computers Electronics and Technology",
+        "emoji": "🖥",
+        "parent": null,
+        "slug": "computers-electronics-and-technology"
+      },
+      {
+        "score": 0.19609959423542023,
+        "id": "101",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "id": "32",
+        "score": 0.19261370599269867,
+        "name": "Computers Electronics and Technology",
+        "emoji": "🖥",
+        "parent": {
+          "emoji": "🖥",
+          "id": "28",
+          "name": "Computers Electronics and Technology",
+          "slug": "computers-electronics-and-technology"
+        },
+        "slug": "computers-electronics-and-technology"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": null,
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": null,
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:id-eZxErRz"
+}

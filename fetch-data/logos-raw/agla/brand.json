@@ -1,0 +1,304 @@
+{
+  "id": "id-YhWwVCj",
+  "name": "AGLA. Asociación de Gasolineras Libres",
+  "domain": "agla.es",
+  "claimed": false,
+  "description": "Asociación de Gasolineras Libres",
+  "longDescription": "Asociación de Gasolineras Libres (AGLA) is a renowned brand that specializes in providing a wide range of services to its members in the fuel industry. With a history dating back 25 years, AGLA is dedicated to benefiting its associated gas stations and ensuring their success. They offer various types of high-quality fuels, supplied by reliable providers, ensuring the satisfaction of their customers. \n\nAGLA also provides an array of services to their members, including image and communication support, fiscal and accounting advisory services, as well as safety information sheets. Their comprehensive range of services also includes valuable agreements and offers, such as their AGLA CARD, which provides benefits such as premium gifts, professional diesel discounts, and credit options. In addition, AGLA offers a user-friendly online platform that allows easy access to information, such as their digital gift catalog and a locator tool to find their gas stations.\n\nAsociación de Gasolineras Libres is committed to continuously improving its services, evident from their introduction of the Service Pack and their plans to provide more benefits to their members starting in January. With their dedication to the success and satisfaction of their members, AGLA has become a trusted and respected brand in the fuel industry.",
+  "links": [
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/AGLA.GasolinerasLibres"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/25182360"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id-YhWwVCj/w/820/h/301/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 301,
+          "width": 820,
+          "size": 13704
+        },
+        {
+          "src": "https://cdn.brandfetch.io/id-YhWwVCj/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 433,
+          "width": 1181,
+          "size": 2881
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id-YhWwVCj/w/559/h/559/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 559,
+          "width": 559,
+          "size": 15437
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#2d4f9b",
+      "type": "accent",
+      "brightness": 77
+    },
+    {
+      "hex": "#d4e5ff",
+      "type": "light",
+      "brightness": 227
+    },
+    {
+      "hex": "#333333",
+      "type": "dark",
+      "brightness": 51
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Lato",
+      "type": "title",
+      "origin": "google",
+      "originId": "Lato",
+      "weights": []
+    },
+    {
+      "name": "Lato",
+      "type": "body",
+      "origin": "google",
+      "originId": "Lato",
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id-YhWwVCj/w/1229/h/768/idt2nnnjfL.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 768,
+          "width": 1229,
+          "size": 339103
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 541,
+        "alt": "Cartel TarjetasAglaCard Final A3 900",
+        "sourceUrl": "https://www.agla.es/modules/mod_raxo_allmode/tools/tb.php?src=/images/FOTOS_NUEVAS_SEPT2014/Cartel-TarjetasAglaCard-Final-A3-900.jpg&w=767&h=542",
+        "score": 67,
+        "rank": 1,
+        "naturalWidth": 383
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 360,
+        "alt": "Descarga revista gasolina",
+        "sourceUrl": "https://www.agla.es/images/banners2017v2/Banner-Descargar-Revista-Gasolina.jpg",
+        "score": 64,
+        "rank": 2,
+        "naturalWidth": 640
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 541,
+        "alt": "",
+        "sourceUrl": "https://www.agla.es/modules/mod_raxo_allmode/tools/tb.php?src=/images/GANADOR_DIA_20_-_FOTOWEB_-_E.S._PETROUVE.jpg&w=767&h=542",
+        "score": 62,
+        "rank": 3,
+        "naturalWidth": 383
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 541,
+        "alt": "",
+        "sourceUrl": "https://www.agla.es/modules/mod_raxo_allmode/tools/tb.php?src=/images/CartelPuntosA4-NuevoLogo-vertical-800.jpg&w=767&h=542",
+        "score": 62,
+        "rank": 4,
+        "naturalWidth": 383
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 455,
+        "alt": "",
+        "sourceUrl": "https://www.agla.es/images/SLIDER_WEB_-_CARTEL_SORTEO_500_-_2025.jpg",
+        "score": 61,
+        "rank": 5,
+        "naturalWidth": 1920
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 540,
+        "alt": "",
+        "sourceUrl": "https://www.agla.es/modules/mod_raxo_allmode/tools/tb.php?src=/images/Portada_Revista_Gasolina-n29_-_Enero_2026.jpg&w=767&h=542",
+        "score": 61,
+        "rank": 6,
+        "naturalWidth": 383
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 541,
+        "alt": "",
+        "sourceUrl": "https://www.agla.es/modules/mod_raxo_allmode/tools/tb.php?src=/images/Nuevo_Cartel_Gasoleo_Profesional_20_Centimos_Marzo_2026.jpg&w=767&h=542",
+        "score": 59,
+        "rank": 7,
+        "naturalWidth": 383
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 541,
+        "alt": "",
+        "sourceUrl": "https://www.agla.es/modules/mod_raxo_allmode/tools/tb.php?src=/images/CartelServiciosPremiumA4-800.jpg&w=767&h=542",
+        "score": 58,
+        "rank": 8,
+        "naturalWidth": 383
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 540,
+        "alt": "",
+        "sourceUrl": "https://www.agla.es/modules/mod_raxo_allmode/tools/tb.php?src=/images/Portada_web_AGLA_de_Marzo.jpg&w=767&h=542",
+        "score": 57,
+        "rank": 9,
+        "naturalWidth": 304
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 541,
+        "alt": "",
+        "sourceUrl": "https://www.agla.es/modules/mod_raxo_allmode/tools/tb.php?src=/images/111Folleto10x21AditivosCaraALogoNuevo.jpg&w=767&h=542",
+        "score": 57,
+        "rank": 10,
+        "naturalWidth": 376
+      }
+    }
+  ],
+  "qualityScore": 0.4487179487179487,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.3116840720176697,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 0.27758532762527466,
+        "id": "50",
+        "name": "Finance",
+        "emoji": "💰",
+        "parent": null,
+        "slug": "finance"
+      },
+      {
+        "score": 0.2635146379470825,
+        "id": "10",
+        "name": "Business and Consumer Services",
+        "emoji": "📊",
+        "parent": null,
+        "slug": "business-and-consumer-services"
+      },
+      {
+        "score": 0.24946549534797668,
+        "id": "57",
+        "name": "Food and Drink",
+        "emoji": "🍔",
+        "parent": null,
+        "slug": "food-and-drink"
+      },
+      {
+        "score": 0.2392147332429886,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": null,
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": null,
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:id-YhWwVCj"
+}

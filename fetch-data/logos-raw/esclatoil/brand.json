@@ -1,0 +1,292 @@
+{
+  "id": "idzWmvu6t1",
+  "name": "Supermercats Bonpreu i Esclat",
+  "domain": "bonpreuesclat.cat",
+  "claimed": false,
+  "description": "Descobreix Grup Bon Preu: supermercats, compra online, carburants i energia 100% renovable. Compromís amb el territori i el producte de proximitat.",
+  "longDescription": "Supermercats Bonpreu i Esclat is a leading grocery brand based in Masies de Voltregà with supermarkets in various locations in the Principality of Catalonia. They offer a wide range of products and services to meet all your grocery needs. From fresh produce, beverages, and frozen items to specialty options like dietary, organic, gluten-free, and lactose-free products, they have it all. Bonpreu i Esclat is committed to providing quality and convenience to its customers. They have a customer loyalty program that offers exclusive advantages and discounts. With their user-friendly mobile app, you can easily shop online and have your groceries delivered to your door. They also have an extensive network of collection points for added convenience. In addition to groceries, Bonpreu i Esclat also offers energy services with 100% green energy plans. They have their own apps for loyalty and online shopping, making your experience even more seamless. With a dedication to customer satisfaction and a wide selection of products, Bonpreu i Esclat is the ultimate destination for all your grocery needs.",
+  "links": [
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/bonpreuesclat"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/bon-preu-sau"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/supermercatsbonpreuesclat"
+    },
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/channel/UCM9swfHtu3VVusg_VFft7Fg"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/bonpreuesclat"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idzWmvu6t1/w/400/h/400/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "width": 400,
+          "size": 12285
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idzWmvu6t1/w/820/h/120/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 120,
+          "width": 820,
+          "size": 12015
+        },
+        {
+          "src": "https://cdn.brandfetch.io/idzWmvu6t1/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 32,
+          "width": 218,
+          "size": 7532
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#fab522",
+      "type": "accent",
+      "brightness": 185
+    },
+    {
+      "hex": "#777620",
+      "type": "dark",
+      "brightness": 112
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Roboto Slab",
+      "type": "title",
+      "origin": "google",
+      "originId": "Roboto+Slab",
+      "weights": []
+    },
+    {
+      "name": "Roboto",
+      "type": "body",
+      "origin": "google",
+      "originId": "Roboto",
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idzWmvu6t1/w/1500/h/500/id3vZyD-4t.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 99957
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "score": 76,
+        "rank": 1,
+        "naturalHeight": 1080,
+        "sourceUrl": "https://www.bonpreuesclat.cat/documents/20182/0/Fragment+Carousel+web+%2830%29.jpg/de47127b-9414-bb55-b5e5-cc8ad95a7da0?t=1731577715502&download=true",
+        "alt": "First Categories destacades Image",
+        "naturalWidth": 2560
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "score": 70,
+        "alt": "First Responsive Image",
+        "naturalWidth": 770,
+        "naturalHeight": 650,
+        "sourceUrl": "https://www.bonpreuesclat.cat/documents/20182/0/OFERTA_13_WEBMOV_CAT.jpg/dd56de59-ec3f-129c-9b7f-10d334b87a48?t=1789456918917&download=true",
+        "rank": 2
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "alt": "Third Logo Image",
+        "score": 69,
+        "rank": 3,
+        "sourceUrl": "https://www.bonpreuesclat.cat/documents/20182/0/WEB_CAT_MARE+JA+SOC+AQUI+%281%29.jpg/0ba11261-6158-dbc1-7cb2-38e65da676ec?t=1784559968605&download=true",
+        "naturalHeight": 1500,
+        "naturalWidth": 2000
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "sourceUrl": "https://www.bonpreuesclat.cat/documents/20182/0/BANNER+HOME+WEB+BPREU+2000X1500+BRABANTIA+CAT+%283%29.jpg/72014af5-ffed-8b4e-19de-0ba189eab44a?t=1787557113354&download=true",
+        "alt": "Third Logo Image",
+        "score": 69,
+        "naturalHeight": 810,
+        "naturalWidth": 1080,
+        "rank": 4
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "rank": 5,
+        "naturalWidth": 840,
+        "alt": "Prducte",
+        "sourceUrl": "https://www.bonpreuesclat.cat/documents/20182/0/07411_1.jpg/ccd00d1e-9074-e1b4-d5a6-66eeda98fbf8?t=1789454465987&download=true",
+        "naturalHeight": 840,
+        "score": 69
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "alt": "Second Logo Image",
+        "naturalHeight": 1500,
+        "score": 68,
+        "rank": 6,
+        "sourceUrl": "https://www.bonpreuesclat.cat/documents/20182/0/_web.jpg/9e474249-3355-2ede-cda6-ddcb7b322e06?t=1773934961400&download=true",
+        "naturalWidth": 2000
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "alt": "Prducte",
+        "naturalWidth": 840,
+        "rank": 7,
+        "sourceUrl": "https://www.bonpreuesclat.cat/documents/20182/0/75402_1.jpg/d5efefcc-4131-f27a-ee4f-53278e68111f?t=1789454078915&download=true",
+        "score": 65,
+        "naturalHeight": 840
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalWidth": 492,
+        "rank": 8,
+        "sourceUrl": "https://www.bonpreuesclat.cat/documents/20182/0/Talcomraja.jpg/a1b4f514-eed1-c1b8-8b73-8ffe2ae8eaa5?t=1775836049849&download=true",
+        "score": 65,
+        "naturalHeight": 540,
+        "alt": "First Categories destacades Image"
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 840,
+        "score": 63,
+        "rank": 9,
+        "alt": "Prducte",
+        "naturalWidth": 840,
+        "sourceUrl": "https://www.bonpreuesclat.cat/documents/20182/0/50125_1.jpg/a611bfd3-8510-6109-c8b0-007929842665?t=1789454080329&download=true"
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "score": 62,
+        "sourceUrl": "https://www.bonpreuesclat.cat/documents/20182/44536021/section03.jpg/b5805bb5-b0fb-ff3c-1d00-2d55c8f8159a?t=1712217421318&download=true",
+        "naturalWidth": 400,
+        "alt": "First Categories destacades Image",
+        "rank": 10,
+        "naturalHeight": 300
+      }
+    }
+  ],
+  "qualityScore": 0.7123917454056288,
+  "company": {
+    "employees": 5001,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": 1974,
+    "industries": [
+      {
+        "score": 1,
+        "id": "60",
+        "name": "Food and Drink",
+        "emoji": "🍔",
+        "parent": {
+          "emoji": "🍔",
+          "id": "57",
+          "name": "Food and Drink",
+          "slug": "food-and-drink"
+        },
+        "slug": "food-and-drink"
+      },
+      {
+        "score": 1,
+        "id": "57",
+        "name": "Food and Drink",
+        "emoji": "🍔",
+        "parent": null,
+        "slug": "food-and-drink"
+      }
+    ],
+    "kind": "PRIVATELY_HELD",
+    "location": {
+      "city": "Les Masies De Voltreg",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Catalunya",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idzWmvu6t1"
+}

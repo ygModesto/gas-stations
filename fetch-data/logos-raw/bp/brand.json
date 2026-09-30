@@ -1,0 +1,228 @@
+{
+  "id": "idA6o11YKN",
+  "name": "bp",
+  "domain": "bp.com",
+  "claimed": false,
+  "description": "bp is one of the world's leading oil and gas companies. Delivering energy to the world, today and tomorrow.",
+  "longDescription": "BP, formerly known as British Petroleum, is a multinational oil and gas company based in the United Kingdom. It is one of the world's largest energy companies, with headquarters located in London. The history of BP dates back to 1901 when William Knox D'Arcy founded the Anglo-Persian Oil Company, which later became BP. The company's primary focus at that time was oil exploration and production in Iran. Over the years, BP expanded its operations globally, venturing into various aspects of the energy industry, including refining, marketing, and distribution. Today, BP is a vertically integrated company, offering a wide range of products and services. Its main products include petroleum, natural gas, and petrochemicals. The company operates in all sectors of the oil and gas industry, from exploration and production to refining and distribution. BP also has a significant presence in renewable energy, investing in wind, solar, and biofuel projects. On a global scale, BP operates in over 80 countries. The company has several notable subsidiaries, joint ventures, and partnerships. It has a 19.75% stake in Rosneft, the largest oil producer in Russia, and a significant partnership with Reliance Industries in India. In terms of market position, BP is one of the world's supermajors in the oil industry, competing with companies like ExxonMobil and Shell. It has a strong presence in both mature and emerging markets. In terms of global sales, BP consistently ranks among the top companies in the industry. BP has faced several challenges over the years. The most notable event in its history was the Deepwater Horizon oil spill in 2010, which caused significant environmental damage and led to a significant repositioning of the company's strategy towards safety and environmental responsibility. Currently, BP is focused on its strategy to transition to a low-carbon future. It has set targets to reduce greenhouse gas emissions and increase its investments in renewable energy. The company is actively involved in developing new technologies and exploring alternative energy sources to achieve these goals. In conclusion, BP is a multinational energy company headquartered in the UK. It offers a wide range of products and services in the oil, gas, and renewable energy sectors. Despite challenges and setbacks, BP maintains a strong market position and is actively working towards a sustainable and low-carbon future.",
+  "links": [
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/bp"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/BP_plc"
+    },
+    {
+      "name": "github",
+      "url": "https://github.com/bp"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/bp_plc"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/bp"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/BPinIndia"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idA6o11YKN/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 377,
+          "width": 284,
+          "size": 11003
+        },
+        {
+          "src": "https://cdn.brandfetch.io/idA6o11YKN/w/800/h/1063/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 1063,
+          "width": 800,
+          "size": 169517
+        },
+        {
+          "src": "https://cdn.brandfetch.io/idA6o11YKN/w/800/h/1063/theme/dark/logo.webp?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "webp",
+          "height": 1063,
+          "width": 800,
+          "size": 71000
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idA6o11YKN/theme/dark/symbol.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 288,
+          "width": 284,
+          "size": 10588
+        },
+        {
+          "src": "https://cdn.brandfetch.io/idA6o11YKN/w/800/h/812/theme/dark/symbol.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 812,
+          "width": 800,
+          "size": 154193
+        },
+        {
+          "src": "https://cdn.brandfetch.io/idA6o11YKN/w/800/h/812/theme/dark/symbol.webp?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "webp",
+          "height": 812,
+          "width": 800,
+          "size": 63354
+        }
+      ],
+      "tags": [],
+      "type": "symbol"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idA6o11YKN/w/200/h/200/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 200,
+          "width": 200,
+          "size": 7748
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#CBFF00",
+      "type": "accent",
+      "brightness": 226
+    },
+    {
+      "hex": "#003600",
+      "type": "brand",
+      "brightness": 39
+    },
+    {
+      "hex": "#FFFFFF",
+      "type": "light",
+      "brightness": 255
+    },
+    {
+      "hex": "#027F00",
+      "type": "brand",
+      "brightness": 91
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Roboto",
+      "type": "title",
+      "origin": "google",
+      "originId": "Roboto",
+      "weights": []
+    },
+    {
+      "name": "Roboto",
+      "type": "body",
+      "origin": "google",
+      "originId": "Roboto",
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idA6o11YKN/w/1500/h/500/theme/dark/idxKhfndyP.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 203391
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    }
+  ],
+  "qualityScore": 0.9610979229667884,
+  "company": {
+    "employees": 10001,
+    "financialIdentifiers": {
+      "isin": [
+        "US0556EL1098",
+        "GB0007980591",
+        "JP3836500003",
+        "US0556221044",
+        "GB0001385250",
+        "GB0001385474"
+      ],
+      "ticker": [
+        "BPE.DE",
+        "BPMP",
+        "BP.SW",
+        "5015.T",
+        "BP",
+        "BP.L",
+        "BPAQF",
+        "BPE5.DE",
+        "BP-A.L",
+        "BP-B.L"
+      ]
+    },
+    "foundedYear": 1909,
+    "industries": [
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      }
+    ],
+    "kind": "PUBLIC_COMPANY",
+    "location": {
+      "city": "London",
+      "country": "United Kingdom",
+      "countryCode": "GB",
+      "region": "Europe",
+      "state": "England",
+      "subregion": "Northern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idA6o11YKN"
+}

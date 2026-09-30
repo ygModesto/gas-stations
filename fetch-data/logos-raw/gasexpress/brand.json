@@ -1,0 +1,236 @@
+{
+  "id": "id5OnZbmFF",
+  "name": "GasExpress",
+  "domain": "gasexpress.es",
+  "claimed": false,
+  "description": "Gasexpress es precursor de un novedoso formato de gasolineras desarrolladas con la filosofía principal de ofrecer combustible de calidad al mejor precio, las 24 horas del día.",
+  "longDescription": "GasExpress is a leading brand in the gas station industry, offering a new era of service and convenience. With a focus on quality and customer satisfaction, GasExpress provides premium fuels that are sourced from authorized logistic centers, ensuring optimal performance and efficiency for your vehicle. The fuels are enriched with HQ300 additives in Diesel and HQ400 additives in SP 95, enhancing ignition, conservation, and overall engine performance. One of the key advantages of choosing GasExpress is the significant cost savings. By leveraging their extensive network and operating with low overhead costs, GasExpress is able to offer the best prices in the market, providing customers with savings from day one. Additionally, their modern and efficient business model allows for quick and easy fueling, with no queues at the cashier. Customers can conveniently pay at the pump, utilizing the latest technological advancements. GasExpress also offers a free GasExpress card, packed with benefits including discounts on fuel, free car washes, fuel vouchers, and entry into various prize draws. They consolidate fuel consumption into a single monthly invoice, which is conveniently sent via email. With 24/7 service and a dedicated call center, GasExpress ensures that customers are well taken care of, anytime, anywhere. Locate your nearest GasExpress station on their website and check the current fuel prices. GasExpress is committed to providing exceptional service, top-quality fuel, and unbeatable savings to their valued customers.",
+  "links": [
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/GasExpressLC"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/gasexpress.es"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/gasexpress"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/gasexpress.es"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id5OnZbmFF/w/400/h/400/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "width": 400,
+          "size": 13296
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    },
+    {
+      "theme": "light",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id5OnZbmFF/w/820/h/303/theme/light/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 303,
+          "width": 820,
+          "size": 30860
+        },
+        {
+          "src": "https://cdn.brandfetch.io/id5OnZbmFF/theme/light/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 45,
+          "width": 123,
+          "size": 6745
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#0d1039",
+      "type": "dark",
+      "brightness": 18
+    },
+    {
+      "hex": "#d9534f",
+      "type": "light",
+      "brightness": 111
+    },
+    {
+      "hex": "#bd0d33",
+      "type": "accent",
+      "brightness": 53
+    }
+  ],
+  "fonts": [
+    {
+      "name": "ProximaNova",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "Open Sans",
+      "type": "body",
+      "origin": "google",
+      "originId": "Open+Sans",
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id5OnZbmFF/w/1500/h/500/idsQ7X0cAA.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 112268
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1080,
+        "alt": "",
+        "sourceUrl": "https://www.gasexpress.es/assets/img/hero/home/home-slide1.jpg",
+        "score": 78,
+        "rank": 1,
+        "naturalWidth": 1920
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 816,
+        "alt": "",
+        "sourceUrl": "https://www.gasexpress.es/assets/img/hero/home/home-slide3.jpg",
+        "score": 78,
+        "rank": 2,
+        "naturalWidth": 1456
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1802,
+        "alt": "",
+        "sourceUrl": "https://www.gasexpress.es/assets/img/hero/home/home-slide8g.webp",
+        "score": 78,
+        "rank": 3,
+        "naturalWidth": 3200
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1080,
+        "alt": "",
+        "sourceUrl": "https://www.gasexpress.es/assets/img/hero/home/home-slide5.webp",
+        "score": 77,
+        "rank": 4,
+        "naturalWidth": 1920
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1232,
+        "alt": "Tarjeta GasExpress Descuentos",
+        "sourceUrl": "https://www.gasexpress.es/assets/img/chica-app.webp",
+        "score": 74,
+        "rank": 5,
+        "naturalWidth": 894
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1802,
+        "alt": "",
+        "sourceUrl": "https://www.gasexpress.es/assets/img/hero/home/slide2.webp",
+        "score": 74,
+        "rank": 6,
+        "naturalWidth": 3201
+      }
+    }
+  ],
+  "qualityScore": 0.46153846153846156,
+  "company": {
+    "employees": 11,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": 2013,
+    "industries": [
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": "SELF_OWNED",
+    "location": {
+      "city": "",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:id5OnZbmFF"
+}

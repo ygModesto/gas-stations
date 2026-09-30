@@ -1,0 +1,250 @@
+{
+  "id": "id1anTE6jO",
+  "name": "DST GROUP",
+  "domain": "dstgroup.es",
+  "claimed": false,
+  "description": null,
+  "longDescription": "DST Group is a collection of companies that specialize in providing services for road transportation and individual drivers, established in 2012. These companies cater to almost all the needs of the sector and offer solutions for travel by car. The core focus of all these companies is to deliver services and market products for the road transportation industry. From gas stations to insurance, fuel cards, and the rental and sale of trucks, cars, and vans, DST Group covers it all. With a commitment to quality service, DST Group ensures a seamless experience for both transportation businesses and private drivers. Explore the wide range of services and products offered by DST Group for a comprehensive solution to your road transportation needs.",
+  "links": [],
+  "logos": [
+    {
+      "theme": "light",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id1anTE6jO/w/260/h/170/theme/light/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 170,
+          "width": 260,
+          "size": 13117
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#50485b",
+      "type": "accent",
+      "brightness": 75
+    },
+    {
+      "hex": "#242f3a",
+      "type": "dark",
+      "brightness": 45
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    }
+  ],
+  "fonts": [
+    {
+      "name": "var(--wpex-heading-font-family)",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "var(--wpex-body-font-family",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 921,
+        "alt": "",
+        "sourceUrl": "https://www.dstgroup.es/wp-content/uploads/slider/cache/00a98b082165d2f16f6e941fa0646d14/gimnasio-dst-sport-center-3-1.jpg",
+        "score": 76,
+        "rank": 1,
+        "naturalWidth": 1381
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 600,
+        "alt": "",
+        "sourceUrl": "https://www.dstgroup.es/wp-content/uploads/slider/cache/ced30991ce9c71c7451036454171c8b5/DST-Alzuza-1000x600-1.jpg",
+        "score": 72,
+        "rank": 2,
+        "naturalWidth": 1000
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 563,
+        "alt": "",
+        "sourceUrl": "https://www.dstgroup.es/wp-content/uploads/slider/cache/215c02ab34d99d62176c70cc785d3036/DSCF6969_B.jpg",
+        "score": 72,
+        "rank": 3,
+        "naturalWidth": 1000
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 700,
+        "alt": "",
+        "sourceUrl": "https://www.dstgroup.es/wp-content/uploads/slider/cache/5f59ba6fe84da715711859280075de79/DSC_0075-OK-B.jpg",
+        "score": 72,
+        "rank": 4,
+        "naturalWidth": 1400
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 669,
+        "alt": "",
+        "sourceUrl": "https://www.dstgroup.es/wp-content/uploads/slider/cache/ccba2da7b7cbe72d60e8e2b2ab42a443/IMG_20190704_212018_B.jpg",
+        "score": 72,
+        "rank": 5,
+        "naturalWidth": 1008
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 600,
+        "alt": "",
+        "sourceUrl": "https://www.dstgroup.es/wp-content/uploads/slider/cache/a63da146e27569b4055725e466cfefa8/DST-Arca-Real-1000x600-1.jpg",
+        "score": 72,
+        "rank": 6,
+        "naturalWidth": 1000
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 600,
+        "alt": "",
+        "sourceUrl": "https://www.dstgroup.es/wp-content/uploads/slider/cache/0dc2afdfab65cfa768bc07f67cd94ee1/DST-Fonolleres-1000x600-1.jpg",
+        "score": 70,
+        "rank": 7,
+        "naturalWidth": 1000
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 600,
+        "alt": "",
+        "sourceUrl": "https://www.dstgroup.es/wp-content/uploads/slider/cache/93daa9f26515a7e4760e1daeeb4acece/IMG_20190704_211714_B-2.jpg",
+        "score": 70,
+        "rank": 8,
+        "naturalWidth": 1200
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 600,
+        "alt": "",
+        "sourceUrl": "https://www.dstgroup.es/wp-content/uploads/slider/cache/948d51f0bb1c58501997098a35c7fd56/DST-Belvis-1000x600-1.jpg",
+        "score": 66,
+        "rank": 9,
+        "naturalWidth": 1000
+      }
+    }
+  ],
+  "qualityScore": 0.23076923076923078,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.43261417746543884,
+        "id": "10",
+        "name": "Business and Consumer Services",
+        "emoji": "📊",
+        "parent": null,
+        "slug": "business-and-consumer-services"
+      },
+      {
+        "score": 0.42941248416900635,
+        "id": "18",
+        "name": "Shipping and Logistics",
+        "emoji": "📊",
+        "parent": {
+          "emoji": "📊",
+          "id": "10",
+          "name": "Business and Consumer Services",
+          "slug": "business-and-consumer-services"
+        },
+        "slug": "shipping-and-logistics"
+      },
+      {
+        "score": 0.25555503368377686,
+        "id": "201",
+        "name": "Vehicles",
+        "emoji": "🏎",
+        "parent": null,
+        "slug": "vehicles"
+      },
+      {
+        "score": 0.21040424704551697,
+        "id": "202",
+        "name": "Automotive Industry",
+        "emoji": "🏎",
+        "parent": {
+          "emoji": "🏎",
+          "id": "201",
+          "name": "Vehicles",
+          "slug": "vehicles"
+        },
+        "slug": "automotive-industry"
+      },
+      {
+        "score": 0.20640118420124054,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": null,
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": null,
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:id1anTE6jO"
+}

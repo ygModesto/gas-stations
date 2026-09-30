@@ -1,0 +1,212 @@
+{
+  "id": "idhM_I-qZv",
+  "name": "NaturgyClientES",
+  "domain": "naturgy.es",
+  "claimed": false,
+  "description": "Contrata Online, las 24 horas del día, nuestros servicios de Luz y Gas. Infórmate sobre las mejores tarifas o contrata nuestras ofertas y tarifas planas",
+  "longDescription": null,
+  "links": [
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/naturgyclientes"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/NaturgyEspanaClientes"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/naturgyclientes"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idhM_I-qZv/w/820/h/787/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 787,
+          "width": 820,
+          "size": 42185
+        },
+        {
+          "src": "https://cdn.brandfetch.io/idhM_I-qZv/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 24,
+          "width": 25,
+          "size": 3577
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idhM_I-qZv/w/400/h/400/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "width": 400,
+          "size": 7025
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#0c1122",
+      "type": "dark",
+      "brightness": 17
+    },
+    {
+      "hex": "#bdceda",
+      "type": "light",
+      "brightness": 203
+    },
+    {
+      "hex": "#e57200",
+      "type": "accent",
+      "brightness": 130
+    }
+  ],
+  "fonts": [
+    {
+      "name": "FSEmeric",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "FSEmeric",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idhM_I-qZv/w/1500/h/500/idLr6Jpkyu.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 108072
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 712,
+        "rank": 1,
+        "naturalWidth": 3200,
+        "alt": "",
+        "sourceUrl": "https://www.naturgy.es/content/dam/naturgy/espana/global/infografias/new-home/background_banner.webp?t=1775746690589",
+        "score": 61
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "alt": "",
+        "rank": 2,
+        "score": 61,
+        "naturalHeight": 3581,
+        "sourceUrl": "https://www.naturgy.es/content/dam/naturgy/espana/global/blogs/baja%20iva%20luz.webp?t=1774432189784",
+        "naturalWidth": 14588
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "sourceUrl": "https://www.naturgy.es/content/dam/naturgy/espana/global/fondos/fondo_ola%20(1).webp?t=1784707972274",
+        "naturalHeight": 1700,
+        "score": 60,
+        "alt": "",
+        "naturalWidth": 5760,
+        "rank": 3
+      }
+    }
+  ],
+  "qualityScore": 0.683838805575086,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "id": "10",
+        "score": 0.34337717294692993,
+        "name": "Business and Consumer Services",
+        "emoji": "📊",
+        "parent": null,
+        "slug": "business-and-consumer-services"
+      },
+      {
+        "id": "94",
+        "score": 0.22684626281261444,
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "id": "28",
+        "score": 0.21469302475452423,
+        "name": "Computers Electronics and Technology",
+        "emoji": "🖥",
+        "parent": null,
+        "slug": "computers-electronics-and-technology"
+      },
+      {
+        "score": 0.2132899910211563,
+        "id": "152",
+        "name": "Science and Education",
+        "emoji": "🧪",
+        "parent": null,
+        "slug": "science-and-education"
+      },
+      {
+        "score": 0.20918633043766022,
+        "id": "122",
+        "name": "Law and Government",
+        "emoji": "⚖️",
+        "parent": null,
+        "slug": "law-and-government"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": null,
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": null,
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idhM_I-qZv"
+}

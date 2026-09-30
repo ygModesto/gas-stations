@@ -1,0 +1,148 @@
+{
+  "id": "idaFhR4ksX",
+  "name": "Petromiralles SL",
+  "domain": "petromiralles.com",
+  "claimed": false,
+  "description": "European network of service stations - Distribution of fuel and Adblue. Service stations and discount cards.",
+  "longDescription": null,
+  "links": [
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/petromiralles.sl"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/petromiralles"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/petromiralles-sl"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idaFhR4ksX/w/800/h/800/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 800,
+          "width": 800,
+          "size": 101049
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#ffdd00",
+      "type": "accent",
+      "brightness": 212
+    },
+    {
+      "hex": "#001689",
+      "type": "dark",
+      "brightness": 26
+    },
+    {
+      "hex": "#ffcb70",
+      "type": "light",
+      "brightness": 207
+    }
+  ],
+  "fonts": [
+    {
+      "name": "-apple-system",
+      "type": "body",
+      "origin": "system",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idaFhR4ksX/w/4000/h/2250/idcBiDRJJu.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 2250,
+          "width": 4000,
+          "size": 2197452
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    }
+  ],
+  "qualityScore": 0.34615384615384615,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.3242136836051941,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 0.3133220970630646,
+        "id": "10",
+        "name": "Business and Consumer Services",
+        "emoji": "📊",
+        "parent": null,
+        "slug": "business-and-consumer-services"
+      },
+      {
+        "score": 0.260406494140625,
+        "id": "28",
+        "name": "Computers Electronics and Technology",
+        "emoji": "🖥",
+        "parent": null,
+        "slug": "computers-electronics-and-technology"
+      },
+      {
+        "score": 0.24323102831840515,
+        "id": "99",
+        "name": "Construction and Maintenance",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "construction-and-maintenance"
+      },
+      {
+        "score": 0.2284710854291916,
+        "id": "122",
+        "name": "Law and Government",
+        "emoji": "⚖️",
+        "parent": null,
+        "slug": "law-and-government"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": null,
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": null,
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idaFhR4ksX"
+}

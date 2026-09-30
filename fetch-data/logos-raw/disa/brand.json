@@ -1,0 +1,188 @@
+{
+  "id": "idLqoX3hJ1",
+  "name": "Grupo DISA",
+  "domain": "disagrupo.es",
+  "claimed": false,
+  "description": "DISA es la primera compañía canaria de distribución de productos energéticos y primer operador independiente de estaciones de servicio a nivel nacional. Entra e infórmate aquí.",
+  "longDescription": "DISA is a Spanish energy company that operates primarily in the Canary Islands and mainland Spain. The company was founded in 1933 as a national petroleum refinery and currently has its headquarters in Santa Cruz de Tenerife, Spain. DISA primarily offers products and services in the energy sector. It operates in various segments, including the exploration, production, refining, and distribution of oil and natural gas. The company also provides services such as retail fueling stations, lubricants, and alternative energy solutions. On a global scale, DISA has made significant strides in expanding its operations and establishing partnerships. The company has subsidiaries in various countries, including Portugal, France, Morocco, and Tanzania. These subsidiaries help DISA to reach new markets and diversify its product portfolio. In terms of market position, DISA is a significant player in the energy industry. It has a strong presence in the Canary Islands, where it operates a network of fueling stations and supplies a significant portion of the region's energy needs. In mainland Spain, DISA competes with other energy companies but has managed to maintain a competitive position through its diverse product range and focus on customer service. DISA has achieved several noteworthy accomplishments and events throughout its history. In recent years, the company has made significant investments in renewable energy, particularly in wind and solar power projects. This strategic shift towards clean energy sources aligns with the global trend towards sustainability and positions DISA as a leader in the energy transition. As of the latest available information, DISA continues to expand its renewable energy portfolio and seeks to further strengthen its position in the market. The company is committed to sustainable development and aims to reduce its carbon footprint while providing reliable energy solutions to its customers. In conclusion, DISA is a prominent Spanish energy company with a diverse range of products and services. With a strong market presence in the Canary Islands and mainland Spain, the company competes with other energy players both locally and globally. Through its investments in renewable energy and commitment to sustainability, DISA is positioning itself for continued growth and success in the ever-evolving energy sector.",
+  "links": [
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/user/DISACorporacion"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/disagrupo"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/grupo-disa"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/disagrupo"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/GrupoDISA.corp"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idLqoX3hJ1/w/600/h/600/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 600,
+          "width": 600,
+          "size": 40129
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idLqoX3hJ1/w/200/h/92/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "png",
+          "height": 92,
+          "width": 200,
+          "size": 11695
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#3d3510",
+      "type": "dark",
+      "brightness": 52
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    },
+    {
+      "hex": "#1c5ca3",
+      "type": "accent",
+      "brightness": 84
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Open Sans",
+      "type": "title",
+      "origin": "google",
+      "originId": "Open+Sans",
+      "weights": []
+    },
+    {
+      "name": "Arial",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idLqoX3hJ1/w/2000/h/730/iddTID__Dw.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 730,
+          "width": 2000,
+          "size": 102067
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    }
+  ],
+  "qualityScore": 0.6303752729784335,
+  "company": {
+    "employees": 1001,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.40267500281333923,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 0.3524087369441986,
+        "id": "28",
+        "name": "Computers Electronics and Technology",
+        "emoji": "🖥",
+        "parent": null,
+        "slug": "computers-electronics-and-technology"
+      },
+      {
+        "score": 0.2706049978733063,
+        "id": "233",
+        "name": "Green and Renewable Technology",
+        "emoji": "🖥",
+        "parent": {
+          "emoji": "🖥",
+          "id": "28",
+          "name": "Computers Electronics and Technology",
+          "slug": "computers-electronics-and-technology"
+        },
+        "slug": "green-and-renewable-technology"
+      },
+      {
+        "score": 0.2545612156391144,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 0.24014122784137726,
+        "id": "101",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": "Santa Cruz De Tenerife",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Canarias",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idLqoX3hJ1"
+}

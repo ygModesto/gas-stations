@@ -1,0 +1,267 @@
+{
+  "id": "id7sVd33XD",
+  "name": "Estaciones ASC",
+  "domain": "estacionesasc.es",
+  "claimed": false,
+  "description": "Somos la empresa líder con Gasolineras en Granada y en otras provincias de Andalucía como Málaga, Jaén, Cádiz y Sevilla.",
+  "longDescription": "Estaciones ASC is a fuel and mobility services company founded in Granada, with more than 25 years of experience operating its own service stations. Its network is concentrated in Granada and the surrounding province, with additional locations in Málaga, Jaén, Seville and Cádiz. The company focuses on providing quality fuels at competitive prices, including its Supra® high-performance fuel range. Customers can find fuel options such as diesel, unleaded petrol, LPG and AdBlue, and use the website to locate stations and check fuel prices.\n\nBeyond refuelling, ASC offers home heating oil delivery and vehicle-washing services through its ASC Splash centres. These facilities include car wash tunnels, washing facilities for large vehicles and pet-washing stations. The company also highlights fuel tanks, an ASC shop and El Bar de ASC among its offerings for individuals, professionals and businesses. With services designed for drivers and local customers, ASC combines fuel sales, vehicle care and convenience facilities across its Andalusian network.",
+  "links": [
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/estaciones_asc"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/carburantesASC"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id7sVd33XD/w/820/h/244/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 244,
+          "width": 820,
+          "size": 20009
+        },
+        {
+          "src": "https://cdn.brandfetch.io/id7sVd33XD/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 42,
+          "width": 141,
+          "size": 3122
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id7sVd33XD/w/800/h/800/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 800,
+          "width": 800,
+          "size": 102701
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#d9000d",
+      "type": "accent",
+      "brightness": 47
+    },
+    {
+      "hex": "#000000",
+      "type": "dark",
+      "brightness": 0
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Open Sans",
+      "type": "body",
+      "origin": "google",
+      "originId": "Open+Sans",
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "score": 71,
+        "naturalWidth": 1536,
+        "naturalHeight": 864,
+        "rank": 1,
+        "alt": "",
+        "sourceUrl": "https://estacionesasc.es/wp-content/uploads/2024/02/asc-viajar-estaciones-servicio-1536x864.jpg"
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "alt": "",
+        "naturalHeight": 736,
+        "naturalWidth": 1444,
+        "rank": 2,
+        "sourceUrl": "https://estacionesasc.es/wp-content/uploads/2026/04/Chica-ASC.webp",
+        "score": 71
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "alt": "",
+        "naturalWidth": 1050,
+        "score": 69,
+        "rank": 3,
+        "sourceUrl": "https://estacionesasc.es/wp-content/uploads/2024/02/lavadero-mascotas.jpg",
+        "naturalHeight": 1050
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "alt": "",
+        "sourceUrl": "https://estacionesasc.es/wp-content/uploads/2024/10/gasoleo-domicilio-granada-malaga.jpg",
+        "score": 67,
+        "rank": 4,
+        "naturalWidth": 670,
+        "naturalHeight": 670
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "rank": 5,
+        "naturalHeight": 600,
+        "alt": "",
+        "naturalWidth": 600,
+        "score": 67,
+        "sourceUrl": "https://estacionesasc.es/wp-content/uploads/2025/09/12-600x600.jpg"
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "sourceUrl": "https://estacionesasc.es/wp-content/uploads/2024/09/lavaderos-vehiculos-asc.jpg",
+        "rank": 6,
+        "score": 64,
+        "naturalHeight": 540,
+        "alt": "",
+        "naturalWidth": 532
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "score": 62,
+        "naturalWidth": 600,
+        "naturalHeight": 600,
+        "rank": 7,
+        "alt": "",
+        "sourceUrl": "https://estacionesasc.es/wp-content/uploads/2024/02/depositos-combustible-trailer-asc-600x600.jpg"
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "alt": "",
+        "sourceUrl": "https://estacionesasc.es/wp-content/uploads/2024/02/lavaderos-image-3-600x438.jpg",
+        "rank": 8,
+        "naturalWidth": 600,
+        "naturalHeight": 438,
+        "score": 62
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "score": 62,
+        "naturalHeight": 670,
+        "alt": "",
+        "sourceUrl": "https://estacionesasc.es/wp-content/uploads/2024/02/gad-image-3.jpg",
+        "rank": 9,
+        "naturalWidth": 670
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "alt": "",
+        "sourceUrl": "https://estacionesasc.es/wp-content/uploads/2024/09/asc-el-bar-600x600.jpg",
+        "rank": 10,
+        "naturalHeight": 600,
+        "score": 62,
+        "naturalWidth": 600
+      }
+    }
+  ],
+  "qualityScore": 0.4487179487179487,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.62,
+        "id": "201",
+        "name": "Vehicles",
+        "emoji": "🏎",
+        "parent": null,
+        "slug": "vehicles"
+      },
+      {
+        "score": 0.3,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 0.279,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": null,
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": null,
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:id7sVd33XD"
+}

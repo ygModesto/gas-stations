@@ -1,0 +1,268 @@
+{
+  "id": "idoncwogke",
+  "name": "Beroil",
+  "domain": "beroil.es",
+  "claimed": false,
+  "description": null,
+  "longDescription": "Beroil is a leading company in the sale and distribution of hydrocarbons, dedicated to providing high-quality diesel fuel directly to homes and businesses. With a strong commitment to innovation and environmental responsibility, Beroil ensures efficient energy solutions across various sectors, including residential, transportation, agriculture, and industry. Their extensive fleet of 18 trucks enables timely delivery of diesel wherever it's needed, helping customers improve performance while reducing operational costs. \n\nBeroil is not just about fuel; they also offer tailored services designed to meet the specific needs of homes, businesses, and transport fleets. Their highly qualified team of professionals is always available to assist customers in choosing the best products for their requirements. Committed to minimizing environmental impacts, Beroil focuses on effective water management, emission reductions, and waste management practices. With a network of service stations and a customer-centric approach, Beroil is dedicated to ensuring customer satisfaction and providing exceptional energy solutions.",
+  "links": [],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idoncwogke/w/346/h/110/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 110,
+          "width": 346,
+          "size": 11937
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#ef7b1c",
+      "type": "accent",
+      "brightness": 141
+    },
+    {
+      "hex": "#122b40",
+      "type": "dark",
+      "brightness": 39
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Playfair Display",
+      "type": "title",
+      "origin": "google",
+      "originId": "Playfair+Display",
+      "weights": []
+    },
+    {
+      "name": "Montserrat",
+      "type": "body",
+      "origin": "google",
+      "originId": "Montserrat",
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 712,
+        "alt": "",
+        "sourceUrl": "https://www.beroil.es/wp-content/uploads/2018/05/bg-masthead_b.jpg",
+        "score": 70,
+        "rank": 1,
+        "naturalWidth": 1920
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 800,
+        "alt": "",
+        "sourceUrl": "https://www.beroil.es/wp-content/uploads/2018/06/EESS-ARANDA.png",
+        "score": 69,
+        "rank": 2,
+        "naturalWidth": 1920
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 555,
+        "alt": "",
+        "sourceUrl": "https://www.beroil.es/wp-content/uploads/2019/11/BeroilEnergia.png",
+        "score": 67,
+        "rank": 3,
+        "naturalWidth": 1903
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 800,
+        "alt": "",
+        "sourceUrl": "https://www.beroil.es/wp-content/uploads/2018/06/EESS-MIRANDA-DE-EBRO.jpg",
+        "score": 67,
+        "rank": 4,
+        "naturalWidth": 1920
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 607,
+        "alt": "",
+        "sourceUrl": "https://www.beroil.es/wp-content/uploads/2018/05/Medio_ambiente.png",
+        "score": 64,
+        "rank": 5,
+        "naturalWidth": 830
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 445,
+        "alt": "",
+        "sourceUrl": "https://www.beroil.es/wp-content/uploads/2018/05/Profesionales.jpg",
+        "score": 60,
+        "rank": 6,
+        "naturalWidth": 809
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 383,
+        "alt": "",
+        "sourceUrl": "https://www.beroil.es/wp-content/uploads/2018/06/Banner-Beroil-Distribucion-.jpg",
+        "score": 59,
+        "rank": 7,
+        "naturalWidth": 1672
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 383,
+        "alt": "",
+        "sourceUrl": "https://www.beroil.es/wp-content/uploads/2018/05/Huidobro_11.jpg",
+        "score": 58,
+        "rank": 8,
+        "naturalWidth": 600
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 382,
+        "alt": "",
+        "sourceUrl": "https://www.beroil.es/wp-content/uploads/2018/05/Huidobro_08.jpg",
+        "score": 56,
+        "rank": 9,
+        "naturalWidth": 600
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 381,
+        "alt": "",
+        "sourceUrl": "https://www.beroil.es/wp-content/uploads/2018/05/Huidobro_04.jpg",
+        "score": 55,
+        "rank": 10,
+        "naturalWidth": 600
+      }
+    }
+  ],
+  "qualityScore": 0.2692307692307692,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.47437813878059387,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 0.3175104856491089,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 0.28675055503845215,
+        "id": "10",
+        "name": "Business and Consumer Services",
+        "emoji": "📊",
+        "parent": null,
+        "slug": "business-and-consumer-services"
+      },
+      {
+        "score": 0.243826225399971,
+        "id": "101",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 0.24185848236083984,
+        "id": "103",
+        "name": "Waste Water and Environmental",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "waste-water-and-environmental"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": null,
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": null,
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idoncwogke"
+}

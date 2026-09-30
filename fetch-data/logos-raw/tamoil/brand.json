@@ -1,0 +1,135 @@
+{
+  "id": "idM7m7srID",
+  "name": "Tamoil",
+  "domain": "tamoil.com",
+  "claimed": false,
+  "description": null,
+  "longDescription": "Tamoil, a major player in the European downstream oil industry, is part of the Oilinvest Group. With two main brands, Tamoil and HEM, we have a significant presence in the market. Employing around 1000 people, we sell over 10 million tons of fuel products annually and generate an impressive gross turnover of €12.7 billion. Our commitment to excellence is demonstrated by our extensive network of locations across Europe. Tamoil operates in several countries including Cyprus, Germany, Italy, the Netherlands, Spain, and Switzerland. Each of our locations offers a range of products and services to cater to our customers' needs. From high-quality fuels and lubricants to convenience stores and car wash facilities, we strive to provide a seamless experience for our customers. Our dedication to delivering exceptional service is evident in our efficient operations and attention to detail. Experience the Tamoil difference and enjoy reliable and top-notch products and services. Visit our website or contact us today to learn more about how our trusted brand can meet your fuel and automotive needs.",
+  "links": [],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idM7m7srID/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 620,
+          "width": 1024,
+          "size": 6209
+        },
+        {
+          "src": "https://cdn.brandfetch.io/idM7m7srID/w/800/h/484/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 484,
+          "width": 800,
+          "size": 40743
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idM7m7srID/w/400/h/400/theme/dark/icon.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "png",
+          "height": 400,
+          "width": 400,
+          "size": 28521
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#000000",
+      "type": "dark",
+      "brightness": 0
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    }
+  ],
+  "fonts": [],
+  "images": [],
+  "qualityScore": 0.6700329655851645,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.3758837580680847,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 0.26317572593688965,
+        "id": "10",
+        "name": "Business and Consumer Services",
+        "emoji": "📊",
+        "parent": null,
+        "slug": "business-and-consumer-services"
+      },
+      {
+        "score": 0.2542386054992676,
+        "id": "101",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 0.25227081775665283,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 0.22128473222255707,
+        "id": "201",
+        "name": "Vehicles",
+        "emoji": "🏎",
+        "parent": null,
+        "slug": "vehicles"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": null,
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": null,
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idM7m7srID"
+}

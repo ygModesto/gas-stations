@@ -18,36 +18,89 @@ use serde_json::{Value, json};
 const URL: &str = "https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/";
 const OUT_DIR: &str = "public";
 
-// Marcas reconocidas sobre el rotulo, por numero de estaciones. Estas 14 cubren el 63,4%
+// Marcas reconocidas sobre el rotulo, por numero de estaciones. Estas 41 cubren el 72,1%
 // del parque; el resto queda a None. El orden importa: gana la primera que casa.
-const BRANDS: [&str; 14] = [
-    "REPSOL",
-    "BP",
-    "MOEVE",
-    "CEPSA",
-    "GALP",
-    "BALLENOIL",
-    "SHELL",
-    "PLENERGY",
-    "PETROPRIX",
-    "PETRONOR",
-    "CARREFOUR",
-    "DISA",
-    "AVIA",
-    "Q8",
+//
+// (marca canonica, alias que la identifican). Cada alias es una secuencia de palabras que deben
+// aparecer SEGUIDAS en el rotulo (casi siempre una sola: la mayoria son de una palabra a propósito
+// -- ver brand_of -- para no enganchar rotulos que solo comparten una palabra suelta por
+// casualidad). Antes de añadir una marca aquí, comprobar que el match no "crece" respecto al
+// recuento de rotulo exacto por casualidad -- se comprobó una por una contra gasolineras.json; el
+// único caso dudoso fue NIEVES, que además de la cadena de gasolineras cuela dos estaciones
+// sueltas que solo comparten el nombre ("Virgen de las Nieves", "Área de Servicio Las Nieves") de
+// ~11.000: se acepta el error, es el mismo tipo de coste que ya asume BP al pasar de 150 a 672.
+//
+// Dos marcas comparten canonica cuando son la MISMA empresa vista desde dos rotulos reales
+// distintos, no dos empresas distintas: Q8 e IDS son la red de tarjeta de gasoleo para transporte
+// de Kuwait Petroleum (renombrada Q8Truck en 2025, ver ids.q8.com/en/who-is-IDS), y "GM OIL"/
+// "GMOIL" son la misma cadena con dos grafias (confirmado en gasolineras.json: "GM OIL TORREVIEJA",
+// "GM OIL PALAMÓS"... junto a "GMOIL" a secas). "GM OIL" necesita alias de dos palabras porque su
+// rotulo real lleva espacio; buscarlo por "GM" u "OIL" sueltas engancharía cualquier rotulo que
+// tenga esa palabra por cualquier otro motivo.
+const BRANDS: &[(&str, &[&[&str]])] = &[
+    ("REPSOL", &[&["REPSOL"]]),
+    ("BP", &[&["BP"]]),
+    ("MOEVE", &[&["MOEVE"]]),
+    ("CEPSA", &[&["CEPSA"]]),
+    ("GALP", &[&["GALP"]]),
+    ("BALLENOIL", &[&["BALLENOIL"]]),
+    ("SHELL", &[&["SHELL"]]),
+    ("PLENERGY", &[&["PLENERGY"]]),
+    ("PETROPRIX", &[&["PETROPRIX"]]),
+    ("PETRONOR", &[&["PETRONOR"]]),
+    ("CARREFOUR", &[&["CARREFOUR"]]),
+    ("DISA", &[&["DISA"]]),
+    ("AVIA", &[&["AVIA"]]),
+    ("Q8", &[&["Q8"], &["IDS"]]),
+    ("ESCLATOIL", &[&["ESCLATOIL"]]),
+    ("CAMPSA", &[&["CAMPSA"]]),
+    ("BONAREA", &[&["BONAREA"]]),
+    ("AGLA", &[&["AGLA"]]),
+    ("VALCARCE", &[&["VALCARCE"]]),
+    ("ALCAMPO", &[&["ALCAMPO"]]),
+    ("GASEXPRESS", &[&["GASEXPRESS"]]),
+    ("HAM", &[&["HAM"]]),
+    ("ENI", &[&["ENI"]]),
+    ("BEROIL", &[&["BEROIL"]]),
+    ("EROSKI", &[&["EROSKI"]]),
+    ("MEROIL", &[&["MEROIL"]]),
+    ("NATURGY", &[&["NATURGY"]]),
+    ("PETROCAT", &[&["PETROCAT"]]),
+    ("TAMOIL", &[&["TAMOIL"]]),
+    ("MOLGAS", &[&["MOLGAS"]]),
+    ("NIEVES", &[&["NIEVES"]]),
+    ("AUTONETOIL", &[&["AUTONETOIL"]]),
+    ("IBERDOEX", &[&["IBERDOEX"]]),
+    ("EASYGAS", &[&["EASYGAS"]]),
+    ("AGROPAL", &[&["AGROPAL"]]),
+    ("PCAN", &[&["PCAN"]]),
+    ("DST", &[&["DST"]]),
+    ("T9", &[&["T9"]]),
+    ("FARRUCO", &[&["FARRUCO"]]),
+    ("SUPECO", &[&["SUPECO"]]),
+    ("GM OIL", &[&["GM", "OIL"], &["GMOIL"]]),
 ];
 
-// El rotulo de MITECO no esta normalizado (3.486 valores distintos para 11.384
+// El rotulo de MITECO no esta normalizado (3.497 valores distintos para 11.384
 // gasolineras): la misma marca aparece como BP, BP OIL ESPANA o BP <localidad>, y hasta
 // entrecomillada. Por eso no se compara la cadena entera: se trocea en palabras y se
-// busca la marca entre ellas. Solo asi BP pasa de 150 a 672 estaciones.
+// busca la marca entre ellas (o la secuencia de palabras, para los alias de más de una -- ver
+// BRANDS). Solo asi BP pasa de 150 a 672 estaciones.
 // Devolver None y no "Otras" es intencionado: en FlatGeobuf un nulo no ocupa bytes, y
-// como el 36,6% de las estaciones no casa con ninguna marca eso recorta un 35% el coste
+// como el 27,9% de las estaciones no casa con ninguna marca eso recorta el coste
 // de la columna. El cliente lo lee como "Otras".
 fn brand_of(rotulo: &str) -> Option<&'static str> {
     let upper = rotulo.to_uppercase();
-    let words: Vec<&str> = upper.split(|c: char| !c.is_ascii_alphanumeric()).collect();
-    BRANDS.into_iter().find(|b| words.contains(b))
+    let words: Vec<&str> = upper
+        .split(|c: char| !c.is_ascii_alphanumeric())
+        .filter(|w| !w.is_empty())
+        .collect();
+    BRANDS.iter().find_map(|(name, aliases)| {
+        aliases
+            .iter()
+            .any(|tokens| words.windows(tokens.len()).any(|w| w == *tokens))
+            .then_some(*name)
+    })
 }
 
 struct Station {

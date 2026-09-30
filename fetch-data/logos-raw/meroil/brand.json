@@ -1,0 +1,159 @@
+{
+  "id": "idSkXITFoR",
+  "name": "MEROIL",
+  "domain": "meroil.es",
+  "claimed": false,
+  "description": "La primera petrolera independiente con estaciones de servicio de proximidad. Consulta los puntos de Meroil Fidelity. Solicita tarjetas profesionales",
+  "longDescription": "Meroil is the first independent oil company with a network of nearby service stations. They pride themselves on providing personalized and convenient services to their customers. Whether you're a professional or an individual, Meroil offers a range of products and services to meet your needs. Their product line includes high-quality fuels, car washes, lubricants, and even a variety of goods available in their stores. Meroil is also known for their proximity stations, making it easy for customers to access their services. They offer Meroil Fidelity cards for professionals, allowing them to enjoy additional benefits and rewards. With a commitment to excellence, Meroil ensures their operations meet the highest standards of quality and sustainability. They have terminals of storage, including the Terminal de Barcelona, and a reliable logistics network. Stay informed about Meroil's latest news and updates, and don't hesitate to reach out if you have any questions or inquiries. Join the Meroil team and discover exciting career opportunities.",
+  "links": [
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/Meroil-SA-100871188499812"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/meroil.sa"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/meroil-sa"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idSkXITFoR/w/2048/h/2012/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 2012,
+          "width": 2048,
+          "size": 220667
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idSkXITFoR/w/180/h/69/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 69,
+          "width": 180,
+          "size": 3577
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#00a0d1",
+      "type": "accent",
+      "brightness": 130
+    },
+    {
+      "hex": "#0f0f0f",
+      "type": "dark",
+      "brightness": 15
+    },
+    {
+      "hex": "#8ed1fc",
+      "type": "light",
+      "brightness": 198
+    }
+  ],
+  "fonts": [
+    {
+      "name": "serif",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "var(--body_typography-font-family)",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idSkXITFoR/w/199/h/200/idlFONaQoU.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 200,
+          "width": 199,
+          "size": 8408
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 807,
+        "alt": "",
+        "sourceUrl": "https://www.meroil.es/wp-content/uploads/2024/11/home_2024_opt.jpg",
+        "score": 73,
+        "rank": 1,
+        "naturalWidth": 1200
+      }
+    }
+  ],
+  "qualityScore": 0.5221812266991528,
+  "company": {
+    "employees": 201,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": 1993,
+    "industries": [
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": "PRIVATELY_HELD",
+    "location": {
+      "city": "Barcelona",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Catalonia",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idSkXITFoR"
+}

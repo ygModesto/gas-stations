@@ -1,0 +1,222 @@
+{
+  "id": "idWXY7Ui00",
+  "name": "EasyGas Group",
+  "domain": "easygasgroup.com",
+  "claimed": false,
+  "description": "⛽️ Testado mejor combustible: EXO P1000\n\n1️⃣9️⃣ estaciones de servicio repartidas por toda la geografía española\n\n⬇ Conócenos un poco más aquí:",
+  "longDescription": "Easygas is an innovative network of service stations in Spain, recognized for its commitment to customer satisfaction and high-quality fuel services. Dedicated to providing an unparalleled refueling experience, Easygas utilizes a smart refueling system that minimizes wait times for customers. They offer a diverse range of products, including EXO P1000 fuel and specialized fuel additives such as PRO MAX² and EKITE X³, designed to enhance performance and efficiency for both professional and regular users. \n\nEasygas prides itself on its attentive and friendly staff, ensuring each visit is met with exceptional service and support. The stations are equipped with clean facilities, including cafés and convenience stores, providing a pleasant stop on any journey. With the company's focus on continual improvement and trustworthiness, Easygas has become a respected player in the fuel industry, striving to create a distinctive, customer-centric experience that sets it apart from traditional gas stations.",
+  "links": [
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/channel/UCvfxbKImAQQ5Rbzr8jR8IiA"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/EasyGasGroup"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/easygasgroup"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/easygas-group"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/easygasgroup"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idWXY7Ui00/w/95/h/95/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 95,
+          "width": 95,
+          "size": 1439
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idWXY7Ui00/w/400/h/400/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "width": 400,
+          "size": 16409
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#e3171a",
+      "type": "accent",
+      "brightness": 67
+    },
+    {
+      "hex": "#0d66c2",
+      "type": "dark",
+      "brightness": 90
+    },
+    {
+      "hex": "#b1dfbb",
+      "type": "light",
+      "brightness": 211
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Foundry-Bold",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "BwModelica-Medium",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idWXY7Ui00/w/1500/h/500/idnhxvXQVI.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 145508
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1080,
+        "alt": "",
+        "sourceUrl": "https://easygasgroup.com/wp-content/uploads/2021/03/Bannerestudio_Sin-letras.png",
+        "score": 72,
+        "rank": 1,
+        "naturalWidth": 2543
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1080,
+        "alt": "",
+        "sourceUrl": "https://easygasgroup.com/wp-content/uploads/2019/08/slide_2.jpg",
+        "score": 71,
+        "rank": 2,
+        "naturalWidth": 1920
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1080,
+        "alt": "",
+        "sourceUrl": "https://easygasgroup.com/wp-content/uploads/2019/08/slide_3.jpg",
+        "score": 71,
+        "rank": 3,
+        "naturalWidth": 1920
+      }
+    }
+  ],
+  "qualityScore": 0.5734457298998941,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.3245312571525574,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 0.32129043340682983,
+        "id": "57",
+        "name": "Food and Drink",
+        "emoji": "🍔",
+        "parent": null,
+        "slug": "food-and-drink"
+      },
+      {
+        "score": 0.2588318884372711,
+        "id": "101",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 0.24388043582439423,
+        "id": "10",
+        "name": "Business and Consumer Services",
+        "emoji": "📊",
+        "parent": null,
+        "slug": "business-and-consumer-services"
+      },
+      {
+        "score": 0.22689828276634216,
+        "id": "60",
+        "name": "Food and Drink",
+        "emoji": "🍔",
+        "parent": {
+          "emoji": "🍔",
+          "id": "57",
+          "name": "Food and Drink",
+          "slug": "food-and-drink"
+        },
+        "slug": "food-and-drink"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": null,
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": null,
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idWXY7Ui00"
+}

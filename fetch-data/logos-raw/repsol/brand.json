@@ -1,0 +1,202 @@
+{
+  "id": "iddtWHP-hH",
+  "name": "Repsol",
+  "domain": "repsol.com",
+  "claimed": false,
+  "description": "At Repsol, we transform energy to bring it closer to people, and we leverage technological innovation to take on the present and the future.",
+  "longDescription": "Repsol is a global energy company that strives to transform energy to bring it closer to people. With a strong belief in technological innovation, Repsol is dedicated to tackling present and future challenges. Their diverse range of products and services includes electricity, natural gas, solar energy, fuel stations, lubricants, chemicals, and more. Repsol is committed to sustainability, addressing issues such as environmental conservation, climate change, circular economy, safety, ethics, and transparency. They actively contribute to the United Nations Sustainable Development Goals and implement sustainable practices throughout their operations. With a focus on technology and digitalization, Repsol has established the Technology Lab to drive innovation and digital transformation. They also engage in corporate venturing and open innovation to support startups and foster collaboration. Choose Repsol for reliable, sustainable, and technologically advanced energy solutions. Experience their commitment to a cleaner and more efficient future.",
+  "links": [
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/repsol"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/repsol"
+    },
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/repsol"
+    },
+    {
+      "name": "github",
+      "url": "https://github.com/repsol"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/repsol"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/repsol"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/iddtWHP-hH/w/320/h/320/theme/dark/icon.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "png",
+          "height": 320,
+          "width": 320,
+          "size": 26579
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/iddtWHP-hH/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 1796,
+          "width": 7662,
+          "size": 23814
+        },
+        {
+          "src": "https://cdn.brandfetch.io/iddtWHP-hH/w/800/h/188/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 188,
+          "width": 800,
+          "size": 74463
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/iddtWHP-hH/theme/dark/symbol.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 1796,
+          "width": 2476,
+          "size": 18747
+        },
+        {
+          "src": "https://cdn.brandfetch.io/iddtWHP-hH/w/800/h/580/theme/dark/symbol.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 580,
+          "width": 800,
+          "size": 336387
+        }
+      ],
+      "tags": [],
+      "type": "symbol"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#FEDE4A",
+      "type": "accent",
+      "brightness": 218
+    },
+    {
+      "hex": "#011E37",
+      "type": "dark",
+      "brightness": 26
+    },
+    {
+      "hex": "#FBF3ED",
+      "type": "light",
+      "brightness": 244
+    },
+    {
+      "hex": "#E02C50",
+      "type": "brand",
+      "brightness": 85
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Repsol Sole Display Regular",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "system-ui",
+      "type": "body",
+      "origin": "system",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/iddtWHP-hH/w/1500/h/500/theme/dark/idPRYnLXQP.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 23849
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    }
+  ],
+  "qualityScore": 0.9602516342936778,
+  "company": {
+    "employees": 10001,
+    "financialIdentifiers": {
+      "isin": [
+        "US76026T2050",
+        "ES0173516115"
+      ],
+      "ticker": [
+        "REPYY",
+        "REPYF",
+        "REP.MC",
+        "REP.DE"
+      ]
+    },
+    "foundedYear": 1986,
+    "industries": [
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": "PRIVATELY_HELD",
+    "location": {
+      "city": "Madrid",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Madrid",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:iddtWHP-hH"
+}

@@ -1,0 +1,299 @@
+{
+  "id": "idyLJDQ3Se",
+  "name": "Moeve",
+  "domain": "cepsa.com",
+  "claimed": false,
+  "description": "We want to guarantee the energy of today while working ambitiously to transform the energy and mobility of tomorrow.",
+  "longDescription": "Cepsa is a Spanish integrated oil and gas company that operates globally in various sectors of the energy industry. Established in 1929, Cepsa has grown to become one of the largest energy companies in Spain and has expanded its presence worldwide. The company's headquarters are located in Madrid, Spain. Cepsa's headquarters serve as the center for its global operations and the coordination of its various business units. Cepsa offers a wide range of products and services in the energy sector. It specializes in the exploration, extraction, refining, distribution, and commercialization of oil and gas products. The company also produces and sells petrochemical products, such as plastics, solvents, resins, and lubricants. Additionally, Cepsa is involved in the production and distribution of electricity and natural gas. On a global scale, Cepsa has a significant presence in various countries. It operates in Europe, Africa, and the Americas, with a strong focus on the Middle East. The company has established noteworthy subsidiaries, joint ventures, and partnerships with key players in the industry. For example, Cepsa has a joint venture with Abu Dhabi National Oil Company (ADNOC) in the United Arab Emirates, which operates one of the largest refining complexes in the world. In terms of market position, Cepsa is a major player in the energy industry. It competes with other global energy giants such as ExxonMobil, Royal Dutch Shell, and BP. While exact figures for global sales are not readily available, Cepsa's strong presence in Spain and its expanding international operations contribute to its notable market position. Over the years, Cepsa has achieved significant milestones and made notable changes to its strategy and product lineup. In recent years, the company has focused on expanding its petrochemical business and developing sustainable energy solutions. Cepsa has invested in renewable energy projects, including wind farms and solar power plants. As of the latest updates, Cepsa continues to operate on a global scale, striving to maintain its market position and expand further. The company remains committed to providing innovative energy solutions while adapting to the changing demands of the industry and promoting sustainability.",
+  "links": [
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/user/CEPSAofficial"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/moeveglobal"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/MoeveES"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/moeveglobal"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/MoeveGlobal"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idyLJDQ3Se/w/400/h/400/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "width": 400,
+          "size": 7813
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idyLJDQ3Se/w/820/h/157/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 157,
+          "width": 820,
+          "size": 17223
+        },
+        {
+          "src": "https://cdn.brandfetch.io/idyLJDQ3Se/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 21,
+          "width": 110,
+          "size": 2389
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#004656",
+      "type": "dark",
+      "brightness": 56
+    },
+    {
+      "hex": "#90ffbb",
+      "type": "light",
+      "brightness": 226
+    },
+    {
+      "hex": "#0478b2",
+      "type": "accent",
+      "brightness": 100
+    }
+  ],
+  "fonts": [
+    {
+      "name": "flamabasic",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "flamabasic",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "moevelight",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idyLJDQ3Se/w/1500/h/500/id6kdA9Fld.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 23655
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "rank": 1,
+        "score": 72,
+        "naturalHeight": 633,
+        "alt": "im-generica-eess-1124x632.jpg",
+        "sourceUrl": "https://www.moeveglobal.com/stfls/corporativo/IMG/im-generica-eess-1124x632.jpg",
+        "naturalWidth": 1124
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalWidth": 1370,
+        "score": 67,
+        "naturalHeight": 616,
+        "alt": "",
+        "sourceUrl": "https://www.moeveglobal.com/stfls/corporativo-content/Image/Home/04-media_card-nuestro_camino_a_positive_motion-movilidad_sostenible-movil.webp",
+        "rank": 2
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "sourceUrl": "https://www.moeveglobal.com/stfls/comercial/IMAGENES/GettyImages-2155877725.jpg",
+        "alt": "GettyImages-2155877725.jpg",
+        "naturalWidth": 724,
+        "score": 65,
+        "rank": 3,
+        "naturalHeight": 483
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "score": 63,
+        "naturalWidth": 724,
+        "naturalHeight": 483,
+        "alt": "GettyImages-2192211617.jpg",
+        "rank": 4,
+        "sourceUrl": "https://www.moeveglobal.com/stfls/comercial/IMAGENES/GettyImages-2192211617.jpg"
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "alt": "Las Canteras beach, Las Palmas de Gran Canaria, Canary Islands, Spain",
+        "sourceUrl": "https://www.moeveglobal.com/stfls/comercial/IMAGENES/GettyImages-542729586.jpg",
+        "naturalWidth": 723,
+        "score": 60,
+        "rank": 5,
+        "naturalHeight": 483
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "sourceUrl": "https://www.moeveglobal.com/stfls/comercial/IMAGENES/GettyImages-2192144566.jpg",
+        "alt": "GettyImages-2192144566.jpg",
+        "naturalHeight": 483,
+        "score": 60,
+        "rank": 6,
+        "naturalWidth": 724
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "score": 60,
+        "naturalWidth": 643,
+        "naturalHeight": 519,
+        "alt": "",
+        "sourceUrl": "https://www.moeveglobal.com/stfls/corporativo-content/Image/04-media_card-nuestro_camino_a_positive_motion-quimica-movil.webp",
+        "rank": 7
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalWidth": 668,
+        "naturalHeight": 400,
+        "score": 59,
+        "sourceUrl": "https://www.moeveglobal.com/stfls/corporativo-content/Image/Home/02-naked_cad_list-proposito_y_valores.webp",
+        "alt": "",
+        "rank": 8
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "rank": 9,
+        "naturalHeight": 1067,
+        "sourceUrl": "https://www.moeveglobal.com/stfls/corporativo/IMG/onuba-foto-header.JPG",
+        "alt": "",
+        "score": 57,
+        "naturalWidth": 1600
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "rank": 10,
+        "naturalHeight": 519,
+        "score": 57,
+        "alt": "",
+        "naturalWidth": 643,
+        "sourceUrl": "https://www.moeveglobal.com/stfls/corporativo-content/Image/04-media_card-nuestro_camino_a_positive_motion-hidrogeno_verde-movil.webp"
+      }
+    }
+  ],
+  "qualityScore": 0.7542615731807779,
+  "company": {
+    "employees": 10001,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": 1929,
+    "industries": [
+      {
+        "id": "100",
+        "score": 1,
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": "PRIVATELY_HELD",
+    "location": {
+      "city": "Madrid",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Madrid",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idyLJDQ3Se"
+}

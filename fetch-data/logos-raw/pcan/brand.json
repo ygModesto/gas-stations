@@ -1,0 +1,263 @@
+{
+  "id": "idmkh5A9bi",
+  "name": "Petrolífera Canaria",
+  "domain": "pcan.es",
+  "claimed": false,
+  "description": "Superamos la quincena de estaciones de servicio en las Islas de Tenerife, Fuerteventura, Gran Canaria, Lanzarote y La Palma.",
+  "longDescription": "Petrolífera Canaria is a well-known brand in the Canary Islands that offers a range of products and services for vehicles. With a focus on serving the local community, Petrolífera Canaria operates a network of gas stations across the islands, providing easy access to quality fuel for drivers. In addition to their gas stations, Petrolífera Canaria also offers maintenance services and valuable tips for vehicle owners. They provide informative articles on their website about topics such as maintaining your vehicle during quarantine, cleaning your car properly, and driving safely. With their commitment to customer satisfaction and their dedication to supporting the local community, Petrolífera Canaria has established itself as a trusted brand in the Canary Islands. Whether you need fuel, vehicle maintenance, or reliable information on car care, Petrolífera Canaria is your go-to choice.",
+  "links": [
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/pcan7islas"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/pcan7islas"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/estaciones-pcan-sl"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idmkh5A9bi/w/350/h/85/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "png",
+          "height": 85,
+          "width": 350,
+          "size": 43690
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idmkh5A9bi/w/400/h/400/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "width": 400,
+          "size": 25052
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#fefc00",
+      "type": "accent",
+      "brightness": 234
+    },
+    {
+      "hex": "#2d0675",
+      "type": "dark",
+      "brightness": 22
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Lato",
+      "type": "body",
+      "origin": "google",
+      "originId": "Lato",
+      "weights": []
+    },
+    {
+      "name": "serif",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idmkh5A9bi/w/1500/h/500/idxwAc7x_g.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 248269
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 800,
+        "alt": "1403pcan",
+        "sourceUrl": "https://www.pcan.es/nueva_web/wp-content/uploads/2022/05/1403pcan-800x800.png",
+        "score": 78,
+        "rank": 1,
+        "naturalWidth": 800
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 788,
+        "alt": "0303pcan",
+        "sourceUrl": "https://www.pcan.es/nueva_web/wp-content/uploads/2022/05/0303pcan-800x788.png",
+        "score": 77,
+        "rank": 2,
+        "naturalWidth": 800
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 788,
+        "alt": "0504pcan",
+        "sourceUrl": "https://www.pcan.es/nueva_web/wp-content/uploads/2022/05/0504pcan-800x788.png",
+        "score": 76,
+        "rank": 3,
+        "naturalWidth": 800
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 800,
+        "alt": "0605pcan",
+        "sourceUrl": "https://www.pcan.es/nueva_web/wp-content/uploads/2022/05/0605pcan-800x800.png",
+        "score": 74,
+        "rank": 4,
+        "naturalWidth": 800
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 530,
+        "alt": "243645616_3145595165661312_8394095065035083824_n",
+        "sourceUrl": "https://www.pcan.es/nueva_web/wp-content/uploads/2022/05/243645616_3145595165661312_8394095065035083824_n.jpg",
+        "score": 74,
+        "rank": 5,
+        "naturalWidth": 526
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 526,
+        "alt": "horadeperderse",
+        "sourceUrl": "https://www.pcan.es/nueva_web/wp-content/uploads/2022/05/horadeperderse.jpg",
+        "score": 72,
+        "rank": 6,
+        "naturalWidth": 526
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 430,
+        "alt": "",
+        "sourceUrl": "https://www.pcan.es/nueva_web/wp-content/uploads/2022/08/2009PCAN-750x430.jpg",
+        "score": 68,
+        "rank": 7,
+        "naturalWidth": 750
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 800,
+        "alt": "2402PCAN",
+        "sourceUrl": "https://www.pcan.es/nueva_web/wp-content/uploads/2022/05/2402PCAN-800x800.png",
+        "score": 67,
+        "rank": 8,
+        "naturalWidth": 800
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 430,
+        "alt": "",
+        "sourceUrl": "https://www.pcan.es/nueva_web/wp-content/uploads/2021/09/25310-mtr_5368299761559537071-731x430.jpeg",
+        "score": 64,
+        "rank": 9,
+        "naturalWidth": 731
+      }
+    }
+  ],
+  "qualityScore": 0.46153846153846156,
+  "company": {
+    "employees": 11,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": "Nave",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Santa Cruz De Tenerife",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idmkh5A9bi"
+}

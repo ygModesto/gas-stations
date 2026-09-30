@@ -1,0 +1,172 @@
+{
+  "id": "idr89sTq4u",
+  "name": "Family Energy",
+  "domain": "familyenergy.es",
+  "claimed": false,
+  "description": null,
+  "longDescription": "Family Energy is a leading fuel brand owned by the Valencia-based Family Group, known for its commitment to quality and affordability. With over twenty service stations spread across Spain, Family Energy provides reliable fuel options while maintaining competitive pricing, positioning itself as one of the country’s most economical service station chains. In addition to quality fuel, Family Energy offers a range of services including convenient 24-hour access, car wash facilities, and a selection of refrigerated products. The brand is dedicated to customer satisfaction and is always ready to assist through various support channels. Family Energy’s headquarters is located in L’Olleria, Valencia, where they strive to deliver the best service to their customers. Whether you need fuel, a quick wash for your vehicle, or have questions about services, Family Energy is committed to meeting your needs efficiently and affordably.",
+  "links": [],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idr89sTq4u/w/2338/h/432/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 432,
+          "width": 2338,
+          "size": 30199
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#c4d600",
+      "type": "accent",
+      "brightness": 195
+    },
+    {
+      "hex": "#950c0f",
+      "type": "dark",
+      "brightness": 41
+    },
+    {
+      "hex": "#a0aec0",
+      "type": "light",
+      "brightness": 172
+    }
+  ],
+  "fonts": [
+    {
+      "name": "serif",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "serif",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1024,
+        "alt": "",
+        "sourceUrl": "https://familyenergy.es/wp-content/uploads/2024/11/DSC_3071-1536x1024.jpg",
+        "score": 75,
+        "rank": 1,
+        "naturalWidth": 1536
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1536,
+        "alt": "",
+        "sourceUrl": "https://familyenergy.es/wp-content/uploads/2024/11/DSC_3090-edited-1536x1536.jpg",
+        "score": 71,
+        "rank": 2,
+        "naturalWidth": 1536
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 493,
+        "alt": "",
+        "sourceUrl": "https://familyenergy.es/wp-content/uploads/2024/11/refrigeracion-estaciones-de-servicio-edited.webp",
+        "score": 61,
+        "rank": 3,
+        "naturalWidth": 493
+      }
+    }
+  ],
+  "qualityScore": 0.23076923076923078,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.40020185708999634,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 0.33268946409225464,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 0.2452411651611328,
+        "id": "10",
+        "name": "Business and Consumer Services",
+        "emoji": "📊",
+        "parent": null,
+        "slug": "business-and-consumer-services"
+      },
+      {
+        "score": 0.24435818195343018,
+        "id": "101",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 0.2376992553472519,
+        "id": "28",
+        "name": "Computers Electronics and Technology",
+        "emoji": "🖥",
+        "parent": null,
+        "slug": "computers-electronics-and-technology"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": null,
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": null,
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idr89sTq4u"
+}

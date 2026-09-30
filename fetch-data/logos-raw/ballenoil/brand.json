@@ -1,0 +1,111 @@
+{
+  "id": "idHZoLHlBV",
+  "name": "Ballenoil",
+  "domain": "ballenoil.es",
+  "claimed": false,
+  "description": "Ballenoil, pionera en un innovador modelo de gasolineras. Suministro fácil y rápido. Aditivado instantáneo. Servicio 24h, con empleados en horario comercial",
+  "longDescription": "Ballenoil is a pioneering brand with an innovative model of gas stations that provides easy and fast fueling services. With Ballenoil, you can enjoy instant additivation, ensuring optimal performance for your engine. They offer a 24-hour service with employees available during business hours to assist you. Ballenoil goes beyond just fueling, offering a range of products and services to enhance your experience. Join their Club Ballenoil for exclusive benefits and promotions. They also have a user-friendly app, allowing you to conveniently access multiple advantages and promotions, as well as a quick and secure payment system. Customer satisfaction is their priority, as evidenced by their excellent customer service and high-quality fuel. Their fuels have been rigorously tested to ensure maximum performance and engine care. With 217 stations across Spain, you can easily find a Ballenoil gas station near you. Visit their website or app to locate the nearest station and enjoy their fast, convenient, and secure fueling services.",
+  "links": [],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idHZoLHlBV/w/263/h/66/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 66,
+          "width": 263,
+          "size": 5768
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#313131",
+      "type": "dark",
+      "brightness": 49
+    },
+    {
+      "hex": "#ebb773",
+      "type": "light",
+      "brightness": 189
+    },
+    {
+      "hex": "#599ad7",
+      "type": "accent",
+      "brightness": 145
+    }
+  ],
+  "fonts": [
+    {
+      "name": "system-ui",
+      "type": "body",
+      "origin": "system",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idHZoLHlBV/w/1500/h/500/idFhIBxBBs.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 92218
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    }
+  ],
+  "qualityScore": 0.49420581585914625,
+  "company": {
+    "employees": 201,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": 2010,
+    "industries": [
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": "PRIVATELY_HELD",
+    "location": {
+      "city": "Alcobendas",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Madrid",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idHZoLHlBV"
+}

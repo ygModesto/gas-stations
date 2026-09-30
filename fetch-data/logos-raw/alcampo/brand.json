@@ -1,0 +1,179 @@
+{
+  "id": "id1bUJVxjB",
+  "name": "Alcampo",
+  "domain": "alcampo.es",
+  "claimed": false,
+  "description": "Inicio - Alcampo - Descubre nuestras ofertas y promociones online. Compra ahora y disfrutalos dónde y cuándo quieras",
+  "longDescription": "Alcampo, the online supermarket, offers a wide range of products and services to meet all your needs. From fresh produce to wines and spirits, household cleaning products, and toys, Alcampo has it all. Whether you're stocking up on groceries, looking for the perfect gift, or shopping for everyday essentials, Alcampo has you covered. With a user-friendly website and a convenient delivery service, shopping has never been easier. Browse through their extensive catalog of products, including household appliances, baby essentials, technology, sports equipment, and more. Alcampo is committed to providing quality products at affordable prices, making it a go-to destination for all your shopping needs. Join their Club Alcampo for exclusive offers and discounts. Experience the convenience of online shopping with Alcampo today!.",
+  "links": [
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/alcampo"
+    },
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/channel/UCQyXm5NicTo1o28iQ1o3BeQ"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/alcampo.es"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/alcampo.es"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id1bUJVxjB/w/820/h/204/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 204,
+          "width": 820,
+          "size": 16596
+        },
+        {
+          "src": "https://cdn.brandfetch.io/id1bUJVxjB/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 41,
+          "width": 165,
+          "size": 3472
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id1bUJVxjB/w/400/h/400/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "width": 400,
+          "size": 16025
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#297396",
+      "type": "dark",
+      "brightness": 102
+    },
+    {
+      "hex": "#f4a8ab",
+      "type": "light",
+      "brightness": 184
+    },
+    {
+      "hex": "#e2231a",
+      "type": "accent",
+      "brightness": 75
+    }
+  ],
+  "fonts": [
+    {
+      "name": "SanaSansAlt-Medium",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "system-ui",
+      "type": "body",
+      "origin": "system",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id1bUJVxjB/w/1500/h/500/id-ykPW4VL.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 49407
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "sourceUrl": "https://images.ctfassets.net/ie9idqs9zz4x/1pKVulMUDJRg91ymbhhNDt/a5e510d8831121124c31799ad0451aa0/960x480-Gana.jpg",
+        "alt": "Disfruta 80€ de descuento en tus primeras compra online en Madrid y cuatro envío gratis",
+        "naturalHeight": 480,
+        "score": 49,
+        "rank": 1,
+        "naturalWidth": 960
+      }
+    }
+  ],
+  "qualityScore": 0.7278221338786104,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.95,
+        "id": "42",
+        "name": "E-commerce and Shopping",
+        "emoji": "🛍",
+        "parent": null,
+        "slug": "e-commerce-and-shopping"
+      },
+      {
+        "score": 0.95,
+        "id": "57",
+        "name": "Food and Drink",
+        "emoji": "🍔",
+        "parent": null,
+        "slug": "food-and-drink"
+      },
+      {
+        "score": 0.95,
+        "id": "61",
+        "name": "Groceries",
+        "emoji": "🍔",
+        "parent": {
+          "emoji": "🍔",
+          "id": "57",
+          "name": "Food and Drink",
+          "slug": "food-and-drink"
+        },
+        "slug": "groceries"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": null,
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": null,
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:id1bUJVxjB"
+}

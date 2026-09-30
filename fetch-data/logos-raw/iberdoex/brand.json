@@ -1,0 +1,131 @@
+{
+  "id": "idJXT3J3Ie",
+  "name": "IBERDOEX",
+  "domain": "iberdoex.com",
+  "claimed": false,
+  "description": "Productos  PINCHA AQUÍ      Últimas Noticias   IBERDOEX TV  Y NOS PONDREMOS EN BREVE EN CONTACTO CON USTEDPINCHA AQUÍ          Iberdoex TV      Cotización Euro/Dolar \r\n\r\n  Brent",
+  "longDescription": "IBERDOEX is the leading network of service stations in Extremadura, and their main priority is the commitment they make to their members. As an associative business grouping, IBERDOEX manages, defends, and represents the common interests of its members, actively promoting and contributing to the competitiveness of services throughout the entire value chain of service stations. What sets IBERDOEX apart is their personalized and close relationship with their members. They have a team of professionals with extensive experience in the sector who are dedicated to successfully implementing any project entrusted to them. The satisfaction of their members is the cornerstone of their work. In addition to their focus on member satisfaction, IBERDOEX offers a range of services. They are dedicated to providing comprehensive support and driving the success of their service station network. With their personalized approach and commitment to excellence, IBERDOEX ensures the highest quality services for their members.",
+  "links": [],
+  "logos": [
+    {
+      "theme": "light",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idJXT3J3Ie/w/244/h/57/theme/light/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 57,
+          "width": 244,
+          "size": 5591
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#202020",
+      "type": "dark",
+      "brightness": 32
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    },
+    {
+      "hex": "#dd9949",
+      "type": "accent",
+      "brightness": 162
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Josefin Sans",
+      "type": "title",
+      "origin": "google",
+      "originId": "Josefin+Sans",
+      "weights": []
+    },
+    {
+      "name": "Helvetica Neue",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idJXT3J3Ie/w/1500/h/500/idXnBqLBgt.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 72594
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1500,
+        "alt": "",
+        "sourceUrl": "https://iberdoex.com/wp-content/uploads/2022/03/IBER2020_4-copia.jpg",
+        "score": 78,
+        "rank": 1,
+        "naturalWidth": 1000
+      }
+    }
+  ],
+  "qualityScore": 0.34615384615384615,
+  "company": {
+    "employees": 201,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": 1998,
+    "industries": [
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": "PRIVATELY_HELD",
+    "location": {
+      "city": "Mrida",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Badajoz",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idJXT3J3Ie"
+}

@@ -573,25 +573,46 @@ const FUEL_LABELS = { g95: 'Gasolina 95', g98: 'Gasolina 98', ga: 'Diésel', gap
 let selectedFuel = FUEL_LABELS[prefs.fuel] ? prefs.fuel : 'g95';
 let currentFeatures = []; // últimas features crudas cargadas desde el .fgb (sin etiqueta calculada)
 
-// Marcas que puede traer la columna 'brand' del .fgb, en el mismo orden que usa el workflow al
-// clasificar (ver fetch-data.yml). Aquí solo sirven para construir el desplegable: la asignación
-// de marca ya viene hecha desde el build, así que el cliente no vuelve a mirar el rótulo.
-// Si se toca este listado hay que tocar también el del workflow.
+// Marcas que puede traer la columna 'brand' del .fgb, en el mismo orden que usa fetch-data al
+// clasificar (ver fetch-data/src/main.rs, BRANDS). Aquí solo sirven para construir el desplegable:
+// la asignación de marca ya viene hecha desde el build, así que el cliente no vuelve a mirar el
+// rótulo. Si se toca este listado hay que tocar también el de fetch-data.
 const BRANDS = ['REPSOL', 'BP', 'MOEVE', 'CEPSA', 'GALP', 'BALLENOIL', 'SHELL', 'PLENERGY',
-                'PETROPRIX', 'PETRONOR', 'CARREFOUR', 'DISA', 'AVIA', 'Q8'];
+                'PETROPRIX', 'PETRONOR', 'CARREFOUR', 'DISA', 'AVIA', 'Q8',
+                'ESCLATOIL', 'CAMPSA', 'BONAREA', 'AGLA', 'VALCARCE', 'ALCAMPO', 'GASEXPRESS',
+                'HAM', 'ENI', 'BEROIL', 'EROSKI', 'MEROIL', 'NATURGY', 'PETROCAT', 'TAMOIL',
+                'MOLGAS', 'NIEVES', 'AUTONETOIL', 'IBERDOEX', 'EASYGAS', 'AGROPAL',
+                'PCAN', 'DST', 'T9', 'FARRUCO', 'SUPECO', 'GM OIL'];
 const OTHER_BRAND = 'Otras';
 const ALL_BRANDS = [...BRANDS, OTHER_BRAND];
 
+// Alias de más de una palabra o que comparten canónica con otro rótulo real -- debe reflejar
+// exactamente BRANDS en fetch-data/src/main.rs. Q8 e IDS son la misma red de Kuwait Petroleum
+// (renombrada Q8Truck en 2025); "GM OIL"/"GMOIL" son la misma cadena con dos grafías. El resto de
+// marcas son alias de una sola palabra igual a su propio nombre, no hace falta listarlas aquí.
+const BRAND_ALIASES = {
+  Q8: [['Q8'], ['IDS']],
+  'GM OIL': [['GM', 'OIL'], ['GMOIL']]
+};
+
 // El workflow deja la columna a NULL cuando el rótulo no casa con ninguna marca, porque en
-// FlatGeobuf un nulo no ocupa bytes y ese es el 36,6% de las estaciones. Ese hueco es OTHER_BRAND.
+// FlatGeobuf un nulo no ocupa bytes y ese es el 27,9% de las estaciones. Ese hueco es OTHER_BRAND.
 //
 // El segundo caso del || es transitorio: los .fgb ya publicados todavía no traen 'brand', así que
 // hasta que el workflow los regenere se clasifica en cliente a partir del rótulo, como antes.
 // Cuando haya corrido una vez, brandFromRotulo() y NON_ALNUM se pueden borrar.
 const NON_ALNUM = /[^A-Z0-9]+/;
 function brandFromRotulo(rotulo) {
-  const words = new Set(String(rotulo || '').toUpperCase().split(NON_ALNUM));
-  return BRANDS.find(b => words.has(b));
+  const words = String(rotulo || '').toUpperCase().split(NON_ALNUM).filter(Boolean);
+  for (const b of BRANDS) {
+    const aliases = BRAND_ALIASES[b] || [[b]];
+    for (const tokens of aliases) {
+      for (let i = 0; i + tokens.length <= words.length; i++) {
+        if (tokens.every((t, j) => words[i + j] === t)) return b;
+      }
+    }
+  }
+  return undefined;
 }
 function brandOf(properties) {
   return properties.brand || brandFromRotulo(properties.rotulo) || OTHER_BRAND;
@@ -1221,7 +1242,10 @@ function tracePinOutline(ctx, inset) {
   ctx.closePath();
 }
 
-function makeBadgeImage(color) {
+// 'logoImg' es opcional: un <img> ya cargado (ver loadBrandLogos) con el icono de la marca. Sin
+// él, el hueco queda con el relleno neutro de siempre -- es lo que se usa para "Otras" y para
+// cualquier marca de BRANDS que todavía no tenga logo descargado (ver fetch-data/fetch-logos.mjs).
+function makeBadgeImage(color, logoImg) {
   const canvas = document.createElement('canvas');
   canvas.width = PIN_W;
   canvas.height = PIN_H;
@@ -1234,16 +1258,63 @@ function makeBadgeImage(color) {
   ctx.fill();
   ctx.stroke();
 
-  // Hueco del logo: círculo neutro, sin marca todavía
-  ctx.beginPath();
-  ctx.arc(LOGO_HOLE_CX, LOGO_HOLE_CY, LOGO_HOLE_R, 0, Math.PI * 2);
-  ctx.fillStyle = '#eef2f7';
-  ctx.fill();
-  ctx.lineWidth = 1.5;
-  ctx.strokeStyle = '#cbd5e1';
-  ctx.stroke();
+  if (logoImg) {
+    // Recorte circular + "cover" (llena el círculo sin deformar, recortando lo que sobre por el
+    // lado más largo) -- igual que el CSS object-fit: cover, pero a mano porque esto es un canvas.
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(LOGO_HOLE_CX, LOGO_HOLE_CY, LOGO_HOLE_R, 0, Math.PI * 2);
+    ctx.clip();
+    const side = LOGO_HOLE_R * 2;
+    const scale = Math.max(side / logoImg.width, side / logoImg.height);
+    const w = logoImg.width * scale;
+    const h = logoImg.height * scale;
+    ctx.drawImage(logoImg, LOGO_HOLE_CX - w / 2, LOGO_HOLE_CY - h / 2, w, h);
+    ctx.restore();
+  } else {
+    // Hueco neutro: sin marca todavía
+    ctx.beginPath();
+    ctx.arc(LOGO_HOLE_CX, LOGO_HOLE_CY, LOGO_HOLE_R, 0, Math.PI * 2);
+    ctx.fillStyle = '#eef2f7';
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.stroke();
+  }
 
   return ctx.getImageData(0, 0, PIN_W, PIN_H);
+}
+
+// Separador entre el id del tramo de precio y el de la marca, para formar el id de la imagen
+// compuesta (p.ej. 'badge-0::REPSOL'). No puede ser un caracter que ya aparezca en BADGE_IDS o en
+// un nombre de marca real.
+const BADGE_BRAND_SEP = '::';
+
+// Descarga el manifiesto de fetch-logos.mjs y precarga como <img> solo los logos de marcas que la
+// app reconoce (BRANDS): las que trae marcas.yaml de más (ASC CARBURANTES, CONFORT AUTO...) no
+// tienen hueco propio en el desplegable todavía, así que cargarlas no serviría de nada.
+// Si el manifiesto no existe o una imagen falla, esa marca sencillamente se queda sin logo -- no
+// es un error fatal, cae en el mismo hueco neutro que las que nunca tuvieron web conocida.
+async function loadBrandLogos() {
+  const logos = new Map();
+  let manifest;
+  try {
+    manifest = await fetch('./public/logos/manifest.json').then((r) => r.json());
+  } catch {
+    return logos; // sin manifiesto (build viejo, o aún no se ha corrido fetch-logos.mjs): sin logos
+  }
+  await Promise.all(
+    BRANDS.filter((b) => manifest[b]).map(
+      (b) =>
+        new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => { logos.set(b, img); resolve(); };
+          img.onerror = () => resolve(); // esa marca se queda sin logo, no bloquea al resto
+          img.src = `./public/logos/${manifest[b]}`;
+        })
+    )
+  );
+  return logos;
 }
 
 map.on('load', async () => {
@@ -1252,9 +1323,31 @@ map.on('load', async () => {
     data: { type: 'FeatureCollection', features: [] }
   });
 
-  // Un bocadillo por clase de precio, todos del mismo tamaño fijo (ver makeBadgeImage)
-  PRICE_COLORS.forEach((color, i) => map.addImage(BADGE_IDS[i], makeBadgeImage(color), { pixelRatio: 2 }));
-  map.addImage(NO_PRICE_BADGE_ID, makeBadgeImage(NO_PRICE_COLOR), { pixelRatio: 2 });
+  // Un bocadillo por clase de precio, todos del mismo tamaño fijo (ver makeBadgeImage). Estos son
+  // los que se usan cuando la gasolinera no tiene marca reconocida o su marca no tiene logo.
+  const ALL_BADGE_IDS = [...BADGE_IDS, NO_PRICE_BADGE_ID];
+  const ALL_BADGE_COLORS = [...PRICE_COLORS, NO_PRICE_COLOR];
+  ALL_BADGE_IDS.forEach((id, i) => map.addImage(id, makeBadgeImage(ALL_BADGE_COLORS[i]), { pixelRatio: 2 }));
+
+  // Además, una imagen por cada combinación (tramo de precio × marca con logo): 'icon-image' es
+  // una textura plana por id, así que el logo no se puede "superponer" al bocadillo ya coloreado
+  // en tiempo de dibujado -- hay que generar el compuesto entero de antemano, uno por combinación
+  // realmente presente. Con ~38 marcas y 5 tramos son unas 190 imágenes, pero son pequeñas
+  // (PIN_W x PIN_H) y esto corre una sola vez al cargar, no por cada fotograma.
+  const brandLogos = await loadBrandLogos();
+  for (const [brand, img] of brandLogos) {
+    ALL_BADGE_IDS.forEach((id, i) => {
+      map.addImage(id + BADGE_BRAND_SEP + brand, makeBadgeImage(ALL_BADGE_COLORS[i], img), { pixelRatio: 2 });
+    });
+  }
+  // 'match' sobre la marca real de la gasolinera (no la calculada por el filtro, que ya convierte
+  // los nulos en OTHER_BRAND): solo las marcas con logo cargado tienen una rama; el resto -- sin
+  // marca reconocida, o reconocida pero sin logo todavía -- usa el bocadillo liso de siempre.
+  const iconImageExpr = brandLogos.size
+    ? ['match', ['get', 'brand'],
+        ...[...brandLogos.keys()].flatMap((b) => [b, ['concat', ['get', 'badge'], BADGE_BRAND_SEP, b]]),
+        ['get', 'badge']]
+    : ['get', 'badge'];
 
   // Capa de bocadillos: sin 'icon-text-fit' (tamaño fijo, ver makeBadgeImage), así que icono y
   // texto se posicionan cada uno por su cuenta con su propio anchor/offset, ambos relativos al
@@ -1273,7 +1366,8 @@ map.on('load', async () => {
     source: SOURCE_ID,
     minzoom: LABEL_MIN_ZOOM, // por debajo se muestran los puntos de DOTS_LAYER_ID en su lugar
     layout: {
-      'icon-image': ['get', 'badge'], // color asignado en applyLabels() por cuartiles
+      // Color por cuartiles (applyLabels()) + logo de marca (loadBrandLogos()), ver iconImageExpr
+      'icon-image': iconImageExpr,
       'icon-anchor': 'bottom',
       'icon-padding': 4, // margen extra de colisión: evita bocadillos pegados
       // Con colisión activa (los '*-allow-overlap' de abajo en false) MapLibre coloca antes las

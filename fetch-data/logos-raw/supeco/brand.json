@@ -1,0 +1,129 @@
+{
+  "id": "idv7H7Yb3S",
+  "name": "Supeco",
+  "domain": "supeco.es",
+  "claimed": false,
+  "description": null,
+  "longDescription": "Supeco is a brand that offers super economical products and services. As part of GRUP SUPECO MAXOR, S.L.U., they are committed to providing customers with a better shopping experience based on their browsing habits. With a focus on affordability and quality, Supeco aims to offer a wide range of products at competitive prices. Whether you're a regular shopper or a professional customer, Supeco has something for everyone. From groceries to household items and more, they have you covered. Their dedication to customer satisfaction is evident through their attention to detail and commitment to offering the best value for your money. To make your shopping experience even more convenient, Supeco provides a digital brochure where you can browse their offerings and find the nearest store to you. They also have a strong focus on customer service, with a dedicated helpline available for any queries or concerns. Choose Supeco for super savings and an exceptional shopping experience.",
+  "links": [
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/Supeco"
+    },
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/channel/UCH-JnqItlp6Bpn8ZYAdItYA"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "light",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idv7H7Yb3S/w/260/h/88/theme/light/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 88,
+          "width": 260,
+          "size": 37983
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idv7H7Yb3S/w/1500/h/1500/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 1500,
+          "width": 1500,
+          "size": 74698
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#fcd315",
+      "type": "accent",
+      "brightness": 206
+    },
+    {
+      "hex": "#9c593a",
+      "type": "dark",
+      "brightness": 101
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Source Sans Pro",
+      "type": "title",
+      "origin": "google",
+      "originId": "Source+Sans+Pro",
+      "weights": []
+    },
+    {
+      "name": "system-ui",
+      "type": "body",
+      "origin": "system",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idv7H7Yb3S/w/828/h/315/idiZl59POi.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 315,
+          "width": 828,
+          "size": 59203
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    }
+  ],
+  "qualityScore": 0.6039378721383142,
+  "company": {
+    "employees": 1001,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "id": "57",
+        "score": 1,
+        "name": "Food and Drink",
+        "emoji": "🍔",
+        "parent": null,
+        "slug": "food-and-drink"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": "Alcobendas",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Madrid",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idv7H7Yb3S"
+}

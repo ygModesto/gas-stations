@@ -1,0 +1,280 @@
+{
+  "id": "idnFLmGKPs",
+  "name": "Grupo HAM",
+  "domain": "ham.es",
+  "claimed": false,
+  "description": "Grupo HAM es líder en el servicio integral de gas natural licuado, gas natural comprimido y biometano, en industrias y entornos móviles-vehiculares.",
+  "longDescription": "Grupo HAM is a leading brand in the comprehensive service of compressed natural gas (CNG), liquefied natural gas (LNG), and liquefied natural gas (LNG). With a focus on clean and environmentally friendly energy, Grupo HAM has been at the forefront of promoting the use of CNG and LNG since its establishment in 1980. They offer a wide range of products and services in industries, mobile-vehicle environments, and the maritime sector. Grupo HAM's offerings include gas stations for CNG and LNG, where customers can refuel 24/7 using any debit or credit card. They also specialize in designing, constructing, and maintaining satellite regasification plants, providing the benefits of natural gas to areas without gas pipeline networks. Additionally, Grupo HAM offers mobile solutions for gas supply, transportation services for various gases, and comprehensive management of LNG. With over 80 strategically located service stations throughout Europe, Grupo HAM is the go-to brand for businesses and individuals seeking clean, efficient, and cost-effective energy solutions. Their commitment to innovation and sustainability sets them apart as pioneers in the industry. Contact Grupo HAM today to explore their tailored solutions for your energy needs.",
+  "links": [
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/channel/UCn6T9rucf99UPbiEqiA8M0w"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/hamgrupo"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/grupo-ham"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/grupoham"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idnFLmGKPs/w/3071/h/3046/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 3046,
+          "width": 3071,
+          "size": 63529
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idnFLmGKPs/w/256/h/256/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 256,
+          "width": 256,
+          "size": 7008
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#d07b30",
+      "type": "accent",
+      "brightness": 136
+    },
+    {
+      "hex": "#1e73be",
+      "type": "dark",
+      "brightness": 102
+    },
+    {
+      "hex": "#45bbfc",
+      "type": "light",
+      "brightness": 167
+    }
+  ],
+  "fonts": [
+    {
+      "name": "serif",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "Open Sans",
+      "type": "title",
+      "origin": "google",
+      "originId": "Open+Sans",
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idnFLmGKPs/w/4963/h/3309/idWKPNEQJv.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 3309,
+          "width": 4963,
+          "size": 2540670
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 467,
+        "alt": "Grupo HAM dispone de una red internacional de más de 130 estaciones de servicio donde repostar GNL, GNC y Biometano",
+        "sourceUrl": "https://ham.es/wp-content/uploads/2024/01/estaciones-servicio-gnc-gnl-ham.webp",
+        "score": 68,
+        "rank": 1,
+        "naturalWidth": 935
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 467,
+        "alt": "En Grupo HAM diseñamos, construimos y mantenemos Plantas Satélites de Regasificación, tanto para industrias como para poblaciones donde no hay red de gaseoductos",
+        "sourceUrl": "https://ham.es/wp-content/uploads/2024/01/planta-regasificacion-psr-gnl.webp",
+        "score": 68,
+        "rank": 2,
+        "naturalWidth": 935
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 467,
+        "alt": "Grupo HAM diseña, construye y gestiona estaciones GNL, GNC y Biometano. También ofrecemos soluciones móviles para suministro de gas natural vehicular",
+        "sourceUrl": "https://ham.es/wp-content/uploads/2024/01/gas-natural-vehicular-gnl-gnc.webp",
+        "score": 67,
+        "rank": 3,
+        "naturalWidth": 935
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 550,
+        "alt": "Grupo HAM, líderes en el servicio integral de GNL, GNC y Biometano vehicular e industrial",
+        "sourceUrl": "https://ham.es/wp-content/uploads/2025/06/gnc-gnl-biometano-vehicular-industrial-ham.webp",
+        "score": 66,
+        "rank": 4,
+        "naturalWidth": 1920
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 467,
+        "alt": "Gestionamos proyectos de Biometano a partir de purificar biogás originado en el tratamiento de residuos agrícolas, orgánicos, domésticos e industriales",
+        "sourceUrl": "https://ham.es/wp-content/uploads/2024/01/biometano-grupo-ham-huella-carbono-cero.webp",
+        "score": 66,
+        "rank": 5,
+        "naturalWidth": 935
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 486,
+        "alt": "Los clientes de Grupo HAM ya pueden repostar BioGNL y BioGNC en todas nuestras estaciones de servicio",
+        "sourceUrl": "https://ham.es/wp-content/uploads/2026/04/biognc-biognl-estaciones-servicio-grupo-ham.webp",
+        "score": 66,
+        "rank": 6,
+        "naturalWidth": 800
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 486,
+        "alt": "HAM Torrejón de Ardoz GNL - GNC Madrid, ubicada en la Avenida Ronda Sur 4, junto a la M-206",
+        "sourceUrl": "https://ham.es/wp-content/uploads/2026/04/ham-torrejon-ardoz-gnl-gnc.webp",
+        "score": 63,
+        "rank": 7,
+        "naturalWidth": 800
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 460,
+        "alt": "Contactar con las oficinas centrales de Grupo HAM para solicitar información sobre servicios y productos relacionados con gas natural comprimido, gas natural licuado y biometano",
+        "sourceUrl": "https://ham.es/wp-content/uploads/2024/01/contacto-ham-gnl-gnc-biometano-oficina.webp",
+        "score": 59,
+        "rank": 8,
+        "naturalWidth": 726
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 486,
+        "alt": "Real Decreto-Ley 9/2026 Solicitar ayudas vehículos GNL – GNC ",
+        "sourceUrl": "https://ham.es/wp-content/uploads/2025/12/ham-comunicado.webp",
+        "score": 56,
+        "rank": 9,
+        "naturalWidth": 800
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 3046,
+        "alt": "Grupo HAM",
+        "sourceUrl": "https://ham.es/wp-content/uploads/2024/01/grupo-ham-logo.png",
+        "score": 55,
+        "rank": 10,
+        "naturalWidth": 3071
+      }
+    }
+  ],
+  "qualityScore": 0.5249958043258741,
+  "company": {
+    "employees": 201,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": 1980,
+    "industries": [
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": "PRIVATELY_HELD",
+    "location": {
+      "city": "Abrera",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Barcelona",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idnFLmGKPs"
+}

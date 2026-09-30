@@ -1,0 +1,98 @@
+{
+  "id": "id3VmhPbDN",
+  "name": "TNueve",
+  "domain": "tnueve.com",
+  "claimed": false,
+  "description": null,
+  "longDescription": "TNueve is a premium gas station brand that marks the start of your journey with top-quality fuel treated with Aderco technology to care for your engine from the get-go. Operating in various locations across Madrid and Castilla la Mancha, TNueve offers the best prices for high-quality fuel. Partnered with Exolum, a leading company in fuel transportation in Spain, TNueve adds HQ300 and HQ400 additives to enhance the fuel quality. Their commitment to engine maintenance results in increased mileage, improved engine performance, reduced emissions, lower maintenance costs, and cleaner components. Joining the T9 club rewards you with discounts and a bonus car wash voucher for every €30 spent. Download their app for real-time fuel prices, promotions, and a convenient way to manage your account. Trust TNueve for a premium fueling experience at a competitive price.",
+  "links": [],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id3VmhPbDN/w/180/h/180/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 180,
+          "width": 180,
+          "size": 3333
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#004e59",
+      "type": "dark",
+      "brightness": 62
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    }
+  ],
+  "fonts": [
+    {
+      "name": "var(--bs-font-sans-serif)",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "Inter",
+      "type": "body",
+      "origin": "google",
+      "originId": "Inter",
+      "weights": []
+    }
+  ],
+  "images": [],
+  "qualityScore": 0.2564102564102564,
+  "company": {
+    "employees": 2,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": 2023,
+    "industries": [
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": "PRIVATELY_HELD",
+    "location": {
+      "city": "",
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": "",
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:id3VmhPbDN"
+}

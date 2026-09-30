@@ -1,0 +1,155 @@
+{
+  "id": "idwFlLIoUe",
+  "name": "PETROPRIX",
+  "domain": "petroprix.com",
+  "claimed": true,
+  "description": "Red de gasolineras líderes en el sector. Reposta de forma rápida y ahorra en combustible. Servicio 24 horas los 365 días del año.",
+  "longDescription": "PETROPRIX is a leading network of gas stations offering high-quality fuel at the best prices. With over 120 locations across Spain, PETROPRIX ensures quick refueling and significant savings on fuel costs. Their services are available 24 hours a day, 365 days a year, providing convenience and accessibility to customers whenever they need it. PETROPRIX offers a wide range of fuels, including Diesel, Gasóleo A Aditivado con HQ300, Gasolina Sin plomo 95, and Gasolina Aditivado con HQ400, all known for their top-quality performance. Their commitment to delivering top-notch products is backed by over 2 million monthly customers and more than 15 million refuels in the past year. Customers rave about PETROPRIX, with over 300,000 reviews averaging 5 stars. They admire the affordable prices, the growing number of locations, and the convenience of their mobile app, allowing users to register their license plates and receive invoices seamlessly. Experience top-quality fuel and significant savings by visiting your nearest PETROPRIX gas station and become one of their satisfied customers.",
+  "links": [
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/youtube.com/petroprix"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/petroprix"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/petroprix_es"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/petroprix"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/petroprix"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idwFlLIoUe/w/400/h/400/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "width": 400,
+          "size": 13832
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idwFlLIoUe/w/820/h/820/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 820,
+          "width": 820,
+          "size": 41314
+        },
+        {
+          "src": "https://cdn.brandfetch.io/idwFlLIoUe/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 208,
+          "width": 208,
+          "size": 1160
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#da0d29",
+      "type": "accent",
+      "brightness": 59
+    },
+    {
+      "hex": "#2b363b",
+      "type": "dark",
+      "brightness": 52
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    }
+  ],
+  "fonts": [
+    {
+      "name": "var(--bs-body-font-family)",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idwFlLIoUe/w/1500/h/500/idoAyRNfJ0.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 59277
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    }
+  ],
+  "qualityScore": 0.7090476099542102,
+  "company": {
+    "employees": 51,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": "PRIVATELY_HELD",
+    "location": {
+      "city": "Martos",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Andalusia",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idwFlLIoUe"
+}

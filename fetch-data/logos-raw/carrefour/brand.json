@@ -1,0 +1,317 @@
+{
+  "id": "idZHsHEMx-",
+  "name": "Carrefour España",
+  "domain": "carrefour.es",
+  "claimed": false,
+  "description": "Compra online en Carrefour y ahorra. Encuentra alimentación fresca, electrodomésticos, tecnología, moda y mucho más. ¡Entrega a domicilio o recogida en tienda!",
+  "longDescription": "Carrefour is a retail brand operating in Spain, offering customers a broad range of products through its online store and network of physical shops. Its selection includes fresh food and groceries, household goods, appliances, technology and fashion, alongside products for babies and other everyday needs. Shoppers can browse special offers, promotions and Carrefour-branded products, as well as items sold by third-party marketplace sellers.\n\nThe online service is designed to make repeat shopping convenient: customers with an account can save favourite products and revisit previous purchases. Orders can be delivered to a chosen address or collected through Carrefour Drive, with availability and delivery options depending on the customer’s postcode. Carrefour also highlights freshness guarantees, secure purchasing, multiple payment methods and customer support for topics such as orders, returns, invoices and appliance installation.\n\nBeyond shopping, the brand’s wider services include Club Carrefour and ClubPASS, insurance, travel and franchise opportunities. Carrefour provides information about its stores, offers recipes and practical tips, and communicates commitments relating to sustainability, food and responsible business practices.",
+  "links": [
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/carrefoures"
+    },
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/user/carrefour"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/carrefoures"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/carrefourEs"
+    },
+    {
+      "name": "pinterest",
+      "url": "https://pinterest.com/@carrefoures"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/carrefoures"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idZHsHEMx-/w/820/h/149/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 149,
+          "width": 820,
+          "size": 16089
+        },
+        {
+          "src": "https://cdn.brandfetch.io/idZHsHEMx-/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 30,
+          "width": 165,
+          "size": 17099
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idZHsHEMx-/w/240/h/240/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 240,
+          "width": 240,
+          "size": 6514
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#000000",
+      "type": "dark",
+      "brightness": 0
+    },
+    {
+      "hex": "#33c3f0",
+      "type": "light",
+      "brightness": 168
+    },
+    {
+      "hex": "#fd0202",
+      "type": "accent",
+      "brightness": 55
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Ubuntu Regular",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "Ubuntu Bold",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idZHsHEMx-/w/1500/h/500/idPhfEuxh8.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 83575
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalWidth": 510,
+        "alt": "-15% EN TODOS LOS TELEVISORES",
+        "sourceUrl": "https://www.carrefour.es/site/binaries/sizeM/content/gallery/home-pictures/banners/megabanner/non-food/20260928-mega-banner-15-tv__ts1790334710696.jpg",
+        "naturalHeight": 414,
+        "score": 67,
+        "rank": 1
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalWidth": 510,
+        "alt": "HASTA 60% EN OFERTAS EXCLUSIVAS ONLINE",
+        "naturalHeight": 414,
+        "rank": 2,
+        "score": 67,
+        "sourceUrl": "https://www.carrefour.es/site/binaries/sizeM/content/gallery/home-pictures/banners/megabanner/non-food/20260924-mega-banner-hogar-eo__ts1790155639919.jpg"
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalWidth": 510,
+        "rank": 3,
+        "alt": "2 TREGGING NIÑA 8,99€",
+        "sourceUrl": "https://www.carrefour.es/site/binaries/sizeM/content/gallery/home-pictures/banners/megabanner/non-food/20260918-mega-banner-chollos-treggings-2__ts1790577830183.jpg",
+        "naturalHeight": 414,
+        "score": 66
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalWidth": 510,
+        "naturalHeight": 255,
+        "score": 63,
+        "alt": "¡Bajamos los gastos de envío! Solo 3,99€ por compras inferiores a 140€",
+        "rank": 4,
+        "sourceUrl": "https://www.carrefour.es/site/binaries/sizeM/content/gallery/home-pictures/user-banner/imagenes-banners/1280x111-refuerzo-10__ts1790578926416.jpg"
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalWidth": 510,
+        "rank": 5,
+        "sourceUrl": "https://www.carrefour.es/site/binaries/sizeM/content/gallery/home-pictures/banners/megabanner/food/megabanner_pistachos-1__ts1790171894084.jpg",
+        "score": 62,
+        "alt": "3x2",
+        "naturalHeight": 414
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalWidth": 510,
+        "rank": 6,
+        "score": 62,
+        "naturalHeight": 250,
+        "alt": "",
+        "sourceUrl": "https://www.carrefour.es/site/binaries/sizeM/content/gallery/home-pictures/user-banner/imagenes-banners/ecommerce-aniversario-1280x111__ts1790006870038.jpg"
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "score": 59,
+        "naturalWidth": 329,
+        "sourceUrl": "https://www.carrefour.es/site/binaries/sizeXS/content/gallery/home-pictures/banners/destacados/non-food/20260812-destacado-ea__ts1786526355307.jpg",
+        "rank": 7,
+        "naturalHeight": 329,
+        "alt": "EA Sports FC 27: Pre-compra YA"
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "alt": "ANIVERSARIO CARREFOUR",
+        "naturalHeight": 150,
+        "sourceUrl": "https://www.carrefour.es/site/binaries/sizeXL/content/gallery/home-pictures/banners/cintillo/cintillo_des-5__ts1790232719644.jpg",
+        "score": 58,
+        "naturalWidth": 1280,
+        "rank": 8
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "sourceUrl": "https://www.carrefour.es/site/binaries/sizeXS/content/gallery/home-pictures/banners/hero/food/herobanner_yogures-1__ts1790320345460.jpg",
+        "naturalHeight": 267,
+        "score": 57,
+        "rank": 9,
+        "naturalWidth": 329,
+        "alt": "3x2 en más de 5.000 productos"
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "rank": 10,
+        "score": 57,
+        "naturalWidth": 329,
+        "naturalHeight": 267,
+        "alt": "-50% EN COLCHONES, ARCONES Y BASES FLEX Y PIKOLIN",
+        "sourceUrl": "https://www.carrefour.es/site/binaries/sizeXS/content/gallery/home-pictures/banners/hero/non-food/20260922-hero-banner-hogar__ts1790109747927.jpg"
+      }
+    }
+  ],
+  "qualityScore": 0.7303669998994423,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.9999,
+        "id": "42",
+        "name": "E-commerce and Shopping",
+        "emoji": "🛍",
+        "parent": null,
+        "slug": "e-commerce-and-shopping"
+      },
+      {
+        "score": 0.26,
+        "id": "47",
+        "name": "Marketplace",
+        "emoji": "🛍",
+        "parent": {
+          "emoji": "🛍",
+          "id": "42",
+          "name": "E-commerce and Shopping",
+          "slug": "e-commerce-and-shopping"
+        },
+        "slug": "marketplace"
+      },
+      {
+        "score": 0.26,
+        "id": "57",
+        "name": "Food and Drink",
+        "emoji": "🍔",
+        "parent": null,
+        "slug": "food-and-drink"
+      },
+      {
+        "score": 0.26,
+        "id": "61",
+        "name": "Groceries",
+        "emoji": "🍔",
+        "parent": {
+          "emoji": "🍔",
+          "id": "57",
+          "name": "Food and Drink",
+          "slug": "food-and-drink"
+        },
+        "slug": "groceries"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": null,
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": null,
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idZHsHEMx-"
+}

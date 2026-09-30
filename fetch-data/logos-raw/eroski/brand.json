@@ -1,0 +1,311 @@
+{
+  "id": "idDAeeq8LP",
+  "name": "EROSKI",
+  "domain": "eroski.es",
+  "claimed": false,
+  "description": "Ahorra hasta un 4% en todo lo compras en EROSKI. Las mejores ofertas en alimentación, frescos, productos locales, saludables y sostenibles.",
+  "longDescription": "EROSKI is a prominent Spanish supermarket chain focused on delivering a wide range of quality products at competitive prices. Committed to sustainability and the promotion of healthy eating, EROSKI offers an extensive selection of fresh foods, locally sourced products, and organic options, ensuring customers have access to nutritious choices. Their product lineup includes groceries, electronics, and household appliances, catering to diverse consumer needs.\n\nWith the EROSKI Club, customers can save up to 4% on their purchases and benefit from exclusive promotions, personalized vouchers, and rewards through the loyalty program. The brand emphasizes customer satisfaction by providing an easy-to-use online shopping platform and a user-friendly app filled with offers and features. In addition to their retail services, EROSKI is dedicated to community well-being and environmental responsibility through various social initiatives. Whether you are shopping for fresh produce or looking for the latest electronic gadgets, EROSKI remains a trusted choice for customers seeking quality and value.",
+  "links": [
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/user/eroski"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/eroski"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/eroskioficial"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/eroski"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/Eroski"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idDAeeq8LP/w/820/h/758/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 758,
+          "width": 820,
+          "size": 38982
+        },
+        {
+          "src": "https://cdn.brandfetch.io/idDAeeq8LP/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 309,
+          "width": 335,
+          "size": 3893
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idDAeeq8LP/w/400/h/400/theme/dark/icon.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "png",
+          "height": 400,
+          "width": 400,
+          "size": 18454
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#0e4f93",
+      "type": "accent",
+      "brightness": 70
+    },
+    {
+      "hex": "#1a1a1a",
+      "type": "dark",
+      "brightness": 26
+    },
+    {
+      "hex": "#f79468",
+      "type": "light",
+      "brightness": 166
+    }
+  ],
+  "fonts": [
+    {
+      "name": "serif",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "serif",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idDAeeq8LP/w/1500/h/500/idtAWo3ChJ.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 35315
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1792,
+        "alt": "Home",
+        "sourceUrl": "https://www.eroski.es/wp-content/uploads/2026/06/eroski-infoodencers-brasas.jpg",
+        "score": 77,
+        "rank": 1,
+        "naturalWidth": 2288
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 448,
+        "alt": "Home",
+        "sourceUrl": "https://www.eroski.es/wp-content/uploads/2023/10/eroski_productos_locales_sobrasada_islas_baleares.jpg",
+        "score": 75,
+        "rank": 2,
+        "naturalWidth": 572
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1792,
+        "alt": "Home",
+        "sourceUrl": "https://www.eroski.es/wp-content/uploads/2026/06/eroski-infoodencers-descripcion.jpg",
+        "score": 72,
+        "rank": 3,
+        "naturalWidth": 2288
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 448,
+        "alt": "Home",
+        "sourceUrl": "https://www.eroski.es/wp-content/uploads/2023/10/eroski-productos-locales-miel-pais-vasco.jpg",
+        "score": 71,
+        "rank": 4,
+        "naturalWidth": 572
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1792,
+        "alt": "Home",
+        "sourceUrl": "https://www.eroski.es/wp-content/uploads/2026/06/eroski-infoodencers-logo.jpg",
+        "score": 69,
+        "rank": 5,
+        "naturalWidth": 2288
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 399,
+        "alt": "Home",
+        "sourceUrl": "https://www.eroski.es/wp-content/uploads/2026/06/sem_24_2Qjunio_ofertones_des_cas-1-1400x399.jpg",
+        "score": 68,
+        "rank": 6,
+        "naturalWidth": 1400
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 448,
+        "alt": "Home",
+        "sourceUrl": "https://www.eroski.es/wp-content/uploads/2023/10/eroski_productos_locales_queso_arago%CC%81n.jpg",
+        "score": 68,
+        "rank": 7,
+        "naturalWidth": 572
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 448,
+        "alt": "Home",
+        "sourceUrl": "https://www.eroski.es/wp-content/uploads/2023/10/eroski_productos-locales_vino_-navarra.jpg",
+        "score": 66,
+        "rank": 8,
+        "naturalWidth": 572
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 399,
+        "alt": "Home",
+        "sourceUrl": "https://www.eroski.es/wp-content/uploads/2026/06/sem_26_AVM_bebidas_des_cas-1-1400x399.png",
+        "score": 65,
+        "rank": 9,
+        "naturalWidth": 1400
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 431,
+        "alt": "Home",
+        "sourceUrl": "https://d1h08qwp2t1dnu.cloudfront.net/assets/media/es_es/images/volantini/big_138211.jpg",
+        "score": 63,
+        "rank": 10,
+        "naturalWidth": 290
+      }
+    }
+  ],
+  "qualityScore": 0.689744595513072,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.2900901734828949,
+        "id": "57",
+        "name": "Food and Drink",
+        "emoji": "🍔",
+        "parent": null,
+        "slug": "food-and-drink"
+      },
+      {
+        "score": 0.2830964922904968,
+        "id": "28",
+        "name": "Computers Electronics and Technology",
+        "emoji": "🖥",
+        "parent": null,
+        "slug": "computers-electronics-and-technology"
+      },
+      {
+        "score": 0.2659373879432678,
+        "id": "42",
+        "name": "E-commerce and Shopping",
+        "emoji": "🛍",
+        "parent": null,
+        "slug": "e-commerce-and-shopping"
+      },
+      {
+        "score": 0.2256048321723938,
+        "id": "10",
+        "name": "Business and Consumer Services",
+        "emoji": "📊",
+        "parent": null,
+        "slug": "business-and-consumer-services"
+      },
+      {
+        "score": 0.22204382717609406,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": null,
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "state": null,
+      "subregion": null
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idDAeeq8LP"
+}

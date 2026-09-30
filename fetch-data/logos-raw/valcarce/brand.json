@@ -1,0 +1,185 @@
+{
+  "id": "idxxrZqE2g",
+  "name": "Grupo Valcarce",
+  "domain": "grupovalcarce.com",
+  "claimed": false,
+  "description": "Grupo Valcarce es un conjunto empresarial enfocado al servicio en el sector transportes. Estaciones de Servicio, Gasolineras y Tarjeta Transporte",
+  "longDescription": "Grupo Valcarce is a leading brand in the transportation sector, offering a wide range of products and services. With a strong focus on customer satisfaction, Grupo Valcarce has established itself as a trusted and reliable partner for both professionals and individuals. What started as a family business has evolved into a unique proposition in the market, with over twenty years of experience and a solid position in the industry. Grupo Valcarce is currently undergoing an expansion process, reaching out to a growing number of customers with its diverse and expanding range of services. Their services include fuel stations, transportation cards, telepeaje devices, insurance coverage, recovery of VAT, and even hotels. With a commitment to quality and a passion for the road, Grupo Valcarce is the go-to brand for all your transportation needs. Join their network of stations or explore their services today.",
+  "links": [],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idxxrZqE2g/w/181/h/40/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "png",
+          "height": 40,
+          "width": 181,
+          "size": 5467
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#f27474",
+      "type": "accent",
+      "brightness": 143
+    },
+    {
+      "hex": "#000000",
+      "type": "dark",
+      "brightness": 0
+    },
+    {
+      "hex": "#687ee0",
+      "type": "light",
+      "brightness": 128
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Gudea",
+      "type": "title",
+      "origin": "google",
+      "originId": "Gudea",
+      "weights": []
+    },
+    {
+      "name": "Gudea",
+      "type": "body",
+      "origin": "google",
+      "originId": "Gudea",
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "score": 75,
+        "rank": 1,
+        "naturalHeight": 1440,
+        "alt": "",
+        "sourceUrl": "https://www.grupovalcarce.com/media/archivos/2017/03/parallax_Camion.png",
+        "naturalWidth": 2564
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "sourceUrl": "https://www.grupovalcarce.com/media/archivos/2017/03/parallax_Estacion2.png",
+        "rank": 2,
+        "score": 71,
+        "naturalWidth": 2561,
+        "naturalHeight": 1096,
+        "alt": ""
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1440,
+        "alt": "",
+        "sourceUrl": "https://www.grupovalcarce.com/media/archivos/2017/03/parallax_Surtidor.png",
+        "score": 70,
+        "rank": 3,
+        "naturalWidth": 2559
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "score": 68,
+        "rank": 4,
+        "sourceUrl": "https://www.grupovalcarce.com/media/archivos/2017/03/parallax_Cafe.png",
+        "naturalHeight": 1339,
+        "naturalWidth": 2551,
+        "alt": ""
+      }
+    }
+  ],
+  "qualityScore": 0.34615384615384615,
+  "company": {
+    "employees": null,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 0.3801180124282837,
+        "id": "10",
+        "name": "Business and Consumer Services",
+        "emoji": "📊",
+        "parent": null,
+        "slug": "business-and-consumer-services"
+      },
+      {
+        "score": 0.34779784083366394,
+        "id": "18",
+        "name": "Shipping and Logistics",
+        "emoji": "📊",
+        "parent": {
+          "emoji": "📊",
+          "id": "10",
+          "name": "Business and Consumer Services",
+          "slug": "business-and-consumer-services"
+        },
+        "slug": "shipping-and-logistics"
+      },
+      {
+        "score": 0.2748030424118042,
+        "id": "201",
+        "name": "Vehicles",
+        "emoji": "🏎",
+        "parent": null,
+        "slug": "vehicles"
+      },
+      {
+        "id": "202",
+        "score": 0.24934066832065582,
+        "name": "Automotive Industry",
+        "emoji": "🏎",
+        "parent": {
+          "emoji": "🏎",
+          "id": "201",
+          "name": "Vehicles",
+          "slug": "vehicles"
+        },
+        "slug": "automotive-industry"
+      },
+      {
+        "score": 0.22938235104084015,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": "Vega De Valcarce",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Castilla And Leon",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idxxrZqE2g"
+}

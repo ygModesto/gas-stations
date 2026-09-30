@@ -1,0 +1,167 @@
+{
+  "id": "idxmemXuwq",
+  "name": "AgropalHuesca",
+  "domain": "agropal.com",
+  "claimed": false,
+  "description": "Agropal, empresa de Huesca que trabaja por y para la ganadería, realizando instalaciones ganaderas completas y tratanto la nutrición y salud de los animales",
+  "longDescription": "Agropal is a Huesca-based company serving the livestock and agricultural sectors, with a focus on supporting livestock farmers through facilities, animal care and practical advice. The company has worked with livestock producers since 1992 and aims to meet their needs with a broad range of products and services, responsible management and ongoing improvement.\n\nAgropal designs and builds livestock facilities from the foundations to completion, including equipment and spaces for gestation, maternity, piglets and finishing. It also offers farm refurbishment, maintenance and repairs to help keep buildings and equipment in good condition. Its animal nutrition and health services include concentrates, complete feeds, dairy products and premixes, as well as animal hygiene and care products. Biosafety services cover pest control, cleaning, disinfection, water treatment and Legionella prevention.\n\nFor agriculture, Agropal supplies sustainable and natural solutions, including fertilizers, plant nutrition products, biostimulants and other products intended to support crop production while limiting fungicide and pesticide use. The company also provides crop recommendations and departmental services to help customers choose suitable solutions.",
+  "links": [
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/user/AgropalHuesca"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/agropal-s-l"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/agropalhuesca"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/agropalhuesca"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/agropal.sl"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idxmemXuwq/w/148/h/180/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "png",
+          "height": 180,
+          "width": 148,
+          "size": 70816
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idxmemXuwq/w/367/h/367/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 367,
+          "width": 367,
+          "size": 46597
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#557b7c",
+      "type": "accent",
+      "brightness": 115
+    },
+    {
+      "hex": "#202020",
+      "type": "dark",
+      "brightness": 32
+    },
+    {
+      "hex": "#cea96c",
+      "type": "light",
+      "brightness": 172
+    }
+  ],
+  "fonts": [
+    {
+      "name": "PT Sans",
+      "type": "title",
+      "origin": "google",
+      "originId": "PT+Sans",
+      "weights": []
+    },
+    {
+      "name": "Raleway",
+      "type": "body",
+      "origin": "google",
+      "originId": "Raleway",
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idxmemXuwq/w/1500/h/500/id2R9AcWYq.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 87145
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalWidth": 1280,
+        "alt": "",
+        "sourceUrl": "https://agropal.com/wp-content/uploads/2015/06/granja-agropal.jpg",
+        "naturalHeight": 720,
+        "score": 73,
+        "rank": 1
+      }
+    }
+  ],
+  "qualityScore": 0.5384615384615384,
+  "company": {
+    "employees": 11,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": 1992,
+    "industries": [
+      {
+        "score": 1,
+        "id": "96",
+        "name": "Agriculture",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "agriculture"
+      },
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": "SELF_OWNED",
+    "location": {
+      "city": "Huesca",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Huesca",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idxmemXuwq"
+}

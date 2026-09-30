@@ -1,0 +1,167 @@
+{
+  "id": "id3KOR10I2",
+  "name": "Petronor",
+  "domain": "petronor.eus",
+  "claimed": false,
+  "description": "Petronor página oficial. Pagina de inicio. Información corporativa, de las instalaciones y su entorno: Muskiz, Abanto-Zierbena y Zierbena.",
+  "longDescription": "Petronor is a leading industrial company dedicated to oil and gas production, located in Muskiz, Bizkaia. Their official website offers a wealth of information about the corporation, facilities, and the surrounding areas of Muskiz, Abanto-Zierbena, and Zierbena. The company prides itself on its commitment to sustainability, with projects like INSPIRE-PETRONOR focusing on innovation and environmental responsibility. \n\nPetronor's diverse range of products and services includes a focus on cultural, social, and sporting activities, reflecting their dedication to the community. Visitors can explore the installations, learn about the company's history, and engage in various initiatives promoting diversity and equality. Additionally, Petronor is actively involved in environmental conservation programs and takes steps to prevent fires, showcasing their commitment to preserving the natural surroundings. Stay updated on news, events, and multimedia content through their website, and join their efforts to create a sustainable future.",
+  "links": [
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/user/Petronorinfo"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/Petronor_Info"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/petronor"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/petronor-s-a-"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/info.petronor"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id3KOR10I2/w/9093/h/1445/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 1445,
+          "width": 9093,
+          "size": 162047
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id3KOR10I2/w/400/h/400/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "width": 400,
+          "size": 10780
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#cf2e2e",
+      "type": "accent",
+      "brightness": 80
+    },
+    {
+      "hex": "#004489",
+      "type": "dark",
+      "brightness": 59
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    }
+  ],
+  "fonts": [
+    {
+      "name": "serif",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "Roboto",
+      "type": "body",
+      "origin": "google",
+      "originId": "Roboto",
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id3KOR10I2/w/1500/h/500/idx2TtiQQg.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 158943
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 882,
+        "alt": "Evolución hacia una nueva Petronor",
+        "sourceUrl": "https://petronor.eus/wp-content/uploads/2024/10/evolucion_hacia_nueva_petronor.png",
+        "score": 74,
+        "rank": 1,
+        "naturalWidth": 1641
+      }
+    }
+  ],
+  "qualityScore": 0.5706602003573578,
+  "company": {
+    "employees": 501,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": 1968,
+    "industries": [
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      },
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      }
+    ],
+    "kind": "PRIVATELY_HELD",
+    "location": {
+      "city": "",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:id3KOR10I2"
+}

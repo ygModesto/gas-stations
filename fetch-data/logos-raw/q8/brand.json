@@ -1,0 +1,151 @@
+{
+  "id": "id1E_0g_Eh",
+  "name": "Q8",
+  "domain": "q8.dk",
+  "claimed": false,
+  "description": "Find your nearest Q8 gas station in Denmark. Fill up on gasoline or diesel, charge your electric car and get a car wash and great deals – quickly and easily.",
+  "longDescription": "Q8 Danmark is a well-known brand that offers a range of products and services to meet your energy and transportation needs. With Q8, you can conveniently order affordable heating oil and diesel online. They also provide a free benzine card and help you find the nearest gas station. If you're looking for reliable heating oil, Q8 has got you covered. You can easily place your order directly on their website. Additionally, Q8 offers insurance services such as LowRisQ for your vehicle, motorcycle, and driver safety. Their wide range of products includes car accessories, such as wiper blades, oil, radiator, and windshield wiper fluid, as well as autoparts. At a Q8 station, you can enjoy delicious baked goods from Meyers, a cup of Starbucks coffee, or rent a trailer. They also offer car wash services and have green meal options. Q8 is committed to providing excellent customer service and offers an app for easy access to their services. For electric vehicle owners, Q8 offers charging solutions with home charging options and convenient charging stations. Q8 is dedicated to providing reliable energy and superior customer support.",
+  "links": [
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/q8-danmark-a-s"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id1E_0g_Eh/w/180/h/180/theme/dark/icon.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 180,
+          "width": 180,
+          "size": 4725
+        }
+      ],
+      "tags": [],
+      "type": "icon"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id1E_0g_Eh/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 38,
+          "width": 82,
+          "size": 6041
+        },
+        {
+          "src": "https://cdn.brandfetch.io/id1E_0g_Eh/w/800/h/371/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 371,
+          "width": 800,
+          "size": 28935
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#20419A",
+      "type": "accent",
+      "brightness": 64
+    },
+    {
+      "hex": "#3D3853",
+      "type": "brand",
+      "brightness": 59
+    },
+    {
+      "hex": "#5871B4",
+      "type": "brand",
+      "brightness": 113
+    },
+    {
+      "hex": "#E2E8F0",
+      "type": "light",
+      "brightness": 231
+    }
+  ],
+  "fonts": [
+    {
+      "name": "Times",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "Times",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/id1E_0g_Eh/w/1534/h/768/theme/dark/idlXdRyXPz.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 768,
+          "width": 1534,
+          "size": 419266
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    }
+  ],
+  "qualityScore": 0.8155073384922192,
+  "company": {
+    "employees": 1001,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": 1983,
+    "industries": [
+      {
+        "score": 1,
+        "id": "94",
+        "name": "Heavy Industry and Engineering",
+        "emoji": "🏭",
+        "parent": null,
+        "slug": "heavy-industry-and-engineering"
+      },
+      {
+        "score": 1,
+        "id": "100",
+        "name": "Energy Industry",
+        "emoji": "🏭",
+        "parent": {
+          "emoji": "🏭",
+          "id": "94",
+          "name": "Heavy Industry and Engineering",
+          "slug": "heavy-industry-and-engineering"
+        },
+        "slug": "energy-industry"
+      }
+    ],
+    "kind": "PUBLIC_COMPANY",
+    "location": {
+      "city": "Kbenhavn S",
+      "country": "Denmark",
+      "countryCode": "DK",
+      "region": "Europe",
+      "state": "",
+      "subregion": "Northern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:id1E_0g_Eh"
+}

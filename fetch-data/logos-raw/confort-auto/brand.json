@@ -1,0 +1,230 @@
+{
+  "id": "idmZKXROWy",
+  "name": "Confortauto",
+  "domain": "confortauto.com",
+  "claimed": false,
+  "description": "Comprar online neumáticos baratos en Confortauto. Ruedas de las mejores marcas a precio económico de gran calidad. Envío a taller en menos de 48 horas",
+  "longDescription": "Confortauto is a leading brand that specializes in providing high-quality, affordable tires online. They offer a wide range of products from top brands, ensuring that customers receive reliable and durable tires at economical prices. Whether you need tires for your car, 4x4, van, or motorcycle, Confortauto has got you covered. They offer various types of tires, including summer, winter, and all-season tires, catering to different driving conditions. Some of the trusted brands they carry include Nexen, Michelin, Hankook, Bridgestone, Goodyear, and Firestone. Additionally, Confortauto provides a comprehensive range of services, including budget estimation, change of brake pads and discs, installation of shock absorbers, and more. With their efficient delivery service, customers can enjoy fast and hassle-free tire installation at their chosen workshop within 48 hours. Trust Confortauto for quality products and excellent customer service.",
+  "links": [
+    {
+      "name": "youtube",
+      "url": "https://youtube.com/user/Confortauto"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/confortauto"
+    },
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/confortauto"
+    },
+    {
+      "name": "instagram",
+      "url": "https://instagram.com/confortautoes"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/confortauto"
+    }
+  ],
+  "logos": [
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idmZKXROWy/w/820/h/181/theme/dark/logo.png?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "png",
+          "height": 181,
+          "width": 820,
+          "size": 30142
+        },
+        {
+          "src": "https://cdn.brandfetch.io/idmZKXROWy/theme/dark/logo.svg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": "transparent",
+          "format": "svg",
+          "height": 161,
+          "width": 729,
+          "size": 48132
+        }
+      ],
+      "tags": [],
+      "type": "logo"
+    },
+    {
+      "theme": "dark",
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idmZKXROWy/w/400/h/400/theme/dark/icon.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "width": 400,
+          "size": 35224
+        }
+      ],
+      "tags": [
+        "photographic",
+        "portrait"
+      ],
+      "type": "icon"
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#f9ea2b",
+      "type": "accent",
+      "brightness": 223
+    },
+    {
+      "hex": "#7e7515",
+      "type": "dark",
+      "brightness": 112
+    },
+    {
+      "hex": "#ffffff",
+      "type": "light",
+      "brightness": 255
+    }
+  ],
+  "fonts": [
+    {
+      "name": "var(--font-heading-family)",
+      "type": "title",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    },
+    {
+      "name": "var(--font-body-family)",
+      "type": "body",
+      "origin": "custom",
+      "originId": null,
+      "weights": []
+    }
+  ],
+  "images": [
+    {
+      "formats": [
+        {
+          "src": "https://cdn.brandfetch.io/idmZKXROWy/w/1500/h/500/idfCKdjVl8.jpeg?c=1bxniizp9e11sw2p2kh0aef5e5uI91aW-4z",
+          "background": null,
+          "format": "jpeg",
+          "height": 500,
+          "width": 1500,
+          "size": 140274
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "sourceUrl": "https://www.confortauto.com/cdn/shop/files/BANNERS_YOKOHAMA_HOME_SP.png?v=1785484137",
+        "naturalHeight": 1420,
+        "naturalWidth": 1980,
+        "alt": "",
+        "score": 78,
+        "rank": 1
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "score": 77,
+        "naturalHeight": 1420,
+        "naturalWidth": 1980,
+        "rank": 2,
+        "sourceUrl": "https://www.confortauto.com/cdn/shop/files/LaufennBannerHomeD_1980x1420-ES.jpg?v=1784894958",
+        "alt": ""
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "alt": "Gestionar tu taller",
+        "sourceUrl": "https://www.confortauto.com/cdn/shop/files/expertos_1.webp?v=1754482609",
+        "rank": 3,
+        "naturalWidth": 1920,
+        "naturalHeight": 1080,
+        "score": 76
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "naturalHeight": 1420,
+        "alt": "",
+        "rank": 4,
+        "sourceUrl": "https://www.confortauto.com/cdn/shop/files/banner_home_2026_1.png?v=1765879902",
+        "naturalWidth": 1980,
+        "score": 76
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "sourceUrl": "https://www.confortauto.com/cdn/shop/files/encuentra-tu-taller.jpg?v=1754636536",
+        "score": 75,
+        "naturalWidth": 1920,
+        "rank": 5,
+        "naturalHeight": 1080,
+        "alt": ""
+      }
+    },
+    {
+      "formats": [],
+      "tags": [],
+      "type": "picture",
+      "pictureMetadata": {
+        "sourceUrl": "https://www.confortauto.com/cdn/shop/files/unirme.jpg?v=1754636587",
+        "naturalWidth": 1920,
+        "naturalHeight": 1080,
+        "rank": 6,
+        "score": 74,
+        "alt": ""
+      }
+    }
+  ],
+  "qualityScore": 0.735591183897796,
+  "company": {
+    "employees": 2,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "score": 1,
+        "id": "77",
+        "name": "Health",
+        "emoji": "⛑",
+        "parent": null,
+        "slug": "health"
+      }
+    ],
+    "kind": null,
+    "location": {
+      "city": "Torreblanca",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": "Europe",
+      "state": "Valencia",
+      "subregion": "Southern Europe"
+    }
+  },
+  "isNsfw": false,
+  "urn": "urn:brandfetch:brand:idmZKXROWy"
+}
