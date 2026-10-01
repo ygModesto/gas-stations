@@ -1211,14 +1211,14 @@ function updateLegend(thresholds, prices) {
 // El círculo de la izquierda es el hueco para el logo de la marca: se deja vacío (un relleno
 // neutro, sin icono) porque hoy no tenemos las imágenes de cada marca, pero el sitio ya queda
 // reservado para no tener que rediseñar el marcador cuando se añadan.
-const PIN_W = 127;         // px de imagen (a pixelRatio 2 → 63.5 px en pantalla)
-const PIN_BODY_H = 52;     // alto del cuerpo, sin la punta
+const PIN_W = 148;         // px de imagen (a pixelRatio 2 → 74 px en pantalla)
+const PIN_BODY_H = 58;     // alto del cuerpo, sin la punta
 const PIN_TAIL_H = 12;     // alto de la punta
 const PIN_H = PIN_BODY_H + PIN_TAIL_H;
 const PIN_RADIUS = 11;     // radio de las esquinas del cuerpo
 const PIN_TAIL_HALF_W = 9; // medio ancho de la base de la punta
 const PIN_BORDER = 3;
-const LOGO_HOLE_CX = 25;
+const LOGO_HOLE_CX = 33;
 const LOGO_HOLE_CY = PIN_BODY_H / 2;
 const LOGO_HOLE_R = 20;
 // Anillo entre el hueco y el cuerpo (ver makeBadgeImage): de blanco puro en LOGO_HOLE_R a
@@ -1232,7 +1232,7 @@ const LOGO_HOLE_FEATHER = 8;
 // bocadillo, que precio y hueco acabaron pisándose. Calculándolo a partir de las mismas constantes
 // del icono, cambiar el tamaño del bocadillo no puede volver a romper esto.
 const TEXT_SIZE = 13;
-const LOGO_HOLE_GAP = 3; // separación mínima, en px de pantalla, entre el hueco y el precio
+const LOGO_HOLE_GAP = 7; // separación mínima, en px de pantalla, entre el hueco y el precio
 // Ambos desplazamientos son relativos al ancla común de icono y texto (la punta, ver 'icon-anchor'
 // y 'text-anchor: bottom-left' más abajo), en ems de TEXT_SIZE tal como pide 'text-offset'.
 // Horizontal: del centro del bocadillo (el ancla cae ahí, por eso -PIN_W/4: la mitad del ancho en

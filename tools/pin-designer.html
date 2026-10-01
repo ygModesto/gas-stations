@@ -422,7 +422,13 @@ function updateCopyBox() {
     `const TEXT_SIZE = ${C.TEXT_SIZE};`,
     `const LOGO_HOLE_GAP = ${C.LOGO_HOLE_GAP};`,
     `// TEXT_OFFSET_X/Y salen de estas constantes, no hace falta copiarlos a mano:`,
-    `// TEXT_OFFSET_X ≈ ${off.x.toFixed(4)}   TEXT_OFFSET_Y ≈ ${off.y.toFixed(4)}`
+    `// TEXT_OFFSET_X ≈ ${off.x.toFixed(4)}   TEXT_OFFSET_Y ≈ ${off.y.toFixed(4)}`,
+    ``,
+    `// --- Colores (no son constantes de index.html -- hoy el fondo está fijo a blanco y el`,
+    `// texto siempre al color del tramo; esto describe qué cambiar si se quiere llevar) ---`,
+    `// Fondo:  ${document.getElementById('fondoMode').value === 'tramo' ? 'el color del tramo (igual que el borde)' : document.getElementById('fondoMode').value === 'custom' ? document.getElementById('fondoCustom').value : 'blanco (como ahora)'}`,
+    `// Letras: ${document.getElementById('letrasMode').value === 'custom' ? document.getElementById('letrasCustom').value : 'el color del tramo (como ahora)'}`,
+    `// Difuminado del hueco: ${document.getElementById('difuminado').checked ? `sí, ${document.getElementById('feather').value}px` : 'no (blanco sólido hasta el borde, como ahora)'}`
   ];
   document.getElementById('copyBox').value = lines.join('\n');
 }
