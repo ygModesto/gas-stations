@@ -1188,16 +1188,16 @@ function updateLegend(thresholds, prices) {
 // El círculo de la izquierda es el hueco para el logo de la marca: se deja vacío (un relleno
 // neutro, sin icono) porque hoy no tenemos las imágenes de cada marca, pero el sitio ya queda
 // reservado para no tener que rediseñar el marcador cuando se añadan.
-const PIN_W = 140;         // px de imagen (a pixelRatio 2 → 70 px en pantalla)
-const PIN_BODY_H = 36;     // alto del cuerpo, sin la punta
+const PIN_W = 127;         // px de imagen (a pixelRatio 2 → 63.5 px en pantalla)
+const PIN_BODY_H = 52;     // alto del cuerpo, sin la punta
 const PIN_TAIL_H = 12;     // alto de la punta
 const PIN_H = PIN_BODY_H + PIN_TAIL_H;
-const PIN_RADIUS = 9;      // radio de las esquinas del cuerpo
-const PIN_TAIL_HALF_W = 8; // medio ancho de la base de la punta
+const PIN_RADIUS = 11;     // radio de las esquinas del cuerpo
+const PIN_TAIL_HALF_W = 9; // medio ancho de la base de la punta
 const PIN_BORDER = 3;
-const LOGO_HOLE_CX = 19;
+const LOGO_HOLE_CX = 25;
 const LOGO_HOLE_CY = PIN_BODY_H / 2;
-const LOGO_HOLE_R = 12;
+const LOGO_HOLE_R = 20;
 
 // El precio se posiciona con su propio 'text-offset' (ver el addLayer de LAYER_ID), no encajado
 // dentro del icono, así que si estos números salen de aquí a mano y luego se cambia PIN_W o el
