@@ -169,6 +169,15 @@ marcas:
   - marca: SUPECO
     gasolineras: 11
     web: supeco.es
+  # CARBUGAL: 18 por coincidencia de PALABRA, no exacta (al contrario que el resto de este fichero,
+  # ver cabecera) -- el rótulo real siempre lleva el lugar detrás ("CARBUGAL SABÓN", "CARBUGAL
+  # CARBALLO"...), 17 cadenas distintas de 1-2 estaciones cada una, ninguna cruza el umbral de >10,
+  # por eso no apareció aquí hasta que se contó por palabra expresamente. Web: único resultado en
+  # Brandfetch para "carbugal" y encaja con el nombre (gasolineras gallegas: Sabón, Carballo, Cee,
+  # Santiago...), pero quality score bajo (0.27) y sin verificar -- no confirmado a mano como el resto.
+  - marca: CARBUGAL
+    gasolineras: 18
+    web: carbugal.org
   - marca: T9
     gasolineras: 11
     web: tnueve.com/

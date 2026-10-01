@@ -79,6 +79,11 @@ const BRANDS: &[(&str, &[&[&str]])] = &[
     ("FARRUCO", &[&["FARRUCO"]]),
     ("SUPECO", &[&["SUPECO"]]),
     ("GM OIL", &[&["GM", "OIL"], &["GMOIL"]]),
+    // No salía en el recuento de marcas.yaml (18 estaciones) porque ese fichero cuenta coincidencia
+    // EXACTA de rotulo y Carbugal siempre pone el lugar detrás ("CARBUGAL SABÓN", "CARBUGAL
+    // CARBALLO"...): son 17 cadenas distintas, ninguna por encima del umbral de >10 que se usó para
+    // decidir qué marcas investigar. Por palabra sí se agrupan limpiamente, sin falsos positivos.
+    ("CARBUGAL", &[&["CARBUGAL"]]),
 ];
 
 // El rotulo de MITECO no esta normalizado (3.497 valores distintos para 11.384

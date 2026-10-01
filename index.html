@@ -583,7 +583,7 @@ const BRANDS = ['REPSOL', 'BP', 'MOEVE', 'CEPSA', 'GALP', 'BALLENOIL', 'SHELL', 
                 'ESCLATOIL', 'CAMPSA', 'BONAREA', 'AGLA', 'VALCARCE', 'ALCAMPO', 'GASEXPRESS',
                 'HAM', 'ENI', 'BEROIL', 'EROSKI', 'MEROIL', 'NATURGY', 'PETROCAT', 'TAMOIL',
                 'MOLGAS', 'NIEVES', 'AUTONETOIL', 'IBERDOEX', 'EASYGAS', 'AGROPAL',
-                'PCAN', 'DST', 'T9', 'FARRUCO', 'SUPECO', 'GM OIL'];
+                'PCAN', 'DST', 'T9', 'FARRUCO', 'SUPECO', 'GM OIL', 'CARBUGAL'];
 const OTHER_BRAND = 'Otras';
 const ALL_BRANDS = [...BRANDS, OTHER_BRAND];
 
@@ -782,6 +782,7 @@ async function filtrarPorPortalExistente(vias, numero) {
 // updateMarkers(), así que no hace falta llamarlo aquí. Devuelve la etiqueta ya formada: cada
 // buscador decide qué hacer con ella (la de la cabecera la deja en su input, la de arranque no).
 async function flyToAddress(via, numero) {
+  const esMunicipio = via.tipo === 'municipio';
   let lat = via.lat, lon = via.lon;
   const etiqueta = (via.tipo_vial ? via.tipo_vial + ' ' : '') + via.nombre + (numero ? ' ' + numero : '');
   if (numero) {
@@ -790,12 +791,15 @@ async function flyToAddress(via, numero) {
       if (portales.length) { lat = portales[0].lat; lon = portales[0].lon; }
     } catch { /* si falla la segunda consulta, se vuela igual al centroide ya calculado arriba */ }
   }
+  // Un municipio no está "dentro de" nada (es su propia provincia) y, al ser un área y no un punto
+  // concreto, pide un zoom más alejado que una calle para que se vea entero de entrada.
+  const subtitulo = esMunicipio ? via.provincia : via.municipio;
   if (addressMarker) addressMarker.remove();
   addressMarker = new maplibregl.Marker({ color: '#1e293b' })
     .setLngLat([lon, lat])
-    .setPopup(new maplibregl.Popup().setHTML(esc(etiqueta) + '<br>' + esc(via.municipio)))
+    .setPopup(new maplibregl.Popup().setHTML(esc(etiqueta) + '<br>' + esc(subtitulo)))
     .addTo(map);
-  map.flyTo({ center: [lon, lat], zoom: 15 });
+  map.flyTo({ center: [lon, lat], zoom: esMunicipio ? 12 : 15 });
   return etiqueta;
 }
 
@@ -823,14 +827,25 @@ function createAddressSearch({ inputEl, statusEl, resultsEl, onPick, afterRender
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'address-result';
-      const dist = via.distancia_m != null
-        ? '<span class="addr-dist">' + Math.round(via.distancia_m) + ' m</span> · '
-        : '';
-      btn.innerHTML =
-        '<div class="addr-name">' + esc(via.tipo_vial ? via.tipo_vial + ' ' : '') + esc(via.nombre) +
-          (numero ? ' ' + esc(numero) : '') + '</div>' +
-        '<div class="addr-meta">' + dist + esc(via.municipio) + ' (' + esc(via.provincia) + ')</div>';
-      btn.addEventListener('click', () => onPick(via, numero));
+      // /buscar mezcla municipios (tipo:'municipio') y calles (tipo:'via') en una sola lista (ver
+      // flyToAddress): un municipio no tiene vía, número ni distancia -- es el propio destino, no
+      // un punto dentro de otro. Las filas sintéticas de /cp (sin 'tipo', ver más abajo) caen en el
+      // else junto con las vías de verdad, que es lo que ya eran antes de que /buscar devolviera tipos.
+      if (via.tipo === 'municipio') {
+        btn.innerHTML =
+          '<div class="addr-name">🏙️ ' + esc(via.nombre) + '</div>' +
+          '<div class="addr-meta">' + esc(via.provincia) + '</div>';
+        btn.addEventListener('click', () => onPick(via, null));
+      } else {
+        const dist = via.distancia_m != null
+          ? '<span class="addr-dist">' + Math.round(via.distancia_m) + ' m</span> · '
+          : '';
+        btn.innerHTML =
+          '<div class="addr-name">' + esc(via.tipo_vial ? via.tipo_vial + ' ' : '') + esc(via.nombre) +
+            (numero ? ' ' + esc(numero) : '') + '</div>' +
+          '<div class="addr-meta">' + dist + esc(via.municipio) + ' (' + esc(via.provincia) + ')</div>';
+        btn.addEventListener('click', () => onPick(via, numero));
+      }
       resultsEl.appendChild(btn);
     });
     afterRender?.();
@@ -873,9 +888,15 @@ function createAddressSearch({ inputEl, statusEl, resultsEl, onPick, afterRender
         const partido = splitNumero(q);
         if (partido) {
           const [resto, num] = partido;
-          const viasSinNumero = await addrApiGet('/buscar', { q: resto, limit: 8, lat: center.lat, lon: center.lng });
+          const combinados = await addrApiGet('/buscar', { q: resto, limit: 8, lat: center.lat, lon: center.lng });
+          // El número de portal solo tiene sentido para una calle: un municipio encontrado aquí se
+          // conserva tal cual (p.ej. "Sada 5" -- Sada ya es un resultado válido por sí mismo), pero
+          // no se le intenta buscar portal (filtrarPorPortalExistente asume via_id, que no tiene).
+          const municipios = combinados.filter((r) => r.tipo === 'municipio');
+          const viasSinNumero = combinados.filter((r) => r.tipo !== 'municipio');
           const conPortal = await filtrarPorPortalExistente(viasSinNumero, num);
-          if (conPortal.length) { vias = conPortal; numero = num; }
+          if (conPortal.length) { vias = [...municipios, ...conPortal]; numero = num; }
+          else if (municipios.length) { vias = municipios; }
         }
       }
       render(vias, numero);
