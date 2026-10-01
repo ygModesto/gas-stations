@@ -506,14 +506,15 @@ const FGB_LITE = './public/gasolineras-lite.fgb';
 // el combustible seleccionado.
 //
 // Dos restricciones la determinan:
-//  - Todos los tonos son oscuros: el texto del marcador es blanco y pequeño, y necesita 4,5:1.
-//    El peor de los cuatro queda en 5,2:1.
-//  - El orden es el del semáforo (verde barato -> naranja -> morado -> rojo caro), a petición
-//    expresa: es el más intuitivo, aunque para daltonismo rojo-verde (el más común) el rojo, el
-//    naranja e incluso el verde caen en el mismo eje y pueden confundirse entre sí. El morado se
-//    libra porque lleva componente azul, canal que ese daltonismo no afecta. El texto con el
-//    precio, que ya iba encima del badge, sigue siendo la referencia que no depende del color.
-const PRICE_COLORS = ['#15803d', '#c2410c', '#7e22ce', '#b91c1c'];
+//  - Todos los tonos son oscuros: el precio se pinta en este mismo color directamente sobre el
+//    cuerpo BLANCO del pin (ver makeBadgeImage/text-color), así que necesitan 4,5:1 sobre blanco.
+//    Un amarillo claro no pasaría ese contraste -- de ahí el tono mostaza y no un amarillo puro.
+//  - El orden es el semáforo completo (verde barato -> amarillo -> naranja -> rojo caro), a
+//    petición expresa: es el más intuitivo. Ojo, para daltonismo rojo-verde (el más común) estos
+//    cuatro tonos caen cerca del mismo eje y pueden confundirse entre sí -- una versión anterior
+//    metía un morado en el tercer tramo para evitarlo, a costa de romper la lectura "semáforo". El
+//    precio en texto, que ya iba encima del badge, sigue siendo la referencia que no depende del color.
+const PRICE_COLORS = ['#15803d', '#a16207', '#c2410c', '#b91c1c'];
 // Más oscuro que el #64748b anterior: así se separa de los tramos en deuteranopia (dE 12 -> 15).
 // No se baja más porque con Gasolina 98 o Diésel Premium cerca de la mitad del parque es gris, y
 // un gris muy oscuro dominaría el mapa en vez de leerse como "sin dato".
