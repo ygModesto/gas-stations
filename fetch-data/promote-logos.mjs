@@ -18,9 +18,15 @@ const TYPE_SCORE = { symbol: 2, icon: 1, logo: 0 };
 // del logo. Mejor no mostrar nada (cae en el circulo neutro de makeBadgeImage) que mostrar eso.
 const MIN_SQUARENESS = 0.4;
 
-function scoreFormat(type, fmt) {
+function scoreFormat(type, theme, fmt) {
   const squareness = Math.min(fmt.width, fmt.height) / Math.max(fmt.width, fmt.height);
-  return squareness * 10 + (FORMAT_SCORE[fmt.format] ?? 0) * 2 + (TYPE_SCORE[type] ?? 0);
+  // Desempate fino: en Brandfetch "theme" no es el fondo donde se vería bien el logo, es el color
+  // del propio logo -- "dark" tira a colores vivos/oscuros (van bien sobre nuestro hueco blanco),
+  // "light" tira a blanco puro (pensado para fondo oscuro, invisible sobre blanco). Confirmado con
+  // ENI: sus variantes dark/light empataban en tamaño y formato, y ganaba "light" -- blanco sobre
+  // blanco, logo invisible. El peso es pequeño a propósito: solo decide empates reales.
+  return squareness * 10 + (FORMAT_SCORE[fmt.format] ?? 0) * 2 + (TYPE_SCORE[type] ?? 0) +
+    (theme === 'dark' ? 0.01 : 0);
 }
 //
 // Marcas de marcas.yaml que NO se promocionan aqui:
@@ -51,6 +57,15 @@ const CANONICAL = {
   'FARRUCO S.A.': 'FARRUCO',
 };
 
+// Marcas cuyo logo NO sale de logos-raw/ -- un fichero puesto a mano en public/logos/ que este
+// script debe respetar y no pisar en la proxima pasada. MOEVE: Brandfetch solo tiene un wordmark
+// ancho o un icono JPEG de baja calidad (ver logos-raw/moeve/); el usuario trajo el logo oficial
+// completo (moeveglobal.com) y de ahi se recorto a mano solo la "m" (ver
+// logos-raw/moeve/m-icon.svg) -- vectorial y ya cuadrada, mejor que cualquier opcion automatica.
+const MANUAL_LOGOS = {
+  MOEVE: 'moeve.svg',
+};
+
 function slug(name) {
   return name.toLowerCase()
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -75,7 +90,7 @@ function pickBest(brandJson) {
   let best = null;
   for (const logo of logos) {
     for (const fmt of logo.formats ?? []) {
-      const score = scoreFormat(logo.type, fmt);
+      const score = scoreFormat(logo.type, logo.theme, fmt);
       if (!best || score > best.score) {
         best = { score, type: logo.type, theme: logo.theme, format: fmt.format, width: fmt.width, height: fmt.height };
       }
@@ -96,6 +111,12 @@ async function main() {
   for (const marca of marcas) {
     const canonical = Object.prototype.hasOwnProperty.call(CANONICAL, marca) ? CANONICAL[marca] : marca;
     if (canonical === null) { skipped.push(marca); continue; }
+
+    if (MANUAL_LOGOS[canonical]) {
+      manifest[canonical] = MANUAL_LOGOS[canonical];
+      console.log(`OK   ${marca.padEnd(20)} -> ${canonical.padEnd(14)} ${MANUAL_LOGOS[canonical].padEnd(20)} (manual, no tocar)`);
+      continue;
+    }
 
     const rawDir = path.join(RAW_DIR, slug(marca));
     let brandJson;
@@ -126,10 +147,12 @@ async function main() {
 
   // Elimina del directorio los ficheros de imagen que ya no aparecen en el manifest nuevo
   // (p.ej. los .webp viejos de Logo Link que ahora quedan sustituidos por un .svg/.png mejor).
+  // _fuel-generic.svg no es de ninguna marca (ver GENERIC_FUEL_ICON_SRC en index.html), así que
+  // nunca sale en el manifest -- sin esta excepción, esta limpieza lo borraría cada vez.
   const keepFiles = new Set(Object.values(manifest));
   const existing = await fs.readdir(OUT_DIR);
   for (const f of existing) {
-    if (f === 'manifest.json') continue;
+    if (f === 'manifest.json' || f === '_fuel-generic.svg') continue;
     if (!keepFiles.has(f)) {
       await fs.unlink(path.join(OUT_DIR, f));
       console.log(`BORRADO ${f} (ya no esta en el manifest)`);

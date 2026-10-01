@@ -1332,11 +1332,27 @@ function makeBadgeImage(color, logoImg) {
 // un nombre de marca real.
 const BADGE_BRAND_SEP = '::';
 
+// 'null' en vez de rechazar si falla: tanto aquí como en loadBrandLogos() una imagen que no carga
+// no es un error fatal, es un hueco que cae en su fallback (el icono genérico, o el círculo liso).
+function loadImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
+// Icono de gasolinera para las que no tienen marca reconocida (o la tienen pero sin logo todavía,
+// ver iconImageExpr) -- mejor un surtidor genérico que el círculo liso de antes. De Maki
+// (github.com/mapbox/maki), el set de iconos de Mapbox para puntos de interés en mapas, CC0.
+const GENERIC_FUEL_ICON_SRC = './public/logos/_fuel-generic.svg';
+
 // Descarga el manifiesto de fetch-logos.mjs y precarga como <img> solo los logos de marcas que la
 // app reconoce (BRANDS): las que trae marcas.yaml de más (ASC CARBURANTES, CONFORT AUTO...) no
 // tienen hueco propio en el desplegable todavía, así que cargarlas no serviría de nada.
 // Si el manifiesto no existe o una imagen falla, esa marca sencillamente se queda sin logo -- no
-// es un error fatal, cae en el mismo hueco neutro que las que nunca tuvieron web conocida.
+// es un error fatal, cae en el mismo icono genérico que las que nunca tuvieron web conocida.
 async function loadBrandLogos() {
   const logos = new Map();
   let manifest;
@@ -1346,15 +1362,10 @@ async function loadBrandLogos() {
     return logos; // sin manifiesto (build viejo, o aún no se ha corrido fetch-logos.mjs): sin logos
   }
   await Promise.all(
-    BRANDS.filter((b) => manifest[b]).map(
-      (b) =>
-        new Promise((resolve) => {
-          const img = new Image();
-          img.onload = () => { logos.set(b, img); resolve(); };
-          img.onerror = () => resolve(); // esa marca se queda sin logo, no bloquea al resto
-          img.src = `./public/logos/${manifest[b]}`;
-        })
-    )
+    BRANDS.filter((b) => manifest[b]).map(async (b) => {
+      const img = await loadImage(`./public/logos/${manifest[b]}`);
+      if (img) logos.set(b, img);
+    })
   );
   return logos;
 }
@@ -1365,11 +1376,13 @@ map.on('load', async () => {
     data: { type: 'FeatureCollection', features: [] }
   });
 
-  // Un bocadillo por clase de precio, todos del mismo tamaño fijo (ver makeBadgeImage). Estos son
-  // los que se usan cuando la gasolinera no tiene marca reconocida o su marca no tiene logo.
+  // Un bocadillo por clase de precio, todos del mismo tamaño fijo (ver makeBadgeImage), con el
+  // icono genérico en el hueco. Estos son los que se usan cuando la gasolinera no tiene marca
+  // reconocida o su marca no tiene logo (ver iconImageExpr más abajo).
   const ALL_BADGE_IDS = [...BADGE_IDS, NO_PRICE_BADGE_ID];
   const ALL_BADGE_COLORS = [...PRICE_COLORS, NO_PRICE_COLOR];
-  ALL_BADGE_IDS.forEach((id, i) => map.addImage(id, makeBadgeImage(ALL_BADGE_COLORS[i]), { pixelRatio: 2 }));
+  const genericFuelIcon = await loadImage(GENERIC_FUEL_ICON_SRC);
+  ALL_BADGE_IDS.forEach((id, i) => map.addImage(id, makeBadgeImage(ALL_BADGE_COLORS[i], genericFuelIcon), { pixelRatio: 2 }));
 
   // Además, una imagen por cada combinación (tramo de precio × marca con logo): 'icon-image' es
   // una textura plana por id, así que el logo no se puede "superponer" al bocadillo ya coloreado
