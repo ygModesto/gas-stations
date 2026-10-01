@@ -521,9 +521,10 @@ const PRICE_COLORS = ['#15803d', '#a16207', '#c2410c', '#b91c1c'];
 const NO_PRICE_COLOR = '#475569';
 const BADGE_IDS = PRICE_COLORS.map((_, i) => 'badge-' + i);
 const NO_PRICE_BADGE_ID = 'badge-sin-precio';
-// Expresión compartida: traduce la propiedad 'badge' de una feature a su color de tramo. La usan
-// tanto el texto del precio (dentro del bocadillo) como el punto de zoom alejado (DOTS_LAYER_ID),
-// para que ambas representaciones de la misma gasolinera se lean con el mismo color.
+// Expresión compartida: traduce la propiedad 'badge' de una feature a su color de tramo. La usa el
+// punto de zoom alejado (DOTS_LAYER_ID); el bocadillo (makeBadgeImage) recibe el mismo color de
+// PRICE_COLORS/NO_PRICE_COLOR por su cuenta, sin pasar por aquí. El texto del precio ya no usa este
+// color -- va siempre en blanco, porque ahora es el fondo del bocadillo el que lleva el del tramo.
 const BADGE_COLOR_MATCH = [
   'match', ['get', 'badge'],
   BADGE_IDS[0], PRICE_COLORS[0],
@@ -1220,6 +1221,10 @@ const PIN_BORDER = 3;
 const LOGO_HOLE_CX = 25;
 const LOGO_HOLE_CY = PIN_BODY_H / 2;
 const LOGO_HOLE_R = 20;
+// Anillo entre el hueco y el cuerpo (ver makeBadgeImage): de blanco puro en LOGO_HOLE_R a
+// FONDO_COLOR en LOGO_HOLE_R + esto, para que el logo no quede recortado con un corte duro contra
+// un fondo que ya no es blanco.
+const LOGO_HOLE_FEATHER = 8;
 
 // El precio se posiciona con su propio 'text-offset' (ver el addLayer de LAYER_ID), no encajado
 // dentro del icono, así que si estos números salen de aquí a mano y luego se cambia PIN_W o el
@@ -1273,7 +1278,9 @@ function makeBadgeImage(color, logoImg) {
   canvas.height = PIN_H;
   const ctx = canvas.getContext('2d');
 
-  ctx.fillStyle = '#ffffff';
+  // Fondo del color del tramo (no blanco): el borde queda del mismo color por encima, así que en
+  // la práctica se ve un bocadillo sólido de ese color -- probado antes en tools/pin-designer.html.
+  ctx.fillStyle = color;
   ctx.strokeStyle = color;
   ctx.lineWidth = PIN_BORDER;
   tracePinOutline(ctx, PIN_BORDER / 2);
@@ -1281,6 +1288,19 @@ function makeBadgeImage(color, logoImg) {
   ctx.stroke();
 
   if (logoImg) {
+    // Fondo del hueco, detrás del logo: blanco puro hasta LOGO_HOLE_R y un anillo que se funde con
+    // el color del tramo en LOGO_HOLE_R + LOGO_HOLE_FEATHER, para que no haya un corte duro entre
+    // el hueco y el resto del bocadillo (ya no son el mismo blanco, ver el fillStyle de arriba).
+    const rOuter = LOGO_HOLE_R + LOGO_HOLE_FEATHER;
+    const gradient = ctx.createRadialGradient(LOGO_HOLE_CX, LOGO_HOLE_CY, 0, LOGO_HOLE_CX, LOGO_HOLE_CY, rOuter);
+    gradient.addColorStop(0, '#ffffff');
+    gradient.addColorStop(LOGO_HOLE_R / rOuter, '#ffffff');
+    gradient.addColorStop(1, color);
+    ctx.beginPath();
+    ctx.arc(LOGO_HOLE_CX, LOGO_HOLE_CY, rOuter, 0, Math.PI * 2);
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
     // Recorte circular + "cover" (llena el círculo sin deformar, recortando lo que sobre por el
     // lado más largo) -- igual que el CSS object-fit: cover, pero a mano porque esto es un canvas.
     ctx.save();
@@ -1412,7 +1432,10 @@ map.on('load', async () => {
       'text-justify': 'left'
     },
     paint: {
-      'text-color': BADGE_COLOR_MATCH // mismo color que el borde: refuerza el tramo con dos señales
+      // Blanco fijo, no BADGE_COLOR_MATCH: desde que el fondo del bocadillo es el color del tramo
+      // (ver makeBadgeImage) el texto va sobre ese color, no sobre blanco -- BADGE_COLOR_MATCH
+      // sigue usándose tal cual en DOTS_LAYER_ID, que es un punto de color sobre el mapa base.
+      'text-color': '#ffffff'
     }
   });
 
