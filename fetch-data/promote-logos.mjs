@@ -64,6 +64,9 @@ const CANONICAL = {
 // logos-raw/moeve/m-icon.svg) -- vectorial y ya cuadrada, mejor que cualquier opcion automatica.
 const MANUAL_LOGOS = {
   MOEVE: 'moeve.svg',
+  // ALCAMPO: el JPEG de Brandfetch (icon-dark.jpeg, ver logos-raw/alcampo/) era un recorte borroso;
+  // el usuario trajo un SVG propio del logo real.
+  ALCAMPO: 'alcampo.svg',
 };
 
 function slug(name) {
