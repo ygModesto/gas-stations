@@ -527,10 +527,7 @@ const NO_PRICE_BADGE_ID = 'badge-sin-precio';
 // color -- va siempre en blanco, porque ahora es el fondo del bocadillo el que lleva el del tramo.
 const BADGE_COLOR_MATCH = [
   'match', ['get', 'badge'],
-  BADGE_IDS[0], PRICE_COLORS[0],
-  BADGE_IDS[1], PRICE_COLORS[1],
-  BADGE_IDS[2], PRICE_COLORS[2],
-  BADGE_IDS[3], PRICE_COLORS[3],
+  ...BADGE_IDS.flatMap((id, i) => [id, PRICE_COLORS[i]]),
   NO_PRICE_COLOR // badge-sin-precio o cualquier valor sin clasificar
 ];
 let popup = null;
@@ -588,36 +585,10 @@ const BRANDS = ['REPSOL', 'BP', 'MOEVE', 'CEPSA', 'GALP', 'BALLENOIL', 'SHELL', 
 const OTHER_BRAND = 'Otras';
 const ALL_BRANDS = [...BRANDS, OTHER_BRAND];
 
-// Alias de más de una palabra o que comparten canónica con otro rótulo real -- debe reflejar
-// exactamente BRANDS en fetch-data/src/main.rs. Q8 e IDS son la misma red de Kuwait Petroleum
-// (renombrada Q8Truck en 2025); "GM OIL"/"GMOIL" son la misma cadena con dos grafías. El resto de
-// marcas son alias de una sola palabra igual a su propio nombre, no hace falta listarlas aquí.
-const BRAND_ALIASES = {
-  Q8: [['Q8'], ['IDS']],
-  'GM OIL': [['GM', 'OIL'], ['GMOIL']]
-};
-
 // El workflow deja la columna a NULL cuando el rótulo no casa con ninguna marca, porque en
 // FlatGeobuf un nulo no ocupa bytes y ese es el 27,9% de las estaciones. Ese hueco es OTHER_BRAND.
-//
-// El segundo caso del || es transitorio: los .fgb ya publicados todavía no traen 'brand', así que
-// hasta que el workflow los regenere se clasifica en cliente a partir del rótulo, como antes.
-// Cuando haya corrido una vez, brandFromRotulo() y NON_ALNUM se pueden borrar.
-const NON_ALNUM = /[^A-Z0-9]+/;
-function brandFromRotulo(rotulo) {
-  const words = String(rotulo || '').toUpperCase().split(NON_ALNUM).filter(Boolean);
-  for (const b of BRANDS) {
-    const aliases = BRAND_ALIASES[b] || [[b]];
-    for (const tokens of aliases) {
-      for (let i = 0; i + tokens.length <= words.length; i++) {
-        if (tokens.every((t, j) => words[i + j] === t)) return b;
-      }
-    }
-  }
-  return undefined;
-}
 function brandOf(properties) {
-  return properties.brand || brandFromRotulo(properties.rotulo) || OTHER_BRAND;
+  return properties.brand || OTHER_BRAND;
 }
 
 // 'REPSOL' -> 'Repsol', pero 'BP' y 'Q8' se quedan como están: en siglas la capitalización chirría
@@ -625,19 +596,22 @@ function brandLabel(brand) {
   return brand.length <= 2 ? brand : brand.charAt(0) + brand.slice(1).toLowerCase();
 }
 
-// Las marcas excluidas que ya no existen en ALL_BRANDS se ignoran solas al construir el Set
-const excludedBrands = new Set(Array.isArray(prefs.excluded) ? prefs.excluded : []);
-let selectedBrands = new Set(ALL_BRANDS.filter(b => !excludedBrands.has(b))); // por defecto, todas
+// Se persiste lo EXCLUIDO (no lo seleccionado) para que "todos marcados" sea la lista vacía, tanto
+// para marcas como para rangos. Lo que ya no exista en 'all' (p.ej. una marca vieja guardada antes
+// de un cambio en BRANDS) se ignora solo al construir el Set, no hace falta filtrarlo aparte.
+function selectedFromExcluded(all, excludedPref) {
+  const excluded = new Set(Array.isArray(excludedPref) ? excludedPref : []);
+  return new Set(all.filter((x) => !excluded.has(x)));
+}
+let selectedBrands = selectedFromExcluded(ALL_BRANDS, prefs.excluded);
 
 // Los rangos se muestran salvo que el usuario los haya apagado. El !== false y no un Boolean() es
 // deliberado: si la preferencia no existe todavía (undefined), el valor por defecto es mostrarlos.
 let showRanges = prefs.showRanges !== false;
 
 // Filtro por los 4 tramos de precio. Las claves son las mismas de los badges, que ya identifican
-// la clase de cada gasolinera. Como con las marcas, se persiste lo EXCLUIDO para que "todos" sea
-// la lista vacía.
-const excludedRanges = new Set(Array.isArray(prefs.excludedRanges) ? prefs.excludedRanges : []);
-let selectedRanges = new Set(BADGE_IDS.filter(id => !excludedRanges.has(id)));
+// la clase de cada gasolinera.
+let selectedRanges = selectedFromExcluded(BADGE_IDS, prefs.excludedRanges);
 
 // Barra de filtros de la cabecera: el buscador de direcciones, dos botones que abren un menú
 // (combustible y marcas) y uno que activa o no la leyenda de rangos. Con los menús cerrados, cada
@@ -699,7 +673,6 @@ const addressInput = document.getElementById('address-input');
 const addressStatusEl = document.getElementById('address-status');
 const addressResultsEl = document.getElementById('address-results');
 let addressMarker = null;
-let addressDebounce = null;
 
 // El desplegable de resultados solo se muestra si hay algo que enseñar (resultados o un estado
 // como "Buscando..." o un error): con la píldora recién abierta y el campo aún vacío no hay nada
@@ -1004,11 +977,19 @@ function syncBar() {
   rangesBtn.setAttribute('aria-pressed', String(showRanges));
 }
 
+// Forma compartida por la lista de combustible (radio) y la de marcas (checkbox): una única
+// casilla con su etiqueta de texto. La leyenda de rangos NO usa esto -- lleva además un swatch de
+// color (ver 'fila' en updateLegend), forzarla al mismo molde pediría tantos parámetros como para
+// no ahorrar nada.
+function checkableLabel({ type, name, value, checked, label }) {
+  return '<label><input type="' + type + '" name="' + name + '" value="' + value + '"' +
+    (checked ? ' checked' : '') + ' /> ' + label + '</label>';
+}
+
 // --- Combustible ---
 // Generados desde FUEL_LABELS, ya con la preferencia guardada aplicada
 fuelListEl.innerHTML = Object.entries(FUEL_LABELS).map(([clave, nombre]) =>
-  '<label><input type="radio" name="fuel" value="' + clave + '"' +
-  (clave === selectedFuel ? ' checked' : '') + ' /> ' + nombre + '</label>'
+  checkableLabel({ type: 'radio', name: 'fuel', value: clave, checked: clave === selectedFuel, label: nombre })
 ).join('');
 
 fuelListEl.querySelectorAll('input').forEach((radio) => {
@@ -1024,16 +1005,17 @@ fuelListEl.querySelectorAll('input').forEach((radio) => {
 // --- Marcas ---
 // Las casillas se generan desde ALL_BRANDS para no repetir el listado en el HTML
 brandListEl.innerHTML = ALL_BRANDS.map(b =>
-  '<label><input type="checkbox" name="brand" value="' + b + '"' +
-  (selectedBrands.has(b) ? ' checked' : '') + ' /> ' + brandLabel(b) + '</label>'
+  checkableLabel({ type: 'checkbox', name: 'brand', value: b, checked: selectedBrands.has(b), label: brandLabel(b) })
 ).join('');
+
+function checkedValues(container) {
+  return new Set(Array.from(container.querySelectorAll('input:checked')).map((cb) => cb.value));
+}
 
 // El filtro puede obligar a cambiar de fichero .fgb (ver updateMarkers), por eso se recarga en
 // lugar de limitarse a repintar con applyLabels()
 function onBrandsChanged() {
-  selectedBrands = new Set(
-    Array.from(brandListEl.querySelectorAll('input:checked')).map(cb => cb.value)
-  );
+  selectedBrands = checkedValues(brandListEl);
   syncBar();
   savePrefs();
   updateMarkers();
@@ -1051,9 +1033,7 @@ brandMenuEl.querySelectorAll('#brand-actions button').forEach((btn) => {
 // --- Rangos de precio ---
 // Las filas se regeneran en cada applyLabels(), así que el listener va en el contenedor
 legendRowsEl.addEventListener('change', () => {
-  selectedRanges = new Set(
-    Array.from(legendRowsEl.querySelectorAll('input:checked')).map(cb => cb.value)
-  );
+  selectedRanges = checkedValues(legendRowsEl);
   syncBar();
   savePrefs();
   applyLabels();
@@ -1101,10 +1081,11 @@ const MIN_FOR_CLASSES = 4;
 // recalculados en cada movimiento. Así el verde significa "barata por aquí" y no "barata en
 // España", que es lo que no sirve: la gasolinera más barata de Palma cuesta lo mismo que la
 // mediana de Sevilla, y con umbrales fijos zonas enteras saldrían de un solo color.
+// 'prices' ya llega ordenado ascendente de su única llamadora (applyLabels) -- no se vuelve a
+// ordenar aquí para no copiar+ordenar dos veces en cada pan/zoom.
 function computeThresholds(prices) {
   if (prices.length < MIN_FOR_CLASSES) return null;
-  const sorted = [...prices].sort((a, b) => a - b);
-  const at = (q) => sorted[Math.floor((sorted.length - 1) * q)];
+  const at = (q) => prices[Math.floor((prices.length - 1) * q)];
   const thresholds = [at(0.25), at(0.5), at(0.75)];
   // Si demasiadas comparten precio los cuartiles colapsan; mejor neutro que una escala falsa.
   return thresholds[0] < thresholds[2] ? thresholds : null;
@@ -1381,7 +1362,12 @@ map.on('load', async () => {
   // reconocida o su marca no tiene logo (ver iconImageExpr más abajo).
   const ALL_BADGE_IDS = [...BADGE_IDS, NO_PRICE_BADGE_ID];
   const ALL_BADGE_COLORS = [...PRICE_COLORS, NO_PRICE_COLOR];
-  const genericFuelIcon = await loadImage(GENERIC_FUEL_ICON_SRC);
+  // En paralelo, no en serie: son dos fetches independientes (el icono genérico y el manifiesto +
+  // logos de marca) y encadenarlos retrasaría sin necesidad el primer pintado de las gasolineras.
+  const [genericFuelIcon, brandLogos] = await Promise.all([
+    loadImage(GENERIC_FUEL_ICON_SRC),
+    loadBrandLogos()
+  ]);
   ALL_BADGE_IDS.forEach((id, i) => map.addImage(id, makeBadgeImage(ALL_BADGE_COLORS[i], genericFuelIcon), { pixelRatio: 2 }));
 
   // Además, una imagen por cada combinación (tramo de precio × marca con logo): 'icon-image' es
@@ -1389,7 +1375,6 @@ map.on('load', async () => {
   // en tiempo de dibujado -- hay que generar el compuesto entero de antemano, uno por combinación
   // realmente presente. Con ~38 marcas y 5 tramos son unas 190 imágenes, pero son pequeñas
   // (PIN_W x PIN_H) y esto corre una sola vez al cargar, no por cada fotograma.
-  const brandLogos = await loadBrandLogos();
   for (const [brand, img] of brandLogos) {
     ALL_BADGE_IDS.forEach((id, i) => {
       map.addImage(id + BADGE_BRAND_SEP + brand, makeBadgeImage(ALL_BADGE_COLORS[i], img), { pixelRatio: 2 });
@@ -1553,10 +1538,9 @@ map.on('load', async () => {
 
 // Caché del último tramo pedido al .fgb: si el bbox que hace falta ahora cae DENTRO del que ya se
 // pidió (mismo fichero), nos ahorramos la petición de red y filtramos lo que ya tenemos en memoria.
-// Guarda solo el último tramo, no un histórico: cada fetch real lo sustituye entero.
-let cachedBbox = null;
-let cachedSrc = null;
-let cachedFeatures = [];
+// Guarda solo el último tramo, no un histórico: cada fetch real lo sustituye entero -- de ahí que
+// sea un único objeto (o null, "sin caché todavía") y no tres variables que mantener en sync.
+let fgbCache = null;
 
 function bboxContains(outer, inner) {
   return inner.minX >= outer.minX && inner.maxX <= outer.maxX &&
@@ -1608,8 +1592,8 @@ async function updateMarkers() {
   // El bbox visible ya está cubierto por el último tramo pedido a este mismo fichero: no hace
   // falta red, solo filtrar lo que ya tenemos. El caso más habitual es hacer zoom in (el bbox se
   // encoge) o moverse poco dentro de una zona ya cargada (gracias al margen de padBbox).
-  if (cachedSrc === src && cachedBbox && bboxContains(cachedBbox, bbox)) {
-    currentFeatures = cachedFeatures.filter((f) => featureInBbox(f, bbox));
+  if (fgbCache && fgbCache.src === src && bboxContains(fgbCache.bbox, bbox)) {
+    currentFeatures = fgbCache.features.filter((f) => featureInBbox(f, bbox));
     applyLabels();
     return;
   }
@@ -1621,9 +1605,7 @@ async function updateMarkers() {
     for await (const feature of iter) {
       features.push(feature);
     }
-    cachedBbox = fetchBbox;
-    cachedSrc = src;
-    cachedFeatures = features;
+    fgbCache = { src, bbox: fetchBbox, features };
     // Solo lo que cae en el bbox real, no en el margen: éste es puro caché, no debe colar
     // gasolineras fuera de pantalla en el cálculo de cuartiles de applyLabels().
     currentFeatures = features.filter((f) => featureInBbox(f, bbox));
