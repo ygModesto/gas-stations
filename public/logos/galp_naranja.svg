@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 611 580"
+   width="611"
+   height="580"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="galp_naranja.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.3189655"
+     inkscape:cx="305.1634"
+     inkscape:cy="290"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <path
+     fill-rule="evenodd"
+     d="M431.723 37.347L249.788 219.282c-30.631 30.632-30.631 80.29 0 110.952 30.662 30.72 80.35 30.72 111.011 0 30.632-30.662 30.632-80.38 0-110.952 0 0-2.975-3.21-4.978-5.037l-11.634 11.664c-4.3 4.3-11.31 4.3-15.61 0-4.3-4.33-4.3-11.34 0-15.64l41.058-41.088c4.36-4.3 11.31-4.33 15.67-.03l12.812 12.813c51.249 51.22 51.22 134.368-.06 185.587-51.219 51.25-134.308 51.25-185.557 0-51.278-51.22-51.278-134.338 0-185.557l50.336-50.395c23.416-23.416 23.445-61.44.03-84.915L216.123 0 41.463 174.69c-55.284 55.284-55.284 144.881 0 200.166l163.762 163.703c55.255 55.255 144.853 55.255 200.108 0l163.791-163.703c55.255-55.285 55.255-144.882 0-200.167l-137.4-137.342z"
+     fill="#FFFFFF"
+     id="path1"
+     style="fill:#fb581e;fill-opacity:1" />
+</svg>
