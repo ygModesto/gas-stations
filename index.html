@@ -238,7 +238,10 @@
     max-height: calc(100% - 20px);
     display: flex;
     flex-direction: column;
-    background: rgba(255, 255, 255, 0.97);
+    /* Opaco, no el rgba(...,0.97) de la leyenda. En una tarjeta pequeña ese 3% no se nota, pero
+       detrás de un panel grande lleno de texto se transparentan los bocadillos y la leyenda, y la
+       lista se lee sobre un fondo fantasma. */
+    background: #ffffff;
     color: #0f172a;
     border-radius: 10px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
@@ -248,15 +251,51 @@
   #cheap-panel[hidden] { display: none; }
   .cheap-head {
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 9px 10px 7px;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 4px 4px 10px;
     border-bottom: 1px solid #e2e8f0;
+    flex: none;
   }
+  /* La cabecera es el control de plegado, así que es un botón y ocupa todo el ancho que sobra */
+  .cheap-head-btn {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    padding: 7px 4px;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .cheap-head-btn:hover { background: #f1f5f9; }
   .cheap-title { font-weight: bold; font-size: 0.8rem; color: #334155; }
-  .cheap-count { font-size: 0.7rem; color: #94a3b8; white-space: nowrap; }
+  .cheap-count { flex: 1; font-size: 0.7rem; color: #94a3b8; white-space: nowrap; text-align: right; }
+  .cheap-chevron { flex: none; font-size: 0.8rem; color: #64748b; transition: transform 0.15s; }
+  #cheap-panel.is-min .cheap-chevron { transform: rotate(180deg); }
+  .cheap-close {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    color: #64748b;
+    cursor: pointer;
+  }
+  .cheap-close:hover { background: #f1f5f9; color: #0f172a; }
   #cheap-list { overflow-y: auto; padding: 4px; }
+  /* Minimizado: solo la barra de cabecera. El alto deja de estar topado para que no quede un
+     hueco blanco bajo ella. */
+  #cheap-panel.is-min { max-height: none; }
+  #cheap-panel.is-min #cheap-list { display: none; }
   .cheap-row {
     display: flex;
     align-items: center;
@@ -312,16 +351,40 @@
       font-size: 0.7rem;
       line-height: 1.35;
     }
-    /* En móvil no cabe a la derecha sin tapar los controles del mapa: pasa a hoja inferior, que
-       además es donde llega el pulgar. Cubre la leyenda a propósito mientras está abierto. */
+    /* En móvil la lista ocupa todo el mapa, no una hoja a media altura. Con media pantalla se
+       veían cinco filas y la sexta cortada, que es justo lo que no sirve cuando lo que buscas es
+       comparar precios. La cabecera de la app se deja fuera a propósito: desde la lista se puede
+       cambiar de combustible o de marca y verla reordenarse. */
     #cheap-panel {
-      top: auto;
-      right: 8px;
-      left: 8px;
-      bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+      top: 0;
+      right: 0;
+      left: 0;
+      bottom: 0;
       width: auto;
       max-width: none;
-      max-height: 48%;
+      max-height: none;
+      border-radius: 0;
+      /* El área segura (barra de gestos del iPhone) se respeta por dentro, para que la última
+         fila no quede debajo de ella pero el blanco sí llegue al borde de la pantalla. */
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    /* Minimizada: solo la barra de cabecera, abajo. Es el estado en el que queda tras elegir una
+       gasolinera, porque entonces lo que importa es el popup, pero volver a la lista tiene que
+       ser un toque y no tener que buscar otra vez el botón. */
+    #cheap-panel.is-min {
+      top: auto;
+      border-radius: 14px 14px 0 0;
+      box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.22);
+    }
+    /* Con la barra minimizada abajo, la leyenda de rangos y la atribución del mapa quedarían
+       justo detrás: se suben las dos por encima de ella. La atribución es de MapLibre, de ahí
+       que haya que empujar su contenedor y no un elemento nuestro. */
+    #map.cheap-min #legend-block {
+      bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+    }
+    #map.cheap-min .maplibregl-ctrl-bottom-right,
+    #map.cheap-min .maplibregl-ctrl-bottom-left {
+      bottom: calc(44px + env(safe-area-inset-bottom, 0px));
     }
   }
 
@@ -651,8 +714,19 @@ window.__boot = (() => {
        columna que el zoom y la geolocalización. -->
   <div id="cheap-panel" role="region" aria-label="Gasolineras más baratas" hidden>
     <div class="cheap-head">
-      <span id="cheap-title" class="cheap-title">Más baratas</span>
-      <span id="cheap-count" class="cheap-count"></span>
+      <!-- La cabecera entera pliega y despliega: minimizada deja solo esta barra abajo, que es lo
+           que queda a la vista al elegir una gasolinera en móvil (el popup necesita el mapa). -->
+      <button id="cheap-min" class="cheap-head-btn" type="button" aria-expanded="true" aria-controls="cheap-list">
+        <span id="cheap-title" class="cheap-title">Más baratas</span>
+        <span id="cheap-count" class="cheap-count"></span>
+        <span class="cheap-chevron" aria-hidden="true">▾</span>
+      </button>
+      <button id="cheap-close" class="cheap-close" type="button" aria-label="Cerrar la lista">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+          <line x1="5" y1="5" x2="19" y2="19" /><line x1="19" y1="5" x2="5" y2="19" />
+        </svg>
+      </button>
     </div>
     <div id="cheap-list"></div>
   </div>
@@ -1520,10 +1594,16 @@ function updateLegend(thresholds, prices) {
 // "Las más baratas" tampoco gana nada pasada la treintena.
 const CHEAP_MAX = 30;
 
+const mapEl = document.getElementById('map');
 const cheapPanelEl = document.getElementById('cheap-panel');
 const cheapTitleEl = document.getElementById('cheap-title');
 const cheapCountEl = document.getElementById('cheap-count');
 const cheapListEl = document.getElementById('cheap-list');
+const cheapMinBtn = document.getElementById('cheap-min');
+const cheapCloseBtn = document.getElementById('cheap-close');
+
+// En móvil la lista tapa el mapa entero, así que varias decisiones cambian con el ancho
+const enMovil = () => window.matchMedia('(max-width: 600px)').matches;
 
 // Las features de la lista, ya ordenadas. Se guardan aparte de lo que hay pintado para que al
 // pulsar una fila se pueda abrir su popup con el mismo objeto que vio el mapa.
@@ -1563,6 +1643,13 @@ function renderCheapList() {
 
   cheapTitleEl.textContent = 'Más baratas · ' + FUEL_LABELS[selectedFuel];
 
+  // Minimizada solo se ve la cabecera, que sí hay que mantener al día: el contador de arriba es
+  // la única señal de que la lista ha cambiado al mover el mapa. Las filas no se pintan.
+  if (cheapPanelEl.classList.contains('is-min')) {
+    cheapCountEl.textContent = cheapFeatures.length ? String(cheapFeatures.length) : '';
+    return;
+  }
+
   if (cheapFeatures.length === 0) {
     cheapCountEl.textContent = '';
     cheapListEl.innerHTML = '<div class="cheap-empty">No hay gasolineras con precio de ' +
@@ -1600,21 +1687,40 @@ cheapListEl.addEventListener('click', (e) => {
   if (!fila) return;
   const f = cheapFeatures[Number(fila.dataset.i)];
   if (!f) return;
-  // Se acerca lo justo para que el bocadillo se vea despegado de sus vecinos, pero sin alejar a
-  // quien ya estaba más cerca: de ahí el max y no un zoom fijo.
-  map.flyTo({ center: f.geometry.coordinates, zoom: Math.max(map.getZoom(), 15) });
+  // Centra SIN tocar el zoom. Antes forzaba zoom 15 y eso arrastraba dos efectos malos: la lista
+  // se recalcula con lo que se ve, así que al volver a ella ya no estaban las 16 de las que
+  // habías elegido sino 2; y con menos de MIN_FOR_CLASSES gasolineras no hay cuartiles, así que
+  // la leyenda de rangos se apagaba sola. Todas las de la lista están ya en pantalla por
+  // definición, así que basta con centrar: es un desplazamiento corto y no cambia el contexto.
+  map.easeTo({ center: f.geometry.coordinates });
   openStationPopup(f);
-  // En móvil el panel es una hoja que tapa media pantalla: después de elegir estorba, porque lo
-  // que el usuario quiere ver es el popup. En pantalla grande no tapa nada y se queda abierto
-  // para poder seguir comparando.
-  if (window.matchMedia('(max-width: 600px)').matches) toggleCheapPanel(false);
+  // En móvil la lista tapa el mapa entero, y el popup está justo debajo: hay que quitarla de en
+  // medio. Se MINIMIZA en vez de cerrarse para que volver a la lista sea un toque en la barra, y
+  // no tener que buscar otra vez el botón entre los controles del mapa. En pantalla grande el
+  // panel no tapa nada y se queda como está, para poder seguir comparando.
+  if (enMovil()) setCheapMin(true);
 });
+
+// Tres estados: cerrada (hidden), desplegada y minimizada (solo la barra de cabecera).
+function setCheapMin(min) {
+  cheapPanelEl.classList.toggle('is-min', min);
+  cheapMinBtn.setAttribute('aria-expanded', String(!min));
+  // La clase va en el contenedor del mapa y no en el panel porque quien tiene que apartarse es
+  // la leyenda, que es hermana suya (ver #map.cheap-min en el CSS).
+  mapEl.classList.toggle('cheap-min', min && !cheapPanelEl.hidden);
+  renderCheapList();
+}
 
 function toggleCheapPanel(abrir) {
   cheapPanelEl.hidden = !abrir;
   cheapToggleBtn?.setAttribute('aria-pressed', String(abrir));
-  renderCheapList(); // al abrir, pinta lo que se haya acumulado mientras estaba cerrado
+  // Abrir siempre despliega: si se quedó minimizada y se cerró, volver a pulsar el botón del
+  // mapa tiene que enseñar la lista, no una barra vacía.
+  setCheapMin(false);
 }
+
+cheapMinBtn.addEventListener('click', () => setCheapMin(!cheapPanelEl.classList.contains('is-min')));
+cheapCloseBtn.addEventListener('click', () => toggleCheapPanel(false));
 
 // Botón que abre la lista. Va como control de MapLibre y no suelto sobre el mapa para que caiga
 // en la misma columna que el zoom y la geolocalización, con su mismo aspecto, y para que MapLibre
@@ -1638,7 +1744,14 @@ class ListaControl {
       '<line x1="9" y1="18" x2="20" y2="18" /><circle cx="4.5" cy="6" r="1.2" fill="currentColor" />' +
       '<circle cx="4.5" cy="12" r="1.2" fill="currentColor" /><circle cx="4.5" cy="18" r="1.2" fill="currentColor" />' +
       '</svg>';
-    cheapToggleBtn.addEventListener('click', () => toggleCheapPanel(cheapPanelEl.hidden));
+    // Tres destinos según en qué estado esté: cerrada -> desplegar, minimizada -> desplegar,
+    // desplegada -> cerrar. Minimizada el botón sigue alcanzable (la barra solo ocupa abajo), y
+    // ahí lo que se quiere es recuperar la lista, no cerrarla del todo.
+    cheapToggleBtn.addEventListener('click', () => {
+      if (cheapPanelEl.hidden) toggleCheapPanel(true);
+      else if (cheapPanelEl.classList.contains('is-min')) setCheapMin(false);
+      else toggleCheapPanel(false);
+    });
     this._container.appendChild(cheapToggleBtn);
     return this._container;
   }
