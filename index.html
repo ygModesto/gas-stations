@@ -5,14 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Buscador de Gasolineras en España</title>
 
+<!-- Handshakes por adelantado con los otros dos orígenes del arranque (el mapa base y la API de
+     direcciones): el navegador abre DNS+TLS mientras todavía parsea el HTML, en vez de al tropezar
+     con el recurso. Con unpkg no hace falta: el modulepreload de aquí abajo ya abre la conexión. -->
+<link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin />
+<link rel="preconnect" href="https://cu44cd5pmg.execute-api.eu-south-2.amazonaws.com" crossorigin />
+
 <!-- MapLibre GL JS. Desde la v6 la distribución es sólo ESM: ya no existe el bundle UMD ni el
      global `maplibregl`, así que la librería se importa dentro del <script type="module"> de abajo.
-     Sólo el CSS sigue cargándose con <link>. -->
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.6.0/dist/maplibre-gl.css" />
+     Como ese import vive al final del documento, el navegador no lo descubriría hasta haber
+     parseado el HTML entero: modulepreload arranca la descarga ya, en paralelo con el parseo. -->
+<link rel="modulepreload" href="https://unpkg.com/maplibre-gl@6.6.0/dist/maplibre-gl.mjs" crossorigin />
+
+<!-- El CSS de MapLibre solo viste controles, marcadores y popups: nada de lo que se ve en la
+     pantalla de arranque. Como <link> normal bloquearía el primer pintado esperando a unpkg, así
+     que se pide con media="print" -- el navegador lo descarga sin considerarlo render-blocking -- y
+     se pasa a 'all' en cuanto llega. -->
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.6.0/dist/maplibre-gl.css" media="print" onload="this.media='all'" />
+<noscript><link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.6.0/dist/maplibre-gl.css" /></noscript>
 
 <!-- FlatGeobuf JS (Lector de archivos binarios espaciales). Sigue publicando bundle UMD,
-     así que se carga como script clásico y expone el global `flatgeobuf`. -->
-<script src="https://unpkg.com/flatgeobuf@4.4.0/dist/flatgeobuf-geojson.min.js"></script>
+     así que se carga como script clásico y expone el global `flatgeobuf`.
+     Con 'defer' porque solo se usa dentro de updateMarkers(), mucho después del primer pintado:
+     sin él bloquea el parseo del HTML y el markup de la pantalla de arranque ni siquiera existe
+     hasta que unpkg contesta. Los scripts diferidos corren en orden de documento y antes que el
+     <script type="module"> de abajo, así que el global `flatgeobuf` llega a tiempo igual. -->
+<script defer src="https://unpkg.com/flatgeobuf@4.4.0/dist/flatgeobuf-geojson.min.js"></script>
 
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -357,8 +375,10 @@
 
 <!-- Pantalla de arranque: tapa el mapa (que ya se ve borroso al fondo, cargando) hasta que el
      usuario elige de dónde partir. Se salta sola si el permiso de geolocalización ya estaba
-     concedido de antes (ver el chequeo de permissions.query más abajo, en map.on('load')); si no,
-     evita pedir TODAS las gasolineras de España en el primer pintado. -->
+     concedido de antes (ver el chequeo de permissions.query en el script de aquí abajo); si no,
+     evita pedir TODAS las gasolineras de España en el primer pintado.
+     La maneja el script inline que va justo detrás, NO el módulo del final: así está viva nada más
+     parsearse, sin esperar a MapLibre ni al mapa. -->
 <div id="start-overlay" class="start-overlay" role="dialog" aria-modal="true" aria-label="Elige dónde empezar" hidden>
   <div class="start-card">
     <div class="start-title">¿Dónde quieres ver los precios?</div>
@@ -381,6 +401,87 @@
     <button id="start-skip-btn" type="button" class="start-skip-btn">Ver todo el país</button>
   </div>
 </div>
+
+<!-- Arranque temprano. Script clásico e inline: corre MIENTRAS se parsea el HTML, antes incluso de
+     que empiece la descarga de MapLibre. Antes esta lógica vivía al final de map.on('load'), o sea
+     detrás de la librería (142 KB gzip), del estilo del mapa base, de los 37 logos de marca y de
+     las ~190 texturas de bocadillo: los tres controles de la pantalla tardaban todo eso en estar
+     disponibles. Aquí solo hace falta el DOM, así que responden de inmediato y lo que el usuario
+     elija queda anotado en window.__boot para que el módulo del final lo ejecute en cuanto el mapa
+     pueda obedecer (ver mapReady / resolverArranque). -->
+<script>
+window.__boot = (() => {
+  const overlayEl = document.getElementById('start-overlay');
+  const inputEl = document.getElementById('start-input');
+  const statusEl = document.getElementById('start-status');
+  const resultsEl = document.getElementById('start-results');
+  const locateBtn = document.getElementById('start-locate-btn');
+  const locateLabel = document.getElementById('start-locate-label');
+  const skipBtn = document.getElementById('start-skip-btn');
+
+  const estado = {
+    overlayEl, inputEl, statusEl, resultsEl,
+    // Promise<boolean>: ¿había ya permiso de geolocalización concedido? Si lo había, la pantalla
+    // no se llega a enseñar y el mapa se autolocaliza al cargar, igual que antes.
+    yaTeniaPermiso: null,
+    // GeolocationPosition ya obtenida (no una promesa: solo se rellena al acertar), o null.
+    posicion: null,
+    // true si pulsó "Ver todo el país".
+    verPais: false,
+    // Lo rellena el módulo del final para enterarse de una elección posterior a su arranque.
+    onElegir: null
+  };
+
+  function fallo(texto) {
+    statusEl.textContent = texto;
+    statusEl.classList.add('error');
+    locateBtn.disabled = false;
+    locateLabel.textContent = 'Usar mi ubicación';
+  }
+
+  function elegido() {
+    overlayEl.hidden = true;
+    estado.onElegir?.();
+  }
+
+  // getCurrentPosition se pide AQUÍ y no al cargar el mapa: el diálogo de permiso y el fix del GPS
+  // (1-3 s con el chip frío) corren en paralelo con lo que quede por descargar, en vez de empezar
+  // cuando todo lo demás ha terminado.
+  locateBtn.addEventListener('click', () => {
+    if (!navigator.geolocation) { fallo('Geolocalización no disponible en este navegador.'); return; }
+    locateBtn.disabled = true;
+    locateLabel.textContent = 'Localizando...';
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { estado.posicion = pos; elegido(); },
+      () => fallo('No se pudo obtener tu ubicación. Prueba a buscar una dirección.'),
+      { enableHighAccuracy: true }
+    );
+  });
+
+  skipBtn.addEventListener('click', () => { estado.verPais = true; elegido(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !overlayEl.hidden) skipBtn.click();
+  });
+
+  // permissions.query no toca la red: resuelve en un tick. Esperar su respuesta antes de enseñar la
+  // pantalla no se nota y evita el parpadeo a quien ya concedió el permiso alguna vez.
+  estado.yaTeniaPermiso = (async () => {
+    if (navigator.permissions?.query) {
+      try {
+        const s = await navigator.permissions.query({ name: 'geolocation' });
+        if (s.state === 'granted') return true;
+      } catch { /* Permissions API sin soporte para geolocation: se trata como "no concedido" */ }
+    }
+    overlayEl.hidden = false;
+    // En el mismo tick el elemento acaba de dejar de estar oculto; el foco se pide en el siguiente
+    // fotograma, cuando ya está pintado de verdad.
+    requestAnimationFrame(() => inputEl.focus());
+    return false;
+  })();
+
+  return estado;
+})();
+</script>
 
 <header>
   <h1 class="sr-only">Gasolineras España</h1>
@@ -457,6 +558,16 @@ const map = new maplibregl.Map({
   attributionControl: false
 });
 
+// Lo que el usuario haya elegido en la pantalla de arranque, que vive y responde desde mucho antes
+// que este módulo (ver el <script> inline del HTML).
+const boot = window.__boot;
+
+// "El mapa ya puede obedecer": se resuelve al final de map.on('load'), con la fuente y las capas
+// ya creadas. Todo lo que dispara la pantalla de arranque se encola contra esto en vez de hacer
+// esperar al usuario delante de una pantalla muerta.
+let marcarMapaListo;
+const mapReady = new Promise((resolve) => { marcarMapaListo = resolve; });
+
 map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
 // Botón de geolocalización: centra el mapa en la posición GPS del usuario
@@ -465,7 +576,12 @@ map.addControl(new maplibregl.NavigationControl(), 'top-right');
 // vista, y por debajo de 4 con precio ni siquiera hay escala de color (ver MIN_FOR_CLASSES).
 // Con 13 la ventana pasa a ~5,7 x 9,3 km y la mediana sube a 8 gasolineras.
 const geolocate = new maplibregl.GeolocateControl({
-  positionOptions: { enableHighAccuracy: true },
+  // maximumAge: cuando el arranque fue por "Usar mi ubicación", el fix ya se pidió al pulsar el
+  // botón (ver window.__boot) y aquí solo hace falta volver a leerlo para volar y pintar el punto
+  // azul. Sin margen de reutilización el control despertaría el GPS por segunda vez y se perdería
+  // justo el adelanto que se acaba de ganar. Medio minuto es corto de sobra para que el botón 📍
+  // del mapa siga dando una posición actual.
+  positionOptions: { enableHighAccuracy: true, maximumAge: 30000 },
   fitBoundsOptions: { maxZoom: 13 },
   // Sin seguimiento continuo: centra en la posición UNA vez (getCurrentPosition, no watchPosition).
   // Con trackUserLocation el control quedaba en modo bloqueo y cada nuevo fix re-centraba y volvía a
@@ -768,6 +884,11 @@ async function flyToAddress(via, numero) {
   // Un municipio no está "dentro de" nada (es su propia provincia) y, al ser un área y no un punto
   // concreto, pide un zoom más alejado que una calle para que se vea entero de entrada.
   const subtitulo = esMunicipio ? via.provincia : via.municipio;
+  // El mapa puede no estar listo: desde la pantalla de arranque se puede elegir una dirección
+  // mientras MapLibre todavía se descarga. Volar antes de tiempo perdería el 'moveend' que carga
+  // las gasolineras. Se espera aquí y no al entrar, para que la consulta del portal de arriba
+  // corra en paralelo con lo que quede de carga.
+  await mapReady;
   if (addressMarker) addressMarker.remove();
   addressMarker = new maplibregl.Marker({ color: '#1e293b' })
     .setLngLat([lon, lat])
@@ -884,6 +1005,12 @@ function createAddressSearch({ inputEl, statusEl, resultsEl, onPick, afterRender
     const q = inputEl.value.trim();
     debounce = setTimeout(() => run(q), 300);
   });
+
+  // El cuadro de la pantalla de arranque se puede usar antes de que este módulo llegue a
+  // ejecutarse, y los 'input' de esas pulsaciones se perdieron porque todavía no había quien los
+  // escuchara. Se lanza la búsqueda a mano con lo que haya escrito.
+  const yaEscrito = inputEl.value.trim();
+  if (yaEscrito) run(yaEscrito);
 }
 
 createAddressSearch({
@@ -898,68 +1025,48 @@ createAddressSearch({
 });
 
 // --- Pantalla de arranque ---
-// Se muestra (ver map.on('load') más abajo) solo si el permiso de geolocalización NO estaba ya
-// concedido: si lo estaba, se va directa a la posición sin preguntar nada, que es justo lo que
-// pide no repetir esta pantalla en cada visita una vez que el usuario ya dijo que sí una vez.
-const startOverlayEl = document.getElementById('start-overlay');
-const startInput = document.getElementById('start-input');
-const startStatusEl = document.getElementById('start-status');
-const startResultsEl = document.getElementById('start-results');
-const startLocateBtn = document.getElementById('start-locate-btn');
-const startLocateLabel = document.getElementById('start-locate-label');
-const startSkipBtn = document.getElementById('start-skip-btn');
-
-function showStartOverlay() {
-  startOverlayEl.hidden = false;
-  startInput.focus();
-}
+// El markup, la visibilidad y los botones de "Usar mi ubicación" y "Ver todo el país" los lleva el
+// script inline del HTML (window.__boot), que corre durante el parseo. Aquí solo queda lo que de
+// verdad necesita el mapa: el buscador de direcciones y ejecutar la elección del usuario.
 function hideStartOverlay() {
-  startOverlayEl.hidden = true;
+  boot.overlayEl.hidden = true;
 }
 
 createAddressSearch({
-  inputEl: startInput,
-  statusEl: startStatusEl,
-  resultsEl: startResultsEl,
+  inputEl: boot.inputEl,
+  statusEl: boot.statusEl,
+  resultsEl: boot.resultsEl,
   onPick: async (via, numero) => {
+    arranqueResuelto = true; // el vuelo ya dispara updateMarkers por su 'moveend'
+    hideStartOverlay();      // antes de volar, no después: flyToAddress puede esperar al mapa
     await flyToAddress(via, numero);
-    hideStartOverlay();
   }
 });
 
-function resetStartLocateBtn() {
-  startLocateBtn.disabled = false;
-  startLocateLabel.textContent = 'Usar mi ubicación';
-}
-startLocateBtn.addEventListener('click', () => {
-  startLocateBtn.disabled = true;
-  startLocateLabel.textContent = 'Localizando...';
-  // geolocate.trigger() dispara el permiso del navegador si aún no se había pedido; el resultado
-  // (éxito o error) llega por los eventos de abajo, no por el valor de retorno de trigger().
-  const iniciado = geolocate.trigger();
-  if (!iniciado) {
-    resetStartLocateBtn();
-    startStatusEl.textContent = 'Geolocalización no disponible en este navegador.';
-    startStatusEl.classList.add('error');
+// La elección pudo ocurrir antes de que este módulo existiera siquiera, así que se comprueba una
+// vez contra mapReady y además cada vez que el usuario elige (boot.onElegir). El flag evita que
+// una segunda llamada deshaga lo que ya se puso en marcha.
+let arranqueResuelto = false;
+function resolverArranque() {
+  if (arranqueResuelto) return;
+  if (boot.posicion) {
+    arranqueResuelto = true;
+    // El fix del GPS ya está hecho: se pidió al pulsar el botón, en paralelo con la descarga de
+    // MapLibre. trigger() lo reaprovecha gracias al maximumAge de positionOptions, así que esto no
+    // vuelve a despertar el GPS -- solo vuela y pinta el punto azul del control.
+    geolocate.trigger();
+  } else if (boot.verPais) {
+    arranqueResuelto = true;
+    updateMarkers(); // sin flyTo de por medio no hay 'moveend' que lo dispare solo
   }
-});
+}
+boot.onElegir = () => { mapReady.then(resolverArranque); };
+mapReady.then(resolverArranque);
+
 // Éxito: cierra la pantalla de arranque igual con el disparo manual que con el automático de
-// map.on('load'). Error: solo interesa aquí si la pantalla sigue visible -- si no, ya lo habrá
-// gestionado el 'error' que registra map.on('load') para el intento silencioso.
+// map.on('load'). El error de la geolocalización pedida desde la pantalla lo pinta el propio
+// script inline, que es quien llamó a getCurrentPosition.
 geolocate.on('geolocate', hideStartOverlay);
-geolocate.on('error', () => {
-  if (startOverlayEl.hidden) return;
-  resetStartLocateBtn();
-  startStatusEl.textContent = 'No se pudo obtener tu ubicación. Prueba a buscar una dirección.';
-  startStatusEl.classList.add('error');
-});
-startSkipBtn.addEventListener('click', () => {
-  hideStartOverlay();
-  updateMarkers(); // sin flyTo de por medio no hay 'moveend' que lo dispare solo
-});
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && !startOverlayEl.hidden) startSkipBtn.click();
-});
 
 // Con los menús cerrados no se ve ningún control, así que las etiquetas tienen que decir qué se
 // está mirando: el combustible, y un contador en marcas y rangos cuando hay filtro activo.
@@ -1517,23 +1624,26 @@ map.on('load', async () => {
       .addTo(map);
   });
 
-  // Arranque: si el usuario YA concedió el permiso de localización (sin volver a preguntar), se
-  // centra el mapa en su posición y se marca, y solo entonces se piden las gasolineras de esa zona
-  // —el 'moveend' del vuelo dispara updateMarkers—, evitando la carga de todo el país en zoom 6.
-  // Si no hay permiso concedido de antemano (o la API no está), se muestra la pantalla de arranque
-  // (buscar una dirección, pedir el permiso con "Usar mi ubicación", o saltarla) en vez de cargar
-  // España entera de golpe sin haber preguntado nada.
-  let autoLocating = false;
-  if (navigator.permissions?.query) {
-    try {
-      const status = await navigator.permissions.query({ name: 'geolocation' });
-      if (status.state === 'granted') autoLocating = geolocate.trigger();
-    } catch { /* Permissions API no disponible para geolocation: se ignora y se sigue con España */ }
-  }
-  // Si la geolocalización falla tras concederse (GPS caído, etc.), no dejamos el mapa vacío
-  geolocate.on('error', () => { if (autoLocating) { autoLocating = false; updateMarkers(); } });
+  // A partir de aquí el mapa ya puede obedecer: se libera lo que el usuario haya elegido en la
+  // pantalla de arranque mientras todo esto cargaba (ver resolverArranque).
+  marcarMapaListo();
 
-  if (!autoLocating) showStartOverlay();
+  // Arranque automático: si el usuario YA había concedido el permiso de localización, la pantalla
+  // ni se llegó a enseñar (lo decidió window.__boot, sin esperar al mapa) y se va directo a su
+  // posición —el 'moveend' del vuelo dispara updateMarkers—, evitando la carga de todo el país en
+  // zoom 6. Si no había permiso, la pantalla lleva un rato visible y manda ella.
+  let autoLocating = false;
+  if (await boot.yaTeniaPermiso) {
+    autoLocating = geolocate.trigger();
+    // trigger() devuelve false si el control no estuviera listo; sin esto no se cargaría nada.
+    if (!autoLocating && !arranqueResuelto) { arranqueResuelto = true; updateMarkers(); }
+  }
+  // Si la geolocalización falla (GPS caído, etc.), no dejamos el mapa vacío: ni tras concederse de
+  // antemano, ni al venir de "Usar mi ubicación" con la pantalla ya cerrada.
+  geolocate.on('error', () => {
+    autoLocating = false;
+    updateMarkers();
+  });
 });
 
 // Caché del último tramo pedido al .fgb: si el bbox que hace falta ahora cae DENTRO del que ya se
@@ -1573,6 +1683,11 @@ function padBbox(bbox, factor) {
 
 // 5. Cargar únicamente las gasolineras visibles con FlatGeobuf, vía HTTP Range Request
 async function updateMarkers() {
+  // Red de seguridad: sin la fuente ni las capas creadas (map.on('load')) no hay dónde pintar, y
+  // ahora la pantalla de arranque responde mucho antes de que eso ocurra. Los caminos conocidos ya
+  // esperan por su cuenta (resolverArranque, flyToAddress), pero esto cubre cualquier 'moveend'
+  // temprano sin tener que acordarse de ello en cada sitio.
+  await mapReady;
   // Se carga a cualquier zoom: en vista alejada las estaciones se pintan como puntos (DOTS_LAYER_ID)
   // y al acercarse pasan a recuadros con precio (LAYER_ID).
   const bounds = map.getBounds();
