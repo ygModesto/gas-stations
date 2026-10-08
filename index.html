@@ -54,6 +54,35 @@
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --focus-ring: 0 0 0 3px rgb(161 161 170 / 0.5);
+    /* Check blanco sobre el relleno oscuro de las casillas marcadas */
+    --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fafafa' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    /* Los iconos de los controles de MapLibre (zoom, brújula, ubicación, "i") son imágenes oscuras:
+       en modo oscuro se invierten para que se vean sobre el fondo oscuro. */
+    --ctrl-icon-filter: none;
+    color-scheme: light dark;
+  }
+  /* Modo oscuro del sistema: el tema zinc oscuro de shadcn. El mapa base cambia a la vez (estilo
+     'dark' de OpenFreeMap, ver MAP_STYLE en el script). Las sombras se refuerzan porque sobre un
+     mapa oscuro las de opacidad 0.1 no despegan nada. */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #09090b;
+      --foreground: #fafafa;
+      --muted-foreground: #a1a1aa;
+      --accent: #27272a;
+      --border: #27272a;
+      --input: #3f3f46;
+      --ring: #71717a;
+      --primary: #fafafa;
+      --primary-foreground: #18181b;
+      --destructive: #f87171;
+      --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.45), 0 2px 4px -2px rgb(0 0 0 / 0.45);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+      --focus-ring: 0 0 0 3px rgb(113 113 122 / 0.5);
+      --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2318181b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+      --ctrl-icon-filter: invert(1);
+    }
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   /* 100dvh y no 100vh: en móvil, 100vh cuenta el alto CON la barra de direcciones retraída, así
@@ -192,7 +221,7 @@
   input[type="checkbox"]:checked {
     border-color: var(--primary);
     background-color: var(--primary);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fafafa' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    background-image: var(--check-icon);
   }
   input[type="radio"]:checked {
     border-color: var(--primary);
@@ -280,9 +309,23 @@
     box-shadow: var(--shadow-md);
     overflow: hidden;
   }
-  .maplibregl-ctrl-group button { width: 36px; height: 36px; }
+  .maplibregl-ctrl-group { background: var(--background); }
+  .maplibregl-ctrl-group button { width: 36px; height: 36px; color: var(--foreground); }
   .maplibregl-ctrl-group button + button { border-top: 1px solid var(--border); }
   .maplibregl-ctrl-group button:not(:disabled):hover { background-color: var(--accent); }
+  .maplibregl-ctrl-icon, .maplibregl-ctrl-attrib-button { filter: var(--ctrl-icon-filter); }
+  /* La atribución (la "i" y su texto al desplegarla) con los colores del tema */
+  .maplibregl-ctrl-attrib.maplibregl-compact { background: var(--background); color: var(--foreground); }
+  .maplibregl-ctrl-attrib a { color: var(--muted-foreground); }
+  /* El pico del popup, del mismo color que la tarjeta en cualquier lado donde caiga */
+  .maplibregl-popup-anchor-top .maplibregl-popup-tip,
+  .maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
+  .maplibregl-popup-anchor-top-right .maplibregl-popup-tip { border-bottom-color: var(--background); }
+  .maplibregl-popup-anchor-bottom .maplibregl-popup-tip,
+  .maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip,
+  .maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip { border-top-color: var(--background); }
+  .maplibregl-popup-anchor-left .maplibregl-popup-tip { border-right-color: var(--background); }
+  .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color: var(--background); }
 
   /* Leyenda de los rangos de precio: solo el grupo de toggles, flotando sobre el mapa sin tarjeta
      alrededor. Cada tramo es además un filtro. Apoyada a la misma altura que el botón "i" de la
@@ -362,10 +405,11 @@
     /* Opaco, no el rgba(...,0.97) de la leyenda. En una tarjeta pequeña ese 3% no se nota, pero
        detrás de un panel grande lleno de texto se transparentan los bocadillos y la leyenda, y la
        lista se lee sobre un fondo fantasma. */
-    background: #ffffff;
-    color: #0f172a;
-    border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+    background: var(--background);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
     z-index: 1100;
     overflow: hidden;
   }
@@ -375,7 +419,7 @@
     align-items: center;
     gap: 4px;
     padding: 4px 4px 4px 10px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--border);
     flex: none;
   }
   /* La cabecera es el control de plegado, así que es un botón y ocupa todo el ancho que sobra */
@@ -393,10 +437,10 @@
     text-align: left;
     cursor: pointer;
   }
-  .cheap-head-btn:hover { background: #f1f5f9; }
-  .cheap-title { font-weight: bold; font-size: 0.8rem; color: #334155; }
-  .cheap-count { flex: 1; font-size: 0.7rem; color: #94a3b8; white-space: nowrap; text-align: right; }
-  .cheap-chevron { flex: none; font-size: 0.8rem; color: #64748b; transition: transform 0.15s; }
+  .cheap-head-btn:hover { background: var(--accent); }
+  .cheap-title { font-weight: 600; font-size: 0.8rem; color: var(--foreground); }
+  .cheap-count { flex: 1; font-size: 0.7rem; color: var(--muted-foreground); white-space: nowrap; text-align: right; }
+  .cheap-chevron { flex: none; font-size: 0.8rem; color: var(--muted-foreground); transition: transform 0.15s; }
   #cheap-panel.is-min .cheap-chevron { transform: rotate(180deg); }
   .cheap-close {
     display: flex;
@@ -408,10 +452,10 @@
     border: none;
     border-radius: 6px;
     background: none;
-    color: #64748b;
+    color: var(--muted-foreground);
     cursor: pointer;
   }
-  .cheap-close:hover { background: #f1f5f9; color: #0f172a; }
+  .cheap-close:hover { background: var(--accent); color: var(--foreground); }
   #cheap-list { overflow-y: auto; padding: 4px; }
   /* Minimizado: solo la barra de cabecera. El alto deja de estar topado para que no quede un
      hueco blanco bajo ella. */
@@ -430,15 +474,20 @@
     text-align: left;
     cursor: pointer;
   }
-  .cheap-row:hover { background: #f1f5f9; }
-  .cheap-rank { flex: none; width: 16px; font-size: 0.72rem; color: #94a3b8; text-align: right; }
+  .cheap-row:hover { background: var(--accent); }
+  .cheap-rank { flex: none; width: 16px; font-size: 0.72rem; color: var(--muted-foreground); text-align: right; }
   /* El precio hereda el color de su tramo: el mismo que luce el bocadillo de esa gasolinera */
   .cheap-price {
     flex: none;
     font-weight: 700;
     font-size: 0.85rem;
     font-variant-numeric: tabular-nums;
-    color: var(--clase, #334155);
+    color: var(--clase, var(--foreground));
+  }
+  /* Los tonos de los tramos son oscuros a propósito (contraste sobre el blanco del bocadillo): como
+     texto sobre el fondo oscuro no se leerían, así que en modo oscuro se aclaran hacia el blanco. */
+  @media (prefers-color-scheme: dark) {
+    .cheap-price { color: color-mix(in srgb, var(--clase, var(--foreground)) 55%, white); }
   }
   /* Los tres son <span> (van dentro de un <button>, donde un <div> sería marcado inválido), así
      que necesitan display:block para apilarse y para que el recorte con puntos suspensivos del
@@ -448,13 +497,13 @@
     display: block;
     font-size: 0.8rem;
     font-weight: 600;
-    color: #0f172a;
+    color: var(--foreground);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .cheap-meta { display: block; font-size: 0.7rem; color: #64748b; }
-  .cheap-empty { padding: 14px 10px; font-size: 0.78rem; color: #64748b; text-align: center; }
+  .cheap-meta { display: block; font-size: 0.7rem; color: var(--muted-foreground); }
+  .cheap-empty { padding: 14px 10px; font-size: 0.78rem; color: var(--muted-foreground); text-align: center; }
   /* El botón que lo abre, dentro del grupo de controles del mapa (ver ListaControl) */
   .cheap-toggle { display: flex; align-items: center; justify-content: center; }
   .cheap-toggle[aria-pressed="true"] { background: var(--accent); }
@@ -645,6 +694,7 @@
      contenido y botón principal abajo). El pico de MapLibre se queda blanco, como el fondo. */
   .maplibregl-popup-content {
     padding: 16px;
+    background: var(--background);
     color: var(--foreground);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
@@ -941,10 +991,16 @@ window.__boot = (() => {
 // default, y con la versión fijada: un especificador sin versión o con @latest devuelve 404.
 import * as maplibregl from 'https://unpkg.com/maplibre-gl@6.6.0/dist/maplibre-gl.mjs';
 
-// 1. Inicializar mapa centrado en España con el estilo de OpenFreeMap (vector, gratis, sin API key)
+// 1. Inicializar mapa centrado en España con el estilo de OpenFreeMap (vector, gratis, sin API key).
+// En modo oscuro del sistema, su estilo 'dark', a juego con el tema oscuro del CSS. Se elige al
+// cargar: cambiar de estilo en caliente (setStyle) borraría la fuente, las capas y las ~190
+// imágenes de bocadillo, así que si el sistema cambia de modo con la página abierta, el mapa se
+// queda como estaba hasta recargar (los controles sí cambian al momento, son solo CSS).
+const DARK_MODE = window.matchMedia('(prefers-color-scheme: dark)').matches;
+const MAP_STYLE = 'https://tiles.openfreemap.org/styles/' + (DARK_MODE ? 'dark' : 'liberty');
 const map = new maplibregl.Map({
   container: 'map',
-  style: 'https://tiles.openfreemap.org/styles/liberty',
+  style: MAP_STYLE,
   center: [-3.703790, 40.416775],
   zoom: 6,
   attributionControl: false
@@ -1300,7 +1356,8 @@ async function flyToAddress(via, numero) {
   // corra en paralelo con lo que quede de carga.
   await mapReady;
   if (addressMarker) addressMarker.remove();
-  addressMarker = new maplibregl.Marker({ color: '#1e293b' })
+  // Pin claro sobre el mapa oscuro: el pizarra de siempre se perdería sobre él
+  addressMarker = new maplibregl.Marker({ color: DARK_MODE ? '#e4e4e7' : '#1e293b' })
     .setLngLat([lon, lat])
     .setPopup(new maplibregl.Popup().setHTML(esc(etiqueta) + '<br>' + esc(subtitulo)))
     .addTo(map);
