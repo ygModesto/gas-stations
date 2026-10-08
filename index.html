@@ -285,17 +285,23 @@
   .maplibregl-ctrl-group button:not(:disabled):hover { background-color: var(--accent); }
 
   /* Leyenda de los rangos de precio: solo el grupo de toggles, flotando sobre el mapa sin tarjeta
-     alrededor. Cada tramo es además un filtro. */
+     alrededor. Cada tramo es además un filtro. Apoyada a la misma altura que el botón "i" de la
+     atribución (10px sobre el borde, ver .maplibregl-ctrl-bottom-right) y sin llegar a él:
+     10 + 24 de la "i" + 8 de aire a la derecha. */
   #legend-block {
     position: absolute;
-    bottom: calc(25px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
     left: 10px;
-    max-width: calc(100% - 20px);
+    max-width: calc(100% - 52px);
     color: var(--foreground);
     font-size: 0.75rem;
     line-height: 1.5;
     z-index: 1000;
   }
+  /* La "i" de la atribución, por encima de la barra de gestos del iPhone igual que la leyenda, y
+     por encima de ella en apilado: al desplegar el texto, este crece hacia la izquierda y no debe
+     quedar detrás de la leyenda. */
+  .maplibregl-ctrl-bottom-right { bottom: env(safe-area-inset-bottom, 0px); z-index: 1001; }
   /* Los cuatro tramos en horizontal, como el ToggleGroup de shadcn (variante outline, segmentos
      unidos): cada uno es un toggle y pulsarlo muestra u oculta las gasolineras de ese tramo. Sin
      tarjeta debajo, la sombra es la de los demás controles flotantes para despegarse del mapa. */
@@ -473,11 +479,8 @@
        recorta un overflow que esté entre él y su bloque contenedor, y ahora ese bloque es la barra. */
     .filters .menu-wrap { position: static; }
     .filters .menu { left: 0; right: 0; min-width: 0; }
-    /* Más alta que antes: la atribución lleva ahora la fecha y, al abrirse, ocupa dos líneas */
     #legend-block {
-      bottom: calc(50px + env(safe-area-inset-bottom, 0px));
-      left: 8px;
-      right: 8px;
+      right: 42px;
       font-size: 0.7rem;
       line-height: 1.35;
     }
@@ -513,7 +516,7 @@
        justo detrás: se suben las dos por encima de ella. La atribución es de MapLibre, de ahí
        que haya que empujar su contenedor y no un elemento nuestro. */
     #map.cheap-min #legend-block {
-      bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+      bottom: calc(54px + env(safe-area-inset-bottom, 0px));
     }
     #map.cheap-min .maplibregl-ctrl-bottom-right,
     #map.cheap-min .maplibregl-ctrl-bottom-left {
@@ -987,8 +990,15 @@ const legendRowsEl = document.getElementById('legend-rows');
 // 3. Cargar la fecha desde meta.json ligero. Va en la atribución del mapa y no en la barra flotante:
 // la barra son los filtros y en móvil no cabe nada más. Por eso el control se añade aquí, cuando ya
 // se sabe el texto, en lugar de arrancar con 'Datos: MITECO' y tener que reescribirlo después.
-const addAttribution = (texto) =>
-  map.addControl(new maplibregl.AttributionControl({ customAttribution: texto }));
+// Siempre compacta y plegada: solo el botón "i", y el texto al pulsarlo. Las licencias del mapa base
+// (ODbL de OpenStreetMap, CC-BY de OpenMapTiles) y de MITECO piden que esté a la vista, pero no
+// desplegada. MapLibre la arranca desplegada y solo la pliega al mover el mapa, de ahí el ajuste.
+const addAttribution = (texto) => {
+  map.addControl(new maplibregl.AttributionControl({ customAttribution: texto, compact: true }));
+  const attribEl = document.querySelector('#map .maplibregl-ctrl-attrib');
+  attribEl?.classList.remove('maplibregl-compact-show');
+  attribEl?.removeAttribute('open');
+};
 fetch('./public/meta.json')
   .then(res => res.json())
   .then(meta => addAttribution('Datos: MITECO · Actualizado: ' + meta.fecha))
