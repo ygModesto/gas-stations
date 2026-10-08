@@ -33,209 +33,324 @@
 <script defer src="https://unpkg.com/flatgeobuf@4.4.0/dist/flatgeobuf-geojson.min.js"></script>
 
 <style>
+  /* Tokens de diseño de shadcn/ui (tema zinc): sus grises, radios, sombras y anillo de foco. La
+     librería en sí es de React y esto es un único HTML sin build, así que no se usa: solo su
+     lenguaje visual, aplicado a mano a los controles flotantes y a la pantalla de arranque. */
+  :root {
+    --background: #ffffff;
+    --foreground: #09090b;
+    --muted-foreground: #71717a;
+    --accent: #f4f4f5;
+    --border: #e4e4e7;
+    --input: #e4e4e7;
+    --ring: #a1a1aa;
+    --primary: #18181b;
+    --primary-foreground: #fafafa;
+    --destructive: #dc2626;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 10px;
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --focus-ring: 0 0 0 3px rgb(161 161 170 / 0.5);
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   /* 100dvh y no 100vh: en móvil, 100vh cuenta el alto CON la barra de direcciones retraída, así
      que el final de la página queda por debajo del borde visible y se comía la leyenda. La regla
      100vh se deja delante como respaldo para navegadores sin soporte de dvh. */
-  body { font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
-  header {
-    /* Por encima del mapa: los menús desplegables se abren sobre él */
-    position: relative;
-    z-index: 1200;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 10px;
-    background: #1e293b;
-    color: white;
-  }
-  /* Combustible, marcas y rangos van juntos en su propio grupo para poder ocultarlos enteros
-     mientras se busca (ver header.searching más abajo): el buscador necesita ese hueco. */
-  .filters { display: flex; align-items: center; gap: 8px; min-width: 0; }
-  header.searching .filters { display: none; }
-  #map { flex: 1; width: 100%; position: relative; }
-  /* El título ya no se ve (la barra son los filtros), pero se mantiene para lectores de pantalla */
+  body { font-family: system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+  /* --toolbar-bottom: dónde acaba la barra flotante, para que los paneles de arriba arranquen
+     debajo. El JS lo mide (cambia si los filtros saltan de línea); esto es solo el valor de partida. */
+  #map { flex: 1; width: 100%; position: relative; --toolbar-bottom: 46px; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-  /* La cabecera son los controles de filtro: combustible, marcas y rangos de precio. Cada botón
-     abre un menú bajo él; en móvil el menú ocupa todo el ancho (ver el @media de más abajo). */
-  .menu-wrap { position: relative; min-width: 0; }
-  .bar-btn {
+  /* Controles flotantes sobre el mapa (buscador y filtros), arriba a la izquierda. El contenedor
+     llega hasta la columna de controles de MapLibre (36px + 10px de margen a cada lado) pero no
+     captura clics, solo sus hijos: el hueco libre a la derecha de los botones sigue siendo mapa. */
+  .toolbar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 56px;
+    z-index: 1200;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+    pointer-events: none;
+  }
+  .toolbar > * { pointer-events: auto; }
+  .filters { display: flex; gap: 8px; max-width: 100%; }
+
+  /* Combustible, marcas y vista: cada botón abre un menú bajo él; en móvil el menú ocupa todo el
+     ancho de la barra (ver el @media de más abajo). */
+  .menu-wrap { position: relative; flex: none; max-width: 100%; }
+  /* Botón "outline" de shadcn. Con más sombra que el original (shadow-md en vez de xs) porque aquí
+     flota sobre un mapa lleno de detalle y tiene que despegarse de él. */
+  .btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     max-width: 100%;
-    min-height: 36px;
-    padding: 6px 12px;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    background: #334155;
-    color: #ffffff;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background);
+    color: var(--foreground);
+    box-shadow: var(--shadow-md);
     font: inherit;
     font-size: 0.875rem;
-    font-weight: 600;
+    font-weight: 500;
     white-space: nowrap;
     cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
   }
-  .bar-btn > span:first-child { overflow: hidden; text-overflow: ellipsis; }
-  .bar-btn:hover { background: #475569; }
-  .bar-btn:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
-  /* Abierto: borde claro. Los rangos no abren menú sino que se activan: van en el gris más claro. */
-  .bar-btn[aria-expanded="true"] { background: #475569; border-color: #cbd5e1; }
-  .bar-btn[aria-pressed="true"] { background: #475569; }
+  .btn > span:first-child { overflow: hidden; text-overflow: ellipsis; }
+  .btn:hover, .btn[aria-expanded="true"] { background: var(--accent); }
+  .btn:focus-visible { outline: none; border-color: var(--ring); box-shadow: var(--shadow-md), var(--focus-ring); }
   /* Punto de "aquí hay algo cambiado". Se usa en lugar de alargar la etiqueta con el detalle: el
      texto hacía crecer el botón y, en 360 px, eso se come a los de al lado ("Marcas" -> "Marc..").
      El qué está cambiado se lee abriendo el menú, que son dos casillas; el punto solo avisa. */
-  .bar-dot { width: 7px; height: 7px; border-radius: 50%; background: #93c5fd; flex: none; }
-  .bar-dot[hidden] { display: none; }
-  .caret { flex: none; font-size: 0.8em; transition: transform 0.15s; }
-  .bar-btn[aria-expanded="true"] .caret { transform: rotate(180deg); }
+  .btn-dot { width: 6px; height: 6px; border-radius: 50%; background: #2563eb; flex: none; }
+  .btn-dot[hidden] { display: none; }
+  .caret { flex: none; color: var(--muted-foreground); transition: transform 0.15s; }
+  .btn[aria-expanded="true"] .caret { transform: rotate(180deg); }
 
+  /* Desplegables con el aspecto del DropdownMenu de shadcn */
   .menu {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 6px);
     left: 0;
-    min-width: 230px;
-    /* Las 15 marcas no caben en un móvil apaisado: el menú scrollea en vez de salirse de pantalla */
+    min-width: 220px;
+    /* Las 40 marcas no caben en un móvil apaisado: el menú scrollea en vez de salirse de pantalla */
     max-height: 70vh;
     max-height: min(70dvh, 480px);
     overflow-y: auto;
-    padding: 6px;
-    background: #ffffff;
-    color: #0f172a;
-    border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
-    font-size: 0.9rem;
+    padding: 4px;
+    background: var(--background);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    font-size: 0.875rem;
   }
   .menu label {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px;
-    border-radius: 6px;
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
+    user-select: none;
   }
-  .menu label:hover { background: #f1f5f9; }
-  .menu input { flex: none; width: 16px; height: 16px; margin: 0; }
+  .menu label:hover { background: var(--accent); }
   /* Aclaración bajo una opción cuyo efecto no se adivina por el nombre */
-  .menu-note { padding: 2px 8px 6px; font-size: 0.72rem; line-height: 1.35; color: #64748b; }
+  .menu-note { padding: 4px 8px 6px; font-size: 0.75rem; line-height: 1.4; color: var(--muted-foreground); }
   #brand-list { display: grid; grid-template-columns: 1fr 1fr; }
-  #brand-actions { display: flex; gap: 6px; padding: 2px 2px 6px; }
+  #brand-actions {
+    display: flex;
+    gap: 6px;
+    padding: 4px 4px 8px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
   #brand-actions button {
     flex: 1;
-    padding: 7px 8px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    background: #f8fafc;
-    color: #334155;
+    height: 32px;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background);
+    color: var(--foreground);
+    box-shadow: var(--shadow-xs);
     font: inherit;
     font-size: 0.8rem;
+    font-weight: 500;
     cursor: pointer;
   }
-  #brand-actions button:hover { background: #e2e8f0; }
+  #brand-actions button:hover { background: var(--accent); }
 
-  /* Buscador de direcciones: la lupa ES el botón (mismo aspecto que el resto de .bar-btn en
-     reposo) y se convierte en el campo de texto al pulsarla, en vez de abrir un desplegable
-     aparte con un input dentro. #address-wrap crece con la cabecera al buscar (ver
-     header.searching arriba) para tener sitio; en reposo ocupa justo lo que ocupa el icono. */
-  #address-wrap { flex: none; }
-  header.searching #address-wrap { flex: 1; min-width: 0; }
-  .search-pill {
+  /* Checkbox y radio de shadcn: 16px, borde fino y, marcados, relleno oscuro (check blanco en el
+     checkbox, punto en el radio). Globales: los únicos que hay son los de los menús y la leyenda. */
+  input[type="checkbox"], input[type="radio"] {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    border: 1px solid var(--input);
+    background: var(--background) center / 12px no-repeat;
+    box-shadow: var(--shadow-xs);
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+  }
+  input[type="checkbox"] { border-radius: var(--radius-sm); }
+  input[type="radio"] { border-radius: 50%; }
+  input[type="checkbox"]:checked {
+    border-color: var(--primary);
+    background-color: var(--primary);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fafafa' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+  }
+  input[type="radio"]:checked {
+    border-color: var(--primary);
+    background-image: radial-gradient(circle, var(--primary) 0 4px, transparent 4.5px);
+  }
+  input[type="checkbox"]:focus-visible, input[type="radio"]:focus-visible {
+    outline: none;
+    border-color: var(--ring);
+    box-shadow: var(--focus-ring);
+  }
+
+  /* Buscador de direcciones: un Input de shadcn con la lupa dentro, siempre visible. La lupa es un
+     <label> del propio campo, así que pulsarla lo enfoca sin necesidad de JS. */
+  #address-wrap { width: 300px; }
+  .search-box {
     display: flex;
     align-items: center;
-    min-height: 36px;
-    background: #334155;
-    border-radius: 8px;
-    transition: background 0.15s;
+    height: 36px;
+    padding-right: 4px;
+    border: 1px solid var(--input);
+    border-radius: var(--radius-md);
+    background: var(--background);
+    box-shadow: var(--shadow-md);
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
-  .search-pill:focus-within, .search-pill.expanded { background: #475569; }
-  #address-toggle {
+  .search-box:focus-within { border-color: var(--ring); box-shadow: var(--shadow-md), var(--focus-ring); }
+  .search-icon {
     display: flex;
     align-items: center;
     justify-content: center;
     flex: none;
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    border: none;
-    border-radius: 8px;
-    background: none;
-    color: #ffffff;
-    cursor: pointer;
+    width: 34px;
+    height: 100%;
+    color: var(--muted-foreground);
+    cursor: text;
   }
-  #address-toggle:hover { background: rgba(255, 255, 255, 0.12); }
-  #address-toggle:focus-visible { outline: 2px solid #93c5fd; outline-offset: -2px; }
-  /* Ancho 0 -> el ancho real es lo que hace crecer la píldora: es el "convertirse en input". */
   #address-input {
-    width: 0;
+    flex: 1;
     min-width: 0;
-    padding: 0;
+    height: 100%;
     border: none;
+    outline: none;
     background: none;
-    color: #ffffff;
+    color: var(--foreground);
     font: inherit;
     font-size: 0.875rem;
-    transition: width 0.2s ease, padding 0.2s ease;
   }
-  #address-input::placeholder { color: #94a3b8; }
-  #address-input:focus { outline: none; }
-  .search-pill.expanded #address-input { width: 220px; padding: 0 2px; }
-  header.searching .search-pill.expanded #address-input { width: auto; flex: 1; }
+  #address-input::placeholder { color: var(--muted-foreground); }
+  /* La X solo aparece con algo escrito: :placeholder-shown lo sabe sin tener que vigilarlo por JS */
+  #address-input:placeholder-shown + #address-close { display: none; }
   #address-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex: none;
-    width: 0;
-    overflow: hidden;
-    padding: 0;
+    width: 28px;
+    height: 28px;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     background: none;
-    color: #cbd5e1;
+    color: var(--muted-foreground);
     cursor: pointer;
   }
-  .search-pill.expanded #address-close { width: 32px; height: 32px; margin-right: 2px; }
-  #address-close:hover { color: #ffffff; }
-  #address-close svg { display: block; margin: auto; }
+  #address-close:hover { background: var(--accent); color: var(--foreground); }
+  #address-close:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
-  .menu-search { width: 280px; max-width: calc(100vw - 20px); padding: 8px; }
-  #address-status { padding: 4px 2px 2px; font-size: 0.78rem; color: #64748b; }
-  #address-status.error { color: #b91c1c; }
-  .address-result { display: block; width: 100%; padding: 7px 6px; border: none; background: none;
-    text-align: left; font: inherit; cursor: pointer; border-radius: 6px; }
-  .address-result:hover { background: #f1f5f9; }
-  .address-result .addr-name { font-weight: 600; font-size: 0.85rem; color: #0f172a; }
-  .address-result .addr-meta { font-size: 0.75rem; color: #64748b; margin-top: 1px; }
-  .address-result .addr-dist { color: #334155; font-weight: 600; }
+  /* Los resultados, del mismo ancho que el buscador */
+  .menu-search { right: 0; min-width: 0; }
+  #address-status { padding: 6px 8px; font-size: 0.8rem; color: var(--muted-foreground); }
+  #address-status:empty { display: none; }
+  #address-status.error, #start-status.error { color: var(--destructive); }
+  /* Filas de resultado, como los items del Command de shadcn */
+  .address-result { display: block; width: 100%; padding: 6px 8px; border: none; background: none;
+    text-align: left; font: inherit; cursor: pointer; border-radius: var(--radius-sm); }
+  .address-result:hover, .address-result:focus-visible { background: var(--accent); outline: none; }
+  .address-result .addr-name { font-weight: 500; font-size: 0.875rem; color: var(--foreground); }
+  .address-result .addr-meta { font-size: 0.75rem; color: var(--muted-foreground); margin-top: 1px; }
+  .address-result .addr-dist { color: var(--foreground); font-weight: 500; }
 
-  /* Leyenda de los rangos de precio: tarjeta sobre el mapa. Cada fila es además un filtro. */
+  /* Controles nativos de MapLibre (zoom, ubicación, lista) con el mismo acabado y el mismo alto
+     de 36px que los de la izquierda, para que las dos columnas arranquen y se lean igual. */
+  .maplibregl-ctrl-group:not(:empty) {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+  .maplibregl-ctrl-group button { width: 36px; height: 36px; }
+  .maplibregl-ctrl-group button + button { border-top: 1px solid var(--border); }
+  .maplibregl-ctrl-group button:not(:disabled):hover { background-color: var(--accent); }
+
+  /* Leyenda de los rangos de precio: solo el grupo de toggles, flotando sobre el mapa sin tarjeta
+     alrededor. Cada tramo es además un filtro. */
   #legend-block {
     position: absolute;
     bottom: calc(25px + env(safe-area-inset-bottom, 0px));
     left: 10px;
     max-width: calc(100% - 20px);
-    padding: 7px 10px 8px;
-    background: rgba(255, 255, 255, 0.96);
-    color: #0f172a;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    color: var(--foreground);
     font-size: 0.75rem;
     line-height: 1.5;
     z-index: 1000;
   }
-  .legend-title { font-weight: bold; color: #334155; margin-bottom: 2px; }
-  .legend-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; cursor: pointer; }
-  .legend-row input { flex: none; margin: 0; }
-  .legend-swatch { width: 12px; height: 12px; border-radius: 2px; flex: none; }
+  /* Los cuatro tramos en horizontal, como el ToggleGroup de shadcn (variante outline, segmentos
+     unidos): cada uno es un toggle y pulsarlo muestra u oculta las gasolineras de ese tramo. Sin
+     tarjeta debajo, la sombra es la de los demás controles flotantes para despegarse del mapa. */
+  .toggle-group { display: flex; border-radius: var(--radius-md); box-shadow: var(--shadow-md); }
+  .toggle {
+    display: inline-flex;
+    flex: 1 1 0;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    min-height: 32px;
+    padding: 4px 10px;
+    border: 1px solid var(--input);
+    background: var(--background);
+    color: var(--muted-foreground);
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+  }
+  .toggle + .toggle { border-left: none; }
+  .toggle:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+  .toggle:last-child { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .toggle:hover { background: var(--accent); color: var(--foreground); }
+  .toggle[aria-pressed="true"] { background: var(--accent); color: var(--foreground); }
+  .toggle:focus-visible { outline: none; position: relative; box-shadow: var(--focus-ring); }
+  /* El color del tramo dibujado como un checkbox, para que se lea que el toggle se puede pulsar:
+     marcado, relleno del color con el check blanco; desmarcado, solo el borde del color. Es
+     decorativo (aria-hidden): quien recibe el clic y anuncia el estado es el botón entero. */
+  .legend-check {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    border: 2px solid var(--c);
+    border-radius: var(--radius-sm);
+    background: var(--c) center / 12px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    transition: background-color 0.15s;
+  }
+  .toggle[aria-pressed="false"] .legend-check { background: var(--background); }
 
-  /* Panel de las más baratas. Flota sobre el mapa, a la izquierda de los controles de zoom, y no
-     en la cabecera: necesita alto para la lista y ahí arriba no lo hay. Por encima de la leyenda
-     (z-index 1000) porque al abrirlo es lo que el usuario está mirando. */
+  /* Panel de las más baratas. Flota sobre el mapa, a la izquierda de los controles de zoom y por
+     debajo de la barra flotante (--toolbar-bottom), que en pantallas medianas llega hasta aquí.
+     Por encima de la leyenda (z-index 1000) porque al abrirlo es lo que el usuario está mirando. */
   #cheap-panel {
     position: absolute;
-    top: 10px;
-    right: 52px;
+    top: calc(var(--toolbar-bottom) + 10px);
+    right: 56px;
     width: 290px;
-    max-width: calc(100% - 62px);
-    max-height: calc(100% - 20px);
+    max-width: calc(100% - 66px);
+    max-height: calc(100% - var(--toolbar-bottom) - 20px);
     display: flex;
     flex-direction: column;
     /* Opaco, no el rgba(...,0.97) de la leyenda. En una tarjeta pequeña ese 3% no se nota, pero
@@ -336,34 +451,52 @@
   .cheap-empty { padding: 14px 10px; font-size: 0.78rem; color: #64748b; text-align: center; }
   /* El botón que lo abre, dentro del grupo de controles del mapa (ver ListaControl) */
   .cheap-toggle { display: flex; align-items: center; justify-content: center; }
-  .cheap-toggle[aria-pressed="true"] { background: #e2e8f0; }
+  .cheap-toggle[aria-pressed="true"] { background: var(--accent); }
 
   @media (max-width: 600px) {
-    header { gap: 6px; padding: 6px 8px; }
-    .bar-btn { padding: 6px 10px; font-size: 0.8rem; }
-    /* Sin posicionar el contenedor, el menú se ancla a la cabecera y ocupa todo el ancho */
-    .menu-wrap { position: static; }
-    .menu { left: 8px; right: 8px; top: calc(100% + 6px); min-width: 0; }
+    /* Buscador + fila de filtros: 10 + 36 + 8 + 36 */
+    #map { --toolbar-bottom: 90px; }
+    #address-wrap { flex: 1 1 100%; width: auto; }
+    /* Los filtros en su propia fila, deslizable en horizontal si no caben, como los chips de
+       Google Maps. El padding inferior (compensado con margen negativo) es para que el scroll no
+       recorte la sombra de los botones. */
+    .filters {
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 0 2px 6px;
+      margin: 0 -2px -6px;
+    }
+    .filters::-webkit-scrollbar { display: none; }
+    .btn { padding: 0 10px; font-size: 0.8rem; }
+    /* Sin posicionar su .menu-wrap, el desplegable se ancla a la barra entera y ocupa todo su
+       ancho. Además así escapa del recorte de la fila con scroll: un elemento absoluto solo lo
+       recorta un overflow que esté entre él y su bloque contenedor, y ahora ese bloque es la barra. */
+    .filters .menu-wrap { position: static; }
+    .filters .menu { left: 0; right: 0; min-width: 0; }
     /* Más alta que antes: la atribución lleva ahora la fecha y, al abrirse, ocupa dos líneas */
     #legend-block {
       bottom: calc(50px + env(safe-area-inset-bottom, 0px));
       left: 8px;
+      right: 8px;
       font-size: 0.7rem;
       line-height: 1.35;
     }
+    /* Los cuatro tramos no caben en una línea cada uno: el rango parte en dos ("1.679 € –" / "1.769 €")
+       dentro de su toggle en vez de desbordar la fila. */
+    .toggle { padding: 4px 6px; gap: 5px; font-size: 0.7rem; white-space: normal; text-align: left; }
     /* En móvil la lista ocupa todo el mapa, no una hoja a media altura. Con media pantalla se
        veían cinco filas y la sexta cortada, que es justo lo que no sirve cuando lo que buscas es
-       comparar precios. La cabecera de la app se deja fuera a propósito: desde la lista se puede
-       cambiar de combustible o de marca y verla reordenarse. */
+       comparar precios. La barra flotante se deja fuera a propósito (la hoja arranca debajo):
+       desde la lista se puede cambiar de combustible o de marca y verla reordenarse. */
     #cheap-panel {
-      top: 0;
+      top: calc(var(--toolbar-bottom) + 8px);
       right: 0;
       left: 0;
       bottom: 0;
       width: auto;
       max-width: none;
       max-height: none;
-      border-radius: 0;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
       /* El área segura (barra de gestos del iPhone) se respeta por dentro, para que la última
          fila no quede debajo de ella pero el blanco sí llegue al borde de la pantalla. */
       padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -388,9 +521,9 @@
     }
   }
 
-  /* Pantalla de arranque: scrim sobre TODO (incluida la cabecera, position:fixed + z-index por
-     encima de header) para que la única acción posible sea elegir dónde empezar. El scrim es
-     translúcido a propósito: "que se vea el mapa al fondo" mientras carga detrás. */
+  /* Pantalla de arranque: el Dialog de shadcn. Scrim sobre TODO (position:fixed + z-index por
+     encima de la barra flotante) para que la única acción posible sea elegir dónde empezar. El
+     scrim es translúcido a propósito: "que se vea el mapa al fondo" mientras carga detrás. */
   .start-overlay {
     position: fixed;
     inset: 0;
@@ -399,129 +532,183 @@
     align-items: center;
     justify-content: center;
     padding: 16px;
-    background: rgba(15, 23, 42, 0.45);
+    background: rgb(0 0 0 / 0.5);
   }
   /* .start-overlay ya fija display:flex, con la MISMA especificidad que el [hidden] del navegador
      (display:none) -- y al declararse despues, gana la nuestra: poner hidden=true por JS no
      ocultaba nada. Esta regla, mas especifica, es la que de verdad lo oculta. */
   .start-overlay[hidden] { display: none; }
   .start-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
     width: 100%;
-    max-width: 360px;
+    max-width: 420px;
     max-height: calc(100dvh - 32px);
     overflow-y: auto;
-    background: #ffffff;
-    color: #0f172a;
-    border-radius: 14px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-    padding: 20px;
+    padding: 24px;
+    background: var(--background);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
   }
-  .start-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 14px; text-align: center; }
+  .start-header { display: flex; flex-direction: column; gap: 6px; }
+  .start-title { font-size: 1.125rem; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; }
+  .start-desc { font-size: 0.875rem; line-height: 1.45; color: var(--muted-foreground); }
+  .start-search { display: flex; flex-direction: column; gap: 6px; }
   .start-search-row {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 9px 12px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--input);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xs);
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
-  .start-search-row svg { flex: none; color: #64748b; }
-  .start-search-row input { flex: 1; min-width: 0; border: none; outline: none; font: inherit; font-size: 0.9rem; }
-  #start-status { padding: 6px 2px 0; font-size: 0.78rem; color: #64748b; min-height: 1.1em; }
-  #start-status.error { color: #b91c1c; }
-  /* Reutiliza .address-result (mismo estilo de fila que el buscador de la cabecera) con algo más
-     de aire, porque aquí no compite con nada más dentro de un desplegable estrecho. */
-  #start-results .address-result { padding: 9px 8px; }
-  .start-divider { display: flex; align-items: center; gap: 10px; margin: 14px 0; color: #94a3b8; font-size: 0.78rem; }
-  .start-divider::before, .start-divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+  .start-search-row:focus-within { border-color: var(--ring); box-shadow: var(--focus-ring); }
+  .start-search-row svg { flex: none; color: var(--muted-foreground); }
+  .start-search-row input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: none;
+    color: var(--foreground);
+    font: inherit;
+    font-size: 0.875rem;
+  }
+  .start-search-row input::placeholder { color: var(--muted-foreground); }
+  #start-status { padding: 0 2px; font-size: 0.8rem; color: var(--muted-foreground); }
+  /* Vacíos no deben ocupar hueco: el gap del flex los contaría igual */
+  #start-status:empty, #start-results:empty { display: none; }
+  .start-divider { display: flex; align-items: center; gap: 12px; color: var(--muted-foreground); font-size: 0.75rem; }
+  .start-divider::before, .start-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .start-actions { display: flex; flex-direction: column; gap: 8px; }
+  /* Botón "default" (primario) de shadcn */
   .start-locate-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     width: 100%;
-    padding: 10px;
+    height: 36px;
+    padding: 0 16px;
     border: none;
-    border-radius: 8px;
-    background: #334155;
-    color: #ffffff;
+    border-radius: var(--radius-md);
+    background: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: var(--shadow-xs);
     font: inherit;
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 0.875rem;
+    font-weight: 500;
     cursor: pointer;
+    transition: opacity 0.15s;
   }
-  .start-locate-btn:hover { background: #475569; }
-  .start-locate-btn:disabled { opacity: 0.7; cursor: default; }
+  .start-locate-btn:hover { opacity: 0.9; }
+  .start-locate-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .start-locate-btn:disabled { opacity: 0.5; cursor: default; }
+  /* Botón "ghost" de shadcn: la vía secundaria, sin competir con la principal */
   .start-skip-btn {
-    display: block;
     width: 100%;
-    margin-top: 10px;
-    padding: 6px;
+    height: 36px;
+    padding: 0 16px;
     border: none;
+    border-radius: var(--radius-md);
     background: none;
-    color: #64748b;
+    color: var(--foreground);
     font: inherit;
-    font-size: 0.82rem;
-    text-decoration: underline;
+    font-size: 0.875rem;
+    font-weight: 500;
     cursor: pointer;
   }
-  .start-skip-btn:hover { color: #334155; }
+  .start-skip-btn:hover { background: var(--accent); }
+  .start-skip-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
-  /* La ventana de la gasolinera hereda el lenguaje de la leyenda: misma tarjeta, mismos grises y
-     ninguna de las dos cosas que la desentonaban -- el verde #16a34a de la paleta vieja, que ya
-     no existe en el resto de la app, y los cuatro precios en lista plana. */
-  .maplibregl-popup-content {
-    padding: 10px 12px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+  /* Entradas de los desplegables y del diálogo, como las de shadcn (fade + zoom corto) */
+  @media (prefers-reduced-motion: no-preference) {
+    .menu:not([hidden]) { animation: pop-in 0.12s ease-out; }
+    .start-overlay:not([hidden]) { animation: fade-in 0.15s ease-out; }
+    .start-overlay:not([hidden]) .start-card { animation: zoom-in 0.15s ease-out; }
   }
-  .popup-title { font-weight: bold; font-size: 0.95rem; color: #0f172a; line-height: 1.3; }
-  .popup-addr { font-size: 0.75rem; color: #475569; margin-top: 2px; }
-  .popup-sub { font-size: 0.72rem; color: #94a3b8; }
+  @keyframes pop-in { from { opacity: 0; transform: translateY(-4px) scale(0.98); } }
+  @keyframes fade-in { from { opacity: 0; } }
+  @keyframes zoom-in { from { opacity: 0; transform: scale(0.96); } }
+
+  /* Ventana de la gasolinera: una Card de shadcn (cabecera con título y descripción, separador,
+     contenido y botón principal abajo). El pico de MapLibre se queda blanco, como el fondo. */
+  .maplibregl-popup-content {
+    padding: 16px;
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    font-family: inherit;
+  }
+  .popup-header { display: flex; flex-direction: column; gap: 4px; }
+  .popup-title { font-weight: 600; font-size: 0.95rem; line-height: 1.3; letter-spacing: -0.01em; }
+  .popup-desc { font-size: 0.8rem; line-height: 1.4; color: var(--muted-foreground); }
+  .popup-meta {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--muted-foreground);
+  }
+  .popup-meta svg { flex: none; margin-top: 2px; }
 
   .popup-prices {
-    margin-top: 8px;
-    padding-top: 6px;
-    border-top: 1px solid #e2e8f0;
-    font-size: 0.78rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
   }
   /* Nombre a la izquierda y precio a la derecha: alineados en columna se comparan de un vistazo,
      que es justo lo que no permitia el "Diesel: 1.789 EUR" corrido de antes. */
   .popup-price-row {
     display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 2px 4px;
-    border-left: 3px solid transparent;
-    color: #334155;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    border-radius: var(--radius-sm);
+    color: var(--muted-foreground);
   }
-  .popup-price-row span:last-child { font-variant-numeric: tabular-nums; }
+  .popup-price-row .fuel { flex: 1; }
+  .popup-price-row .price { font-variant-numeric: tabular-nums; color: var(--foreground); }
   /* El combustible activo se marca con el color de su tramo de precio: el mismo del marcador y
      el de la leyenda, asi que la ventana dice a que clase pertenece sin explicarlo. */
-  .popup-price-row.is-selected {
-    font-weight: bold;
-    color: #0f172a;
-    background: #f1f5f9;
-    border-left-color: var(--clase);
-    border-radius: 0 4px 4px 0;
-  }
-  .popup-price-row .sin-dato { color: #cbd5e1; font-weight: normal; }
+  .popup-price-row .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: transparent; }
+  .popup-price-row.is-selected { background: var(--accent); color: var(--foreground); font-weight: 600; }
+  .popup-price-row.is-selected .dot { background: var(--clase); }
+  .popup-price-row .sin-dato { color: var(--muted-foreground); font-weight: 400; }
 
+  /* Botón "default" de shadcn, a todo el ancho */
   .popup-nav {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    margin-top: 10px;
-    padding: 7px 10px;
-    border-radius: 6px;
-    background: #334155;
-    color: #ffffff;
-    font-size: 0.78rem;
-    font-weight: bold;
+    gap: 8px;
+    height: 36px;
+    margin-top: 12px;
+    border-radius: var(--radius-md);
+    background: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: var(--shadow-xs);
+    font-size: 0.85rem;
+    font-weight: 500;
     text-decoration: none;
+    transition: opacity 0.15s;
   }
-  .popup-nav:hover { background: #475569; }
+  .popup-nav:hover { opacity: 0.9; }
+  .popup-nav:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
 </style>
 </head>
@@ -533,26 +720,32 @@
      evita pedir TODAS las gasolineras de España en el primer pintado.
      La maneja el script inline que va justo detrás, NO el módulo del final: así está viva nada más
      parsearse, sin esperar a MapLibre ni al mapa. -->
-<div id="start-overlay" class="start-overlay" role="dialog" aria-modal="true" aria-label="Elige dónde empezar" hidden>
+<div id="start-overlay" class="start-overlay" role="dialog" aria-modal="true" aria-labelledby="start-title" aria-describedby="start-desc" hidden>
   <div class="start-card">
-    <div class="start-title">¿Dónde quieres ver los precios?</div>
-    <div class="start-search-row">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-        <circle cx="11" cy="11" r="7" />
-        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-      </svg>
-      <input id="start-input" type="text" placeholder="Busca una calle o dirección..." autocomplete="off" />
+    <div class="start-header">
+      <h2 id="start-title" class="start-title">¿Dónde quieres ver los precios?</h2>
+      <p id="start-desc" class="start-desc">Busca una dirección o usa tu ubicación para ver las gasolineras de la zona.</p>
     </div>
-    <div id="start-status" class="start-status"></div>
-    <div id="start-results"></div>
+    <div class="start-search">
+      <div class="start-search-row">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+        </svg>
+        <input id="start-input" type="text" placeholder="Busca una calle o dirección" aria-label="Buscar dirección" autocomplete="off" />
+      </div>
+      <div id="start-status" class="start-status"></div>
+      <div id="start-results"></div>
+    </div>
     <div class="start-divider"><span>o</span></div>
-    <button id="start-locate-btn" type="button" class="start-locate-btn">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
-      </svg>
-      <span id="start-locate-label">Usar mi ubicación</span>
-    </button>
-    <button id="start-skip-btn" type="button" class="start-skip-btn">Ver todo el país</button>
+    <div class="start-actions">
+      <button id="start-locate-btn" type="button" class="start-locate-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+        </svg>
+        <span id="start-locate-label">Usar mi ubicación</span>
+      </button>
+      <button id="start-skip-btn" type="button" class="start-skip-btn">Ver todo el país</button>
+    </div>
   </div>
 </div>
 
@@ -637,76 +830,84 @@ window.__boot = (() => {
 })();
 </script>
 
-<header>
-  <h1 class="sr-only">Gasolineras España</h1>
-
-  <div class="menu-wrap" id="address-wrap">
-    <div class="search-pill" id="search-pill">
-      <button id="address-toggle" type="button" aria-expanded="false" aria-controls="address-menu" aria-label="Buscar dirección">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-          <circle cx="11" cy="11" r="7" />
-          <line x1="21" y1="21" x2="16.65" y2="16.65" />
-        </svg>
-      </button>
-      <input id="address-input" type="text" placeholder="Calle, dirección..." autocomplete="off" />
-      <button id="address-close" type="button" aria-label="Cerrar búsqueda" tabindex="-1">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-          <line x1="5" y1="5" x2="19" y2="19" /><line x1="19" y1="5" x2="5" y2="19" />
-        </svg>
-      </button>
-    </div>
-    <div id="address-menu" class="menu menu-search" hidden>
-      <div id="address-status"></div>
-      <div id="address-results"></div>
-    </div>
-  </div>
-
-  <div class="filters">
-    <div class="menu-wrap">
-      <button id="fuel-btn" class="bar-btn" type="button" aria-expanded="false" aria-controls="fuel-menu">
-        <span id="fuel-btn-label"></span><span class="caret" aria-hidden="true">▾</span>
-      </button>
-      <div id="fuel-menu" class="menu" hidden>
-        <div id="fuel-list"></div>
-      </div>
-    </div>
-
-    <div class="menu-wrap">
-      <button id="brand-btn" class="bar-btn" type="button" aria-expanded="false" aria-controls="brand-menu">
-        <span id="brand-btn-label">Marcas</span><span class="caret" aria-hidden="true">▾</span>
-      </button>
-      <div id="brand-menu" class="menu" hidden>
-        <div id="brand-actions">
-          <button type="button" data-all="1">Todas</button>
-          <button type="button" data-all="0">Ninguna</button>
-        </div>
-        <div id="brand-list"></div>
-      </div>
-    </div>
-
-    <!-- Opciones de lo que se ve en el mapa, que no filtran datos sino cómo se pintan. Antes
-         "Rangos" era un botón suelto; al llegar el segundo interruptor (mostrar todos los
-         bocadillos) se agrupan aquí para no sumar otro botón a una barra que en móvil va justa. -->
-    <div class="menu-wrap">
-      <button id="view-btn" class="bar-btn" type="button" aria-expanded="false" aria-controls="view-menu">
-        <span id="view-btn-label">Vista</span><span id="view-dot" class="bar-dot" hidden></span><span class="caret" aria-hidden="true">▾</span>
-      </button>
-      <div id="view-menu" class="menu" hidden>
-        <label><input type="checkbox" id="view-ranges" /> Rangos de precio</label>
-        <label><input type="checkbox" id="view-all-markers" /> Mostrar todos los precios</label>
-        <div class="menu-note">
-          Con esta opción apagada, cuando dos bocadillos se pisan solo se ve el de la gasolinera
-          más barata; la otra se queda como punto.
-        </div>
-      </div>
-    </div>
-  </div>
-</header>
+<h1 class="sr-only">Gasolineras España</h1>
 
 <div id="map">
+  <!-- Buscador y filtros flotando sobre el mapa, arriba a la izquierda (los controles de MapLibre
+       ocupan la columna de la derecha). Dentro de #map y no fuera para posicionarse contra él,
+       igual que la leyenda y el panel de las más baratas. -->
+  <div id="toolbar" class="toolbar">
+    <div class="menu-wrap" id="address-wrap">
+      <div class="search-box">
+        <label for="address-input" class="search-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+          </svg>
+        </label>
+        <input id="address-input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false"
+               aria-controls="address-menu" aria-label="Buscar dirección" placeholder="Buscar calle o dirección" autocomplete="off" />
+        <button id="address-close" type="button" aria-label="Borrar la búsqueda">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div id="address-menu" class="menu menu-search" hidden>
+        <div id="address-status"></div>
+        <div id="address-results"></div>
+      </div>
+    </div>
+
+    <div class="filters">
+      <div class="menu-wrap">
+        <button id="fuel-btn" class="btn" type="button" aria-expanded="false" aria-controls="fuel-menu">
+          <span id="fuel-btn-label"></span>
+          <svg class="caret" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+        </button>
+        <div id="fuel-menu" class="menu" hidden>
+          <div id="fuel-list"></div>
+        </div>
+      </div>
+
+      <div class="menu-wrap">
+        <button id="brand-btn" class="btn" type="button" aria-expanded="false" aria-controls="brand-menu">
+          <span id="brand-btn-label">Marcas</span>
+          <svg class="caret" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+        </button>
+        <div id="brand-menu" class="menu" hidden>
+          <div id="brand-actions">
+            <button type="button" data-all="1">Todas</button>
+            <button type="button" data-all="0">Ninguna</button>
+          </div>
+          <div id="brand-list"></div>
+        </div>
+      </div>
+
+      <!-- Opciones de lo que se ve en el mapa, que no filtran datos sino cómo se pintan. Antes
+           "Rangos" era un botón suelto; al llegar el segundo interruptor (mostrar todos los
+           bocadillos) se agrupan aquí para no sumar otro botón a una barra que en móvil va justa. -->
+      <div class="menu-wrap">
+        <button id="view-btn" class="btn" type="button" aria-expanded="false" aria-controls="view-menu">
+          <span id="view-btn-label">Vista</span><span id="view-dot" class="btn-dot" hidden></span>
+          <svg class="caret" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+        </button>
+        <div id="view-menu" class="menu" hidden>
+          <label><input type="checkbox" id="view-ranges" /> Rangos de precio</label>
+          <label><input type="checkbox" id="view-all-markers" /> Mostrar todos los precios</label>
+          <div class="menu-note">
+            Con esta opción apagada, cuando dos bocadillos se pisan solo se ve el de la gasolinera
+            más barata; la otra se queda como punto.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="legend-block" hidden>
-    <div id="legend-title" class="legend-title"></div>
-    <div id="legend-rows"></div>
+    <!-- Sin título visible: el combustible ya lo dice su botón. Se queda para lectores de pantalla,
+         que es quien da nombre al grupo de toggles. -->
+    <div id="legend-title" class="sr-only"></div>
+    <div id="legend-rows" class="toggle-group" role="group" aria-labelledby="legend-title"></div>
   </div>
 
   <!-- Lista de las más baratas de lo que se está viendo. El botón que la abre no está aquí: se
@@ -783,8 +984,8 @@ const legendBlockEl = document.getElementById('legend-block');
 const legendTitleEl = document.getElementById('legend-title');
 const legendRowsEl = document.getElementById('legend-rows');
 
-// 3. Cargar la fecha desde meta.json ligero. Va en la atribución del mapa y no en la cabecera: la
-// cabecera son los filtros y en móvil no cabe nada más. Por eso el control se añade aquí, cuando ya
+// 3. Cargar la fecha desde meta.json ligero. Va en la atribución del mapa y no en la barra flotante:
+// la barra son los filtros y en móvil no cabe nada más. Por eso el control se añade aquí, cuando ya
 // se sabe el texto, en lugar de arrancar con 'Datos: MITECO' y tener que reescribirlo después.
 const addAttribution = (texto) =>
   map.addControl(new maplibregl.AttributionControl({ customAttribution: texto }));
@@ -925,10 +1126,10 @@ let showAllMarkers = prefs.showAllMarkers === true;
 // la clase de cada gasolinera.
 let selectedRanges = selectedFromExcluded(BADGE_IDS, prefs.excludedRanges);
 
-// Barra de filtros de la cabecera: el buscador de direcciones, dos botones que abren un menú
-// (combustible y marcas) y uno que activa o no la leyenda de rangos. Con los menús cerrados, cada
-// botón dice en su etiqueta qué está filtrado.
-const headerEl = document.querySelector('header');
+// Controles flotantes sobre el mapa: el buscador de direcciones y tres botones que abren un menú
+// (combustible, marcas y vista). Con los menús cerrados, cada botón dice en su etiqueta qué está
+// filtrado.
+const toolbarEl = document.getElementById('toolbar');
 const fuelBtn = document.getElementById('fuel-btn');
 const brandBtn = document.getElementById('brand-btn');
 const viewBtn = document.getElementById('view-btn');
@@ -942,19 +1143,29 @@ const viewMenuEl = document.getElementById('view-menu');
 const viewRangesEl = document.getElementById('view-ranges');
 const viewAllMarkersEl = document.getElementById('view-all-markers');
 
+// Los paneles que se abren arriba (la lista de las más baratas) arrancan justo debajo de la barra
+// flotante, y su alto no es fijo: en móvil son dos filas, y en pantallas medianas los filtros
+// saltan de línea. Se mide y se deja en --toolbar-bottom para el CSS.
+new ResizeObserver(() => {
+  toolbarEl.parentElement.style.setProperty('--toolbar-bottom', toolbarEl.offsetTop + toolbarEl.offsetHeight + 'px');
+}).observe(toolbarEl);
+
 // Solo un menú abierto a la vez; se cierran al tocar fuera (mapa incluido) o con Escape. El
-// buscador de direcciones no está aquí: no es un desplegable, es la píldora que se expande (ver
-// más abajo), y closeMenus() la colapsa también para que siga contando como "cerrar todo".
+// buscador de direcciones no está aquí: no es un desplegable sino un campo siempre visible, pero
+// closeMenus() cierra también su lista de resultados para que siga contando como "cerrar todo".
 const menus = [
   { btn: fuelBtn, menu: document.getElementById('fuel-menu') },
   { btn: brandBtn, menu: brandMenuEl },
   { btn: viewBtn, menu: viewMenuEl }
 ];
-function closeMenus() {
+function closeDropdowns() {
   for (const { btn, menu } of menus) {
     menu.hidden = true;
     btn.setAttribute('aria-expanded', 'false');
   }
+}
+function closeMenus() {
+  closeDropdowns();
   collapseSearch();
 }
 for (const { btn, menu } of menus) {
@@ -972,17 +1183,12 @@ document.addEventListener('pointerdown', (e) => {
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenus(); });
 
 // --- Buscar dirección ---
-// La lupa es el propio botón (mismo aspecto que el resto de .bar-btn en reposo) y se transforma en
-// el campo de texto al pulsarla -- en vez de abrir un desplegable aparte con un input dentro, como
-// antes-- para que quede claro de un vistazo que es UN control, no un menú más.
-//
 // Mismo servicio de direcciones (API nacional sobre datos de CartoCiudad/IGN) que ya usan
 // ../localizaciones y ../studio en este mismo usuario. Aquí no hace falta el listado de portales
 // por número que tienen esos clientes: basta con centrar el mapa, así que flyToAddress() resuelve
 // el número de portal (si lo hay) y vuela directamente, sin paso intermedio.
 const ADDR_API_BASE = 'https://cu44cd5pmg.execute-api.eu-south-2.amazonaws.com';
-const searchPillEl = document.getElementById('search-pill');
-const addressToggle = document.getElementById('address-toggle');
+const addressWrapEl = document.getElementById('address-wrap');
 const addressCloseBtn = document.getElementById('address-close');
 const addressMenuEl = document.getElementById('address-menu');
 const addressInput = document.getElementById('address-input');
@@ -990,41 +1196,35 @@ const addressStatusEl = document.getElementById('address-status');
 const addressResultsEl = document.getElementById('address-results');
 let addressMarker = null;
 
-// El desplegable de resultados solo se muestra si hay algo que enseñar (resultados o un estado
-// como "Buscando..." o un error): con la píldora recién abierta y el campo aún vacío no hay nada
-// que listar, y una caja blanca vacía debajo del input se leería como un bug.
+// La lista de resultados solo se enseña mientras se está usando el buscador (el foco está dentro de
+// él) y si hay algo que enseñar: con el campo vacío no hay nada que listar, y una caja blanca vacía
+// debajo del input se leería como un bug. Lo del foco evita además que una búsqueda que llega tarde
+// la vuelva a abrir cuando el usuario ya se ha ido al mapa.
 function syncAddressMenuVisibility() {
-  addressMenuEl.hidden = addressResultsEl.children.length === 0 && !addressStatusEl.textContent.trim();
+  const hayAlgo = addressResultsEl.children.length > 0 || addressStatusEl.textContent.trim() !== '';
+  const abierta = hayAlgo && addressWrapEl.contains(document.activeElement);
+  addressMenuEl.hidden = !abierta;
+  addressInput.setAttribute('aria-expanded', String(abierta));
 }
-
 function collapseSearch() {
-  searchPillEl.classList.remove('expanded');
-  headerEl.classList.remove('searching');
-  addressToggle.setAttribute('aria-expanded', 'false');
-  addressCloseBtn.tabIndex = -1;
   addressMenuEl.hidden = true;
+  addressInput.setAttribute('aria-expanded', 'false');
 }
-function expandSearch() {
-  closeMenus(); // solo un control abierto a la vez (colapsa fuel/marcas si estuvieran abiertos)
-  searchPillEl.classList.add('expanded');
-  headerEl.classList.add('searching');
-  addressToggle.setAttribute('aria-expanded', 'true');
-  addressCloseBtn.tabIndex = 0;
-  addressInput.focus();
-}
-addressToggle.addEventListener('click', () => {
-  if (searchPillEl.classList.contains('expanded')) collapseSearch();
-  else expandSearch();
+// Entrar al buscador no pasa por el clic de ningún botón de menú, así que los cierra él (solo un
+// control abierto a la vez), y vuelve a enseñar los resultados de la última búsqueda si los hay.
+addressInput.addEventListener('focus', () => {
+  closeDropdowns();
+  syncAddressMenuVisibility();
 });
-// La X limpia Y cierra: es tanto "borrar lo escrito" como "ya no quiero buscar", y separarlas en
-// dos controles sería un botón más para algo que en la práctica se pide siempre junto.
+// La X borra lo escrito y deja el foco en el campo, listo para otra búsqueda. Solo se ve con algo
+// escrito (ver :placeholder-shown en el CSS).
 addressCloseBtn.addEventListener('click', () => {
   addressInput.value = '';
   addressResultsEl.innerHTML = '';
   addressStatusEl.textContent = '';
   addressStatusEl.classList.remove('error');
+  addressInput.focus();
   syncAddressMenuVisibility();
-  collapseSearch();
 });
 
 async function addrApiGet(path, params) {
@@ -1070,7 +1270,7 @@ async function filtrarPorPortalExistente(vias, numero) {
 // Vuela al punto elegido: al portal exacto si se detectó un número y la vía lo tiene, o si no al
 // centroide de la vía (ya viene en el resultado de /buscar). El 'moveend' del vuelo ya dispara
 // updateMarkers(), así que no hace falta llamarlo aquí. Devuelve la etiqueta ya formada: cada
-// buscador decide qué hacer con ella (la de la cabecera la deja en su input, la de arranque no).
+// buscador decide qué hacer con ella (el flotante la deja en su input, el de arranque no).
 async function flyToAddress(via, numero) {
   const esMunicipio = via.tipo === 'municipio';
   let lat = via.lat, lon = via.lon;
@@ -1098,7 +1298,7 @@ async function flyToAddress(via, numero) {
   return etiqueta;
 }
 
-// Fábrica de buscador de direcciones: la cabecera y la pantalla de arranque son dos cuadros de
+// Fábrica de buscador de direcciones: el buscador flotante y la pantalla de arranque son dos cuadros de
 // texto distintos sobre el mismo servicio, con el mismo truco de número de portal. En vez de
 // duplicar debounce+fetch+render en los dos sitios, cada uno instancia esto pasando sus propios
 // elementos y qué hacer al elegir un resultado (onPick).
@@ -1281,7 +1481,7 @@ function syncBar() {
   // El botón de Vista avisa de lo que se aparta de lo normal, porque con el menú cerrado no se
   // vería: un filtro de rango activo con la leyenda apagada no deja rastro en pantalla, y "todos"
   // cambia bastante el mapa. El aviso es un punto y no texto para que el botón no cambie de ancho
-  // (ver .bar-dot); el detalle va en el title, y completo en las casillas del menú.
+  // (ver .btn-dot); el detalle va en el title, y completo en las casillas del menú.
   const r = selectedRanges.size;
   const avisos = [];
   if (showAllMarkers) avisos.push('mostrando todos los precios');
@@ -1296,9 +1496,8 @@ function syncBar() {
 }
 
 // Forma compartida por la lista de combustible (radio) y la de marcas (checkbox): una única
-// casilla con su etiqueta de texto. La leyenda de rangos NO usa esto -- lleva además un swatch de
-// color (ver 'fila' en updateLegend), forzarla al mismo molde pediría tantos parámetros como para
-// no ahorrar nada.
+// casilla con su etiqueta de texto. La leyenda de rangos no usa casillas sino toggles (ver
+// updateLegend).
 function checkableLabel({ type, name, value, checked, label }) {
   return '<label><input type="' + type + '" name="' + name + '" value="' + value + '"' +
     (checked ? ' checked' : '') + ' /> ' + label + '</label>';
@@ -1349,9 +1548,14 @@ brandMenuEl.querySelectorAll('#brand-actions button').forEach((btn) => {
 });
 
 // --- Rangos de precio ---
-// Las filas se regeneran en cada applyLabels(), así que el listener va en el contenedor
-legendRowsEl.addEventListener('change', () => {
-  selectedRanges = checkedValues(legendRowsEl);
+// Los toggles se regeneran en cada applyLabels(), así que el listener va en el contenedor
+legendRowsEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('.toggle');
+  if (!btn) return;
+  btn.setAttribute('aria-pressed', String(btn.getAttribute('aria-pressed') !== 'true'));
+  selectedRanges = new Set(
+    Array.from(legendRowsEl.querySelectorAll('.toggle[aria-pressed="true"]'), (b) => b.dataset.value)
+  );
   syncBar();
   savePrefs();
   applyLabels();
@@ -1483,18 +1687,33 @@ function openStationPopup(feature) {
       : '<span class="sin-dato">—</span>';
     return '<div class="popup-price-row' + (activo ? ' is-selected' : '') + '"' +
       (activo ? ' style="--clase:' + colorForBadge(p.badge) + '"' : '') + '>' +
-      '<span>' + nombre + '</span><span>' + valor + '</span></div>';
+      '<span class="dot" aria-hidden="true"></span>' +
+      '<span class="fuel">' + nombre + '</span><span class="price">' + valor + '</span></div>';
   }).join('');
 
+  // Algunas direcciones de MITECO ya traen una coma al final ("CALLE JOSE PAULETE,"): se quita para
+  // que no salga doble al juntarla con el municipio.
+  const direccion = String(p.direccion ?? '').replace(/[\s,]+$/, '');
+  const lugar = [esc(direccion), esc(p.municipio) + (p.provincia ? ' (' + esc(p.provincia) + ')' : '')]
+    .filter(Boolean).join(', ');
+  const horario = p.horario ? `
+      <div class="popup-meta">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
+        </svg>
+        <span>${esc(p.horario)}</span>
+      </div>` : '';
+
   const popupContent = `
-    <div class="popup-title">${esc(p.rotulo) || 'Gasolinera'}</div>
-    <div class="popup-addr">${esc(p.direccion)}</div>
-    <div class="popup-sub">${esc(p.municipio)}${p.provincia ? ' (' + esc(p.provincia) + ')' : ''}</div>
-    <div class="popup-sub">${esc(p.horario)}</div>
+    <div class="popup-header">
+      <div class="popup-title">${esc(p.rotulo) || 'Gasolinera'}</div>
+      <div class="popup-desc">${lugar}</div>
+      ${horario}
+    </div>
     <div class="popup-prices">${filasPrecio}</div>
     <a class="popup-nav" href="${directionsUrl}" target="_blank" rel="noopener noreferrer">
-      <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true">
-        <path d="M21 3 3 10.5l7 3 3 7L21 3z" />
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 11 22 2l-9 19-2-8-8-2z" />
       </svg>
       Cómo llegar
     </a>
@@ -1502,8 +1721,9 @@ function openStationPopup(feature) {
 
   if (popup) popup.remove();
   // Sin botón de cierre: 'closeOnClick' viene activado por defecto, así que se cierra tocando
-  // cualquier otro punto del mapa.
-  popup = new maplibregl.Popup({ closeButton: false })
+  // cualquier otro punto del mapa. Algo más ancho que el máximo por defecto (240px) para que el
+  // padding de la tarjeta no apriete los rótulos largos.
+  popup = new maplibregl.Popup({ closeButton: false, maxWidth: '280px' })
     .setLngLat(coords)
     .setHTML(popupContent)
     .addTo(map);
@@ -1571,15 +1791,14 @@ function updateLegend(thresholds, prices) {
   const bounds = [prices[0], ...thresholds, prices[prices.length - 1]];
   const fmt = (v) => v.toFixed(3) + ' €';
   legendTitleEl.textContent = 'Precio ' + FUEL_LABELS[selectedFuel] + ' en la zona';
-  const fila = (id, color, texto) =>
-    '<label class="legend-row">' +
-    '<input type="checkbox" value="' + id + '"' + (selectedRanges.has(id) ? ' checked' : '') + ' />' +
-    '<span class="legend-swatch" style="background:' + color + '"></span>' +
+  const toggle = (id, color, texto) =>
+    '<button type="button" class="toggle" data-value="' + id + '" aria-pressed="' + selectedRanges.has(id) + '">' +
+    '<span class="legend-check" style="--c:' + color + '" aria-hidden="true"></span>' +
     '<span>' + texto + '</span>' +
-    '</label>';
+    '</button>';
 
   legendRowsEl.innerHTML = PRICE_COLORS.map((color, i) =>
-    fila(BADGE_IDS[i], color, fmt(bounds[i]) + ' - ' + fmt(bounds[i + 1]))
+    toggle(BADGE_IDS[i], color, fmt(bounds[i]) + ' – ' + fmt(bounds[i + 1]))
   ).join('');
   legendBlockEl.hidden = false;
 }
