@@ -997,7 +997,7 @@ import * as maplibregl from 'https://unpkg.com/maplibre-gl@6.6.0/dist/maplibre-g
 // imágenes de bocadillo, así que si el sistema cambia de modo con la página abierta, el mapa se
 // queda como estaba hasta recargar (los controles sí cambian al momento, son solo CSS).
 const DARK_MODE = window.matchMedia('(prefers-color-scheme: dark)').matches;
-const MAP_STYLE = 'https://tiles.openfreemap.org/styles/' + (DARK_MODE ? 'dark' : 'liberty');
+const MAP_STYLE = 'https://tiles.openfreemap.org/styles/' + (DARK_MODE ? 'positron' : 'liberty');
 const map = new maplibregl.Map({
   container: 'map',
   style: MAP_STYLE,
