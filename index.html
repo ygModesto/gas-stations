@@ -104,13 +104,12 @@
     right: 56px;
     z-index: 1200;
     display: flex;
-    flex-wrap: wrap;
     align-items: flex-start;
     gap: 8px;
     pointer-events: none;
   }
   .toolbar > * { pointer-events: auto; }
-  .filters { display: flex; gap: 8px; max-width: 100%; }
+  .filters { display: flex; gap: 8px; min-width: 0; }
 
   /* Combustible, marcas y vista: cada botón abre un menú bajo él; en móvil el menú ocupa todo el
      ancho de la barra (ver el @media de más abajo). */
@@ -508,13 +507,31 @@
   .cheap-toggle { display: flex; align-items: center; justify-content: center; }
   .cheap-toggle[aria-pressed="true"] { background: var(--accent); }
 
+  /* Buscador y filtros caben en una sola fila hasta ~760 px. Por debajo, el buscador se queda en el
+     icono (36 px) y al enfocarlo se ensancha hasta cubrir toda la barra, tapando los filtros mientras
+     se escribe. La caja va en absoluto contra .toolbar (por eso el wrap pasa a static) y el wrap
+     conserva los 36 px en el flujo para que los filtros no se muevan. Los resultados salen anclados
+     a la barra entera, del mismo ancho que el buscador ensanchado. */
+  @media (max-width: 760px) {
+    #address-wrap { position: static; width: 36px; }
+    .search-box {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      width: 36px;
+      padding-right: 0;
+      transition: width 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+    .search-box:focus-within { width: 100%; padding-right: 4px; }
+    .search-box:not(:focus-within) #address-close { display: none; }
+    .menu-search { left: 0; right: 0; }
+  }
+
   @media (max-width: 600px) {
-    /* Buscador + fila de filtros: 10 + 36 + 8 + 36 */
-    #map { --toolbar-bottom: 90px; }
-    #address-wrap { flex: 1 1 100%; width: auto; }
-    /* Los filtros en su propia fila, deslizable en horizontal si no caben, como los chips de
-       Google Maps. El padding inferior (compensado con margen negativo) es para que el scroll no
-       recorte la sombra de los botones. */
+    /* Los filtros, deslizables en horizontal si no caben, como los chips de Google Maps. El padding
+       inferior (compensado con margen negativo) es para que el scroll no recorte la sombra de los
+       botones. */
     .filters {
       overflow-x: auto;
       scrollbar-width: none;
