@@ -852,7 +852,7 @@ window.__boot = (() => {
     locateBtn.disabled = true;
     locateLabel.textContent = 'Localizando...';
     navigator.geolocation.getCurrentPosition(
-      (pos) => { estado.posicion = pos; elegido(); },
+      (pos) => { estado.posicion = pos; estado.recordarPermiso(); elegido(); },
       () => fallo('No se pudo obtener tu ubicación. Prueba a buscar una dirección.'),
       { enableHighAccuracy: true }
     );
@@ -865,13 +865,22 @@ window.__boot = (() => {
 
   // permissions.query no toca la red: resuelve en un tick. Esperar su respuesta antes de enseñar la
   // pantalla no se nota y evita el parpadeo a quien ya concedió el permiso alguna vez.
+  // permissions.query no basta: con "Permitir esta vez" (Chrome) o en Safari devuelve 'prompt' aunque
+  // el usuario ya haya aceptado. Por eso se recuerda aparte que una vez se obtuvo la ubicación.
+  const CLAVE_GEO = 'geoConcedida';
+  const geoRecordada = () => { try { return localStorage.getItem(CLAVE_GEO) === '1'; } catch { return false; } };
+  estado.recordarPermiso = () => { try { localStorage.setItem(CLAVE_GEO, '1'); } catch { /* sin almacenamiento */ } };
+  estado.olvidarPermiso = () => { try { localStorage.removeItem(CLAVE_GEO); } catch { /* sin almacenamiento */ } };
+
   estado.yaTeniaPermiso = (async () => {
+    let permiso = null;
     if (navigator.permissions?.query) {
       try {
-        const s = await navigator.permissions.query({ name: 'geolocation' });
-        if (s.state === 'granted') return true;
+        permiso = (await navigator.permissions.query({ name: 'geolocation' })).state;
       } catch { /* Permissions API sin soporte para geolocation: se trata como "no concedido" */ }
     }
+    if (permiso === 'granted') return true;
+    if (permiso !== 'denied' && geoRecordada()) return true;
     overlayEl.hidden = false;
     // En el mismo tick el elemento acaba de dejar de estar oculto; el foco se pide en el siguiente
     // fotograma, cuando ya está pintado de verdad.
@@ -1534,7 +1543,7 @@ mapReady.then(resolverArranque);
 // Éxito: cierra la pantalla de arranque igual con el disparo manual que con el automático de
 // map.on('load'). El error de la geolocalización pedida desde la pantalla lo pinta el propio
 // script inline, que es quien llamó a getCurrentPosition.
-geolocate.on('geolocate', hideStartOverlay);
+geolocate.on('geolocate', () => { boot.recordarPermiso(); hideStartOverlay(); });
 
 // Con los menús cerrados no se ve ningún control, así que las etiquetas tienen que decir qué se
 // está mirando: el combustible, y un contador en marcas y rangos cuando hay filtro activo.
@@ -2355,7 +2364,8 @@ map.on('load', async () => {
   }
   // Si la geolocalización falla (GPS caído, etc.), no dejamos el mapa vacío: ni tras concederse de
   // antemano, ni al venir de "Usar mi ubicación" con la pantalla ya cerrada.
-  geolocate.on('error', () => {
+  geolocate.on('error', (e) => {
+    if (e.code === 1) boot.olvidarPermiso(); // PERMISSION_DENIED: la próxima vez vuelve a salir la pantalla
     autoLocating = false;
     updateMarkers();
   });
