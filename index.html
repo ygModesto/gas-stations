@@ -388,6 +388,7 @@
     transition: background-color 0.15s;
   }
   .toggle[aria-pressed="false"] .legend-check { background: var(--background); }
+  .range { display: flex; gap: 0.3em; }
 
   /* Panel de las más baratas. Flota sobre el mapa, a la izquierda de los controles de zoom y por
      debajo de la barra flotante (--toolbar-bottom), que en pantallas medianas llega hasta aquí.
@@ -492,6 +493,19 @@
      que necesitan display:block para apilarse y para que el recorte con puntos suspensivos del
      rótulo llegue a aplicarse. */
   .cheap-text { flex: 1; min-width: 0; }
+  /* Logo de marca, en círculo blanco como el hueco del bocadillo del mapa: hay logos transparentes u
+     oscuros que sobre el fondo del modo oscuro no se verían. */
+  .brand-logo {
+    flex: none;
+    box-sizing: border-box;
+    width: 24px;
+    height: 24px;
+    padding: 2px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: #fff;
+    object-fit: contain;
+  }
   .cheap-name {
     display: block;
     font-size: 0.8rem;
@@ -550,9 +564,12 @@
       font-size: 0.7rem;
       line-height: 1.35;
     }
-    /* Los cuatro tramos no caben en una línea cada uno: el rango parte en dos ("1.679 € –" / "1.769 €")
-       dentro de su toggle en vez de desbordar la fila. */
+    /* Los cuatro tramos no caben en una línea cada uno: los dos extremos del rango se apilan dentro
+       de su toggle en vez de desbordar la fila, y entonces el guion sobra (se deja solo para lectores
+       de pantalla). */
     .toggle { padding: 4px 6px; gap: 5px; font-size: 0.7rem; white-space: normal; text-align: left; }
+    .range { flex-direction: column; }
+    .range-sep { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     /* En móvil la lista ocupa todo el mapa, no una hoja a media altura. Con media pantalla se
        veían cinco filas y la sexta cortada, que es justo lo que no sirve cuando lo que buscas es
        comparar precios. La barra flotante se deja fuera a propósito (la hoja arranca debajo):
@@ -719,7 +736,7 @@
     font-family: inherit;
   }
   .popup-header { display: flex; flex-direction: column; gap: 4px; }
-  .popup-title { font-weight: 600; font-size: 0.95rem; line-height: 1.3; letter-spacing: -0.01em; }
+  .popup-title { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; line-height: 1.3; letter-spacing: -0.01em; }
   .popup-desc { font-size: 0.8rem; line-height: 1.4; color: var(--muted-foreground); }
   .popup-meta {
     display: flex;
@@ -1797,7 +1814,7 @@ function openStationPopup(feature) {
 
   const popupContent = `
     <div class="popup-header">
-      <div class="popup-title">${esc(p.rotulo) || 'Gasolinera'}</div>
+      <div class="popup-title">${logoMarca(p.brand)}<span>${esc(p.rotulo) || 'Gasolinera'}</span></div>
       <div class="popup-desc">${lugar}</div>
       ${horario}
     </div>
@@ -1889,7 +1906,8 @@ function updateLegend(thresholds, prices) {
     '</button>';
 
   legendRowsEl.innerHTML = PRICE_COLORS.map((color, i) =>
-    toggle(BADGE_IDS[i], color, fmt(bounds[i]) + ' – ' + fmt(bounds[i + 1]))
+    toggle(BADGE_IDS[i], color,
+      '<span class="range"><span>' + fmt(bounds[i]) + '</span><span class="range-sep">–</span><span>' + fmt(bounds[i + 1]) + '</span></span>')
   ).join('');
   legendBlockEl.hidden = false;
 }
@@ -1981,6 +1999,7 @@ function renderCheapList() {
       '<span class="cheap-rank">' + (i + 1) + '</span>' +
       '<span class="cheap-price" style="--clase:' + colorForBadge(p.badge) + '">' +
         p.price + ' €</span>' +
+      logoMarca(p.brand) +
       '<span class="cheap-text">' +
         '<span class="cheap-name">' + esc(nombre) + '</span>' +
         '<span class="cheap-meta">' + dist + '</span>' +
@@ -2217,6 +2236,12 @@ function loadImage(src) {
 // (github.com/mapbox/maki), el set de iconos de Mapbox para puntos de interés en mapas, CC0.
 const GENERIC_FUEL_ICON_SRC = './public/logos/_fuel-generic.svg';
 
+// URL del logo de cada marca que se cargó (la rellena loadBrandLogos), para el popup y la lista.
+const brandLogoSrc = new Map();
+function logoMarca(brand) {
+  return '<img class="brand-logo" src="' + (brandLogoSrc.get(brand) ?? GENERIC_FUEL_ICON_SRC) + '" alt="">';
+}
+
 // Descarga el manifiesto de fetch-logos.mjs y precarga como <img> solo los logos de marcas que la
 // app reconoce (BRANDS): las que trae marcas.yaml de más (ASC CARBURANTES, CONFORT AUTO...) no
 // tienen hueco propio en el desplegable todavía, así que cargarlas no serviría de nada.
@@ -2233,7 +2258,7 @@ async function loadBrandLogos() {
   await Promise.all(
     BRANDS.filter((b) => manifest[b]).map(async (b) => {
       const img = await loadImage(`./public/logos/${manifest[b]}`);
-      if (img) logos.set(b, img);
+      if (img) { logos.set(b, img); brandLogoSrc.set(b, img.src); }
     })
   );
   return logos;
