@@ -1785,11 +1785,8 @@ function openStationPopup(feature) {
       '<span class="fuel">' + nombre + '</span><span class="price">' + valor + '</span></div>';
   }).join('');
 
-  // Algunas direcciones de MITECO ya traen una coma al final ("CALLE JOSE PAULETE,"): se quita para
-  // que no salga doble al juntarla con el municipio.
-  const direccion = String(p.direccion ?? '').replace(/[\s,]+$/, '');
-  const lugar = [esc(direccion), esc(p.municipio) + (p.provincia ? ' (' + esc(p.provincia) + ')' : '')]
-    .filter(Boolean).join(', ');
+  // Algunas direcciones de MITECO ya traen una coma al final ("CALLE JOSE PAULETE,"): se quita.
+  const lugar = esc(String(p.direccion ?? '').replace(/[\s,]+$/, ''));
   const horario = p.horario ? `
       <div class="popup-meta">
         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1980,14 +1977,13 @@ function renderCheapList() {
     const [lng, lat] = f.geometry.coordinates;
     const dist = formatoDistancia(distanciaKm(centro.lng, centro.lat, lng, lat));
     const nombre = p.rotulo || brandLabel(brandOf(p));
-    const lugar = p.municipio ? esc(p.municipio) : '';
     return '<button type="button" class="cheap-row" data-i="' + i + '">' +
       '<span class="cheap-rank">' + (i + 1) + '</span>' +
       '<span class="cheap-price" style="--clase:' + colorForBadge(p.badge) + '">' +
         p.price + ' €</span>' +
       '<span class="cheap-text">' +
         '<span class="cheap-name">' + esc(nombre) + '</span>' +
-        '<span class="cheap-meta">' + (lugar ? lugar + ' · ' : '') + dist + '</span>' +
+        '<span class="cheap-meta">' + dist + '</span>' +
       '</span>' +
     '</button>';
   }).join('');
