@@ -1016,7 +1016,8 @@ const boot = window.__boot;
 let marcarMapaListo;
 const mapReady = new Promise((resolve) => { marcarMapaListo = resolve; });
 
-map.addControl(new maplibregl.NavigationControl(), 'top-right');
+// Sin NavigationControl (zoom +/− y brújula): el zoom se hace con la rueda y el pellizco, y el mapa
+// no se rota, así que la brújula no aporta nada.
 
 // Botón de geolocalización: centra el mapa en la posición GPS del usuario
 // El maxZoom por defecto del control es 15, y a ese nivel la ventana es de ~1,4 x 2,3 km: sobre los
