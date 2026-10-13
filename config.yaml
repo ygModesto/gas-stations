@@ -1,0 +1,5 @@
+servidor:
+  puerto: 8000
+
+servicios:
+  direcciones: https://cu44cd5pmg.execute-api.eu-south-2.amazonaws.com

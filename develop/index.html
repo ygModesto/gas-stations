@@ -1290,7 +1290,12 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenus
 // ../localizaciones y ../studio en este mismo usuario. Aquí no hace falta el listado de portales
 // por número que tienen esos clientes: basta con centrar el mapa, así que flyToAddress() resuelve
 // el número de portal (si lo hay) y vuela directamente, sin paso intermedio.
-const ADDR_API_BASE = 'https://cu44cd5pmg.execute-api.eu-south-2.amazonaws.com';
+// La URL vive en config.yaml (servicios.direcciones); este valor es solo el de reserva si no carga.
+const ADDR_API_FALLBACK = 'https://cu44cd5pmg.execute-api.eu-south-2.amazonaws.com';
+const addrApiBase = fetch('../config.yaml')
+  .then((r) => (r.ok ? r.text() : ''))
+  .then((txt) => (txt.match(/^[ \t]+direcciones:[ \t]*(\S+)/m) || [])[1] || ADDR_API_FALLBACK)
+  .catch(() => ADDR_API_FALLBACK);
 const addressWrapEl = document.getElementById('address-wrap');
 const addressCloseBtn = document.getElementById('address-close');
 const addressMenuEl = document.getElementById('address-menu');
@@ -1331,7 +1336,7 @@ addressCloseBtn.addEventListener('click', () => {
 });
 
 async function addrApiGet(path, params) {
-  const url = new URL(ADDR_API_BASE + path);
+  const url = new URL((await addrApiBase) + path);
   Object.entries(params || {}).forEach(([k, v]) => {
     if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v);
   });
