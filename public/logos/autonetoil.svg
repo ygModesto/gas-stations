@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 24.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
 <svg
    version="1.1"
    id="Capa_1"
    x="0px"
    y="0px"
-   viewBox="0 0 363.8418 396.61017"
+   viewBox="0 0 494.11764 507.18954"
    xml:space="preserve"
-   sodipodi:docname="autonetoil.svg"
-   width="363.8418"
-   height="396.61017"
+   sodipodi:docname="autonetoil-logo.svg"
+   width="494.11765"
+   height="507.18954"
    inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -16,21 +18,21 @@
    xmlns:svg="http://www.w3.org/2000/svg"><defs
    id="defs26"><clipPath
      clipPathUnits="userSpaceOnUse"
-     id="clipPath27"><rect
-       style="opacity:0.565217;fill:#000000"
-       id="rect28"
-       width="503.9548"
-       height="454.23727"
-       x="236.15819"
-       y="161.58192" /></clipPath><clipPath
+     id="clipPath26"><rect
+       style="opacity:0;fill:#fa581f"
+       id="rect27"
+       width="494.11765"
+       height="507.18954"
+       x="253.59477"
+       y="145.09804" /></clipPath><clipPath
      clipPathUnits="userSpaceOnUse"
-     id="clipPath29"><rect
-       style="opacity:0.565217;fill:#000000"
-       id="rect30"
-       width="568.36157"
-       height="421.46893"
-       x="221.03432"
-       y="194.8" /></clipPath></defs><sodipodi:namedview
+     id="clipPath30"><rect
+       style="opacity:0;fill:#fa581f"
+       id="rect31"
+       width="448.36603"
+       height="490.19608"
+       x="273.20261"
+       y="143.79085" /></clipPath></defs><sodipodi:namedview
    id="namedview26"
    pagecolor="#ffffff"
    bordercolor="#000000"
@@ -39,12 +41,13 @@
    inkscape:pageopacity="0.0"
    inkscape:pagecheckerboard="0"
    inkscape:deskcolor="#d1d1d1"
-   inkscape:zoom="0.885"
-   inkscape:cx="493.22034"
-   inkscape:cy="489.83051"
+   inkscape:clip-to-page="false"
+   inkscape:zoom="0.765"
+   inkscape:cx="246.40523"
+   inkscape:cy="354.90196"
    inkscape:window-width="1920"
-   inkscape:window-height="1129"
-   inkscape:window-x="-8"
+   inkscape:window-height="1009"
+   inkscape:window-x="1912"
    inkscape:window-y="-8"
    inkscape:window-maximized="1"
    inkscape:current-layer="Capa_1" />
@@ -57,10 +60,20 @@
 	.st3{fill:#FF8D09;}
 </style>
 
+
 <g
-   id="g26"
-   transform="translate(-319.33941,-195.92994)"
-   clip-path="url(#clipPath29)">
+   id="g32"
+   transform="translate(-71.895432,-18.300648)"><circle
+     class="st0"
+     cx="500"
+     cy="500"
+     r="500"
+     id="circle1"
+     clip-path="url(#clipPath26)"
+     transform="translate(-181.69934,-126.79739)" /><g
+     id="g26"
+     clip-path="url(#clipPath30)"
+     transform="translate(-181.69934,-126.79739)">
 	<path
    class="st1"
    d="m 447.4,466.9 c 0,32.2 24.3,46 59.7,46 h 29 c 42,0 46.9,-8.9 46.9,-50.1 v -51.6 h -40.3 c -62.3,0 -95.3,11.3 -95.3,55.7 z"
@@ -187,11 +200,22 @@
 			</g>
 		</g>
 	</g>
-</g>
-<rect
-   style="opacity:0.565217;fill:#000000;stroke-width:0.993846"
-   id="rect31"
-   width="363.8418"
-   height="396.61017"
-   x="0"
-   y="0" /></svg>
+</g><rect
+     style="opacity:0;fill:#fa581f"
+     id="rect28"
+     width="369.93463"
+     height="375.16339"
+     x="0"
+     y="2.6143646" /><rect
+     style="opacity:0;fill:#fa581f"
+     id="rect29"
+     width="555.55554"
+     height="500.65359"
+     x="1.3071899"
+     y="0" /><rect
+     style="opacity:0;fill:#fa581f"
+     id="rect32"
+     width="390.84967"
+     height="457.51633"
+     x="120.26144"
+     y="28.758169" /></g></svg>
