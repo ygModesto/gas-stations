@@ -520,12 +520,10 @@
     font-weight: 700;
     font-size: 0.82rem;
     font-variant-numeric: tabular-nums;
-    color: var(--clase, var(--foreground));
-  }
-  /* Los tonos de los tramos son oscuros a propósito (contraste sobre el blanco del bocadillo): como
-     texto sobre el fondo oscuro no se leerían, así que en modo oscuro se aclaran hacia el blanco. */
-  @media (prefers-color-scheme: dark) {
-    .cheap-price { color: color-mix(in srgb, var(--clase, var(--foreground)) 55%, white); }
+    /* --clase-texto, no --clase: el color del tramo es el relleno del bocadillo y como texto
+       sobre el fondo del panel no siempre se lee (el ámbar se queda en 2,15:1 sobre blanco). Lo
+       calcula colorTextoForBadge para el tema activo; --clase queda de respaldo. */
+    color: var(--clase-texto, var(--clase, var(--foreground)));
   }
   /* Los tres son <span> (van dentro de un <button>, donde un <div> sería marcado inválido), así
      que necesitan display:block para apilarse y para que el recorte con puntos suspensivos del
@@ -1154,23 +1152,63 @@ const LABEL_MIN_ZOOM = 9;
 // menos) para el zoom alejado, donde solo se pintan puntos de color y esos campos no se usan.
 const FGB_FULL = './public/gasolineras.fgb';
 const FGB_LITE = './public/gasolineras-lite.fgb';
-// Paleta de las 4 clases de precio, de más barata a más cara, más un gris para las que no sirven
-// el combustible seleccionado.
+// Paleta de las 4 clases de precio, de más barata a más cara, más un azul pizarra para las que no
+// sirven el combustible seleccionado. Elegida por diseño; el orden es el semáforo (verde barato ->
+// rojo caro), que es la lectura más intuitiva.
 //
-// Dos restricciones la determinan:
-//  - Todos los tonos son oscuros: el precio se pinta en este mismo color directamente sobre el
-//    cuerpo BLANCO del pin (ver makeBadgeImage/text-color), así que necesitan 4,5:1 sobre blanco.
-//    Un amarillo claro no pasaría ese contraste -- de ahí el tono mostaza y no un amarillo puro.
-//  - El orden es el semáforo completo (verde barato -> amarillo -> naranja -> rojo caro), a
-//    petición expresa: es el más intuitivo. Ojo, para daltonismo rojo-verde (el más común) estos
-//    cuatro tonos caen cerca del mismo eje y pueden confundirse entre sí -- una versión anterior
-//    metía un morado en el tercer tramo para evitarlo, a costa de romper la lectura "semáforo". El
-//    precio en texto, que ya iba encima del badge, sigue siendo la referencia que no depende del color.
-const PRICE_COLORS = ['#15803d', '#a16207', '#c2410c', '#b91c1c'];
-// Más oscuro que el #64748b anterior: así se separa de los tramos en deuteranopia (dE 12 -> 15).
-// No se baja más porque con Gasolina 98 o Diésel Premium cerca de la mitad del parque es gris, y
-// un gris muy oscuro dominaría el mapa en vez de leerse como "sin dato".
-const NO_PRICE_COLOR = '#475569';
+// Ojo: estos colores son el FONDO del bocadillo y el precio va escrito encima en blanco. Dos de
+// ellos (#10b981 y #f59e0b) son claros para eso -- 2,5:1 y 2,2:1 -- y se dejó así a propósito. En
+// la lista de más baratas, donde el color del tramo ES el texto, sí se ajusta al tema (ver
+// legibleSobre).
+//
+// Para daltonismo rojo-verde (el más común) los cuatro siguen cayendo cerca del mismo eje: el par
+// más justo es ámbar vs rojo (dE 17 en deuteranopia). El precio en texto, encima del bocadillo, es
+// la referencia que no depende del color.
+const PRICE_COLORS = ['#10b981', '#006c4a', '#f59e0b', '#ef4444'];
+// Azul pizarra apagado, no el gris de antes. Tres restricciones a la vez: verse sobre el mapa
+// claro Y sobre el oscuro ('fiord', que es azulado), y no confundirse con ningún tramo en
+// deuteranopia. El #475569 anterior se quedaba en 1,65:1 sobre el mapa oscuro -- prácticamente
+// invisible -- y los grises neutros a esa altura pierden separación (dE 13). Tirando el neutro
+// hacia el azul, que es el canal que la deuteranopia conserva, se recuperan las dos: peor contraste
+// de los dos mapas 3,19:1 y dE 18,8. Sigue desaturado a propósito, para leerse como "sin dato" y
+// no como una quinta categoría.
+const NO_PRICE_COLOR = '#6d8aa8';
+
+// --- Contraste (WCAG) ---
+// La paleta la decide el diseño, pero el precio se escribe ENCIMA de ella (en el bocadillo) y CON
+// ella (en la lista). Deducir el color legible en vez de fijarlo a mano es lo que permite cambiar
+// la paleta sin repasar a ojo dónde dejó de leerse algo.
+function luminancia(hex) {
+  const canal = (i) => {
+    const c = parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16) / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * canal(0) + 0.7152 * canal(1) + 0.0722 * canal(2);
+}
+function contraste(a, b) {
+  const [alto, bajo] = [luminancia(a), luminancia(b)].sort((x, y) => y - x);
+  return (alto + 0.05) / (bajo + 0.05);
+}
+
+// Para cuando el color del tramo ES el texto (el precio de la lista, sobre el fondo del panel):
+// lo acerca al blanco o al negro, según el fondo, hasta que llega a 4,5:1. #f59e0b sobre blanco se
+// queda en 2,15:1 y necesita oscurecerse; sobre el fondo oscuro, al revés.
+function legibleSobre(color, fondo) {
+  const hacia = luminancia(fondo) > 0.5 ? 0 : 255;
+  const canales = [0, 1, 2].map((i) => parseInt(color.slice(1 + i * 2, 3 + i * 2), 16));
+  let salida = color;
+  for (let t = 0.04; t <= 1 && contraste(salida, fondo) < 4.5; t += 0.04) {
+    salida = '#' + canales
+      .map((v) => Math.round(v + (hacia - v) * t).toString(16).padStart(2, '0'))
+      .join('');
+  }
+  return salida;
+}
+
+// El tema no cambia sin recargar, así que las variantes de texto se calculan una vez.
+const SURFACE = DARK_MODE ? '#09090b' : '#ffffff';
+const PRICE_TEXT_COLORS = PRICE_COLORS.map((c) => legibleSobre(c, SURFACE));
+const NO_PRICE_TEXT_COLOR = legibleSobre(NO_PRICE_COLOR, SURFACE);
 const BADGE_IDS = PRICE_COLORS.map((_, i) => 'badge-' + i);
 const NO_PRICE_BADGE_ID = 'badge-sin-precio';
 // Expresión compartida: traduce la propiedad 'badge' de una feature a su color de tramo. La usa el
@@ -1827,6 +1865,14 @@ function colorForBadge(badge) {
   return i === -1 ? NO_PRICE_COLOR : PRICE_COLORS[i];
 }
 
+// La variante del mismo tramo que se puede LEER sobre el fondo del panel. El color de relleno
+// (colorForBadge) sirve para manchas -- el punto del mapa, el aro de la tarjeta -- pero no siempre
+// para texto: el precio de la lista va de este color.
+function colorTextoForBadge(badge) {
+  const i = BADGE_IDS.indexOf(badge);
+  return i === -1 ? NO_PRICE_TEXT_COLOR : PRICE_TEXT_COLORS[i];
+}
+
 // Los rótulos y direcciones de MITECO son texto libre y el popup se inyecta con setHTML(), así
 // que un '<' o un '&' en el dato rompería el marcado. Sin regex, para no depender de escapes.
 function esc(valor) {
@@ -2077,7 +2123,8 @@ function renderCheapList() {
     const sel = claveEstacion(f) === cheapSelectedKey;
     return '<button type="button" class="cheap-row' + (sel ? ' is-selected' : '') + '"' +
       ' data-i="' + i + '" data-key="' + esc(claveEstacion(f)) + '" aria-pressed="' + sel + '"' +
-      ' style="--clase:' + colorForBadge(p.badge) + '">' +
+      ' style="--clase:' + colorForBadge(p.badge) +
+      ';--clase-texto:' + colorTextoForBadge(p.badge) + '">' +
       logoMarca(p.brand) +
       '<span class="cheap-text">' +
         '<span class="cheap-price">' + p.price + ' €</span>' +
@@ -2412,9 +2459,11 @@ map.on('load', async () => {
       'text-justify': 'left'
     },
     paint: {
-      // Blanco fijo, no BADGE_COLOR_MATCH: desde que el fondo del bocadillo es el color del tramo
-      // (ver makeBadgeImage) el texto va sobre ese color, no sobre blanco -- BADGE_COLOR_MATCH
-      // sigue usándose tal cual en DOTS_LAYER_ID, que es un punto de color sobre el mapa base.
+      // Blanco en todos los tramos, por decisión de diseño: el fondo del bocadillo es el color del
+      // tramo (ver makeBadgeImage) y el precio va encima. Ojo: sobre #10b981 y #f59e0b el blanco
+      // se queda en 2,5:1 y 2,2:1, por debajo del 4,5:1 de WCAG; es un compromiso consciente a
+      // cambio de uniformidad. (BADGE_COLOR_MATCH, el color de relleno, sigue usándose tal cual en
+      // DOTS_LAYER_ID, que es un punto de color sobre el mapa base.)
       'text-color': '#ffffff'
     }
   });
