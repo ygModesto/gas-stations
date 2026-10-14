@@ -99,10 +99,15 @@
      cumplido su función, que es avisar de que la posición es aproximada. El punto azul se queda.
      Van con #map delante para ganarle en especificidad a la regla de MapLibre, que fija
      opacity .2 sobre esa misma clase y llega en una hoja aparte y asíncrona. */
-  #map .maplibregl-user-location-accuracy-circle {
+  /* El pin que se pone al buscar una dirección (marcador-direccion, ver flyToAddress) se desvanece
+     igual, con la misma clase y por el mismo motivo: marca adónde ha ido el mapa y, una vez
+     llegado, solo tapa gasolineras. */
+  #map .maplibregl-user-location-accuracy-circle,
+  #map .marcador-direccion {
     transition: opacity 0.8s ease;
   }
-  #map .maplibregl-user-location-accuracy-circle.se-desvanece {
+  #map .maplibregl-user-location-accuracy-circle.se-desvanece,
+  #map .marcador-direccion.se-desvanece {
     /* !important a conciencia: MapLibre escribe 'opacity: 1' en el atributo style del elemento (lo
        usa para mostrar y ocultar el círculo por su cuenta) y un estilo en línea gana a cualquier
        selector por específico que sea. Sin esto la clase se pone pero no se ve nada. No le quita
@@ -1479,14 +1484,45 @@ async function flyToAddress(via, numero) {
   // las gasolineras. Se espera aquí y no al entrar, para que la consulta del portal de arriba
   // corra en paralelo con lo que quede de carga.
   await mapReady;
-  if (addressMarker) addressMarker.remove();
+  quitarMarcadorDireccion();
   // Pin claro sobre el mapa oscuro: el pizarra de siempre se perdería sobre él
-  addressMarker = new maplibregl.Marker({ color: DARK_MODE ? '#e4e4e7' : '#1e293b' })
+  addressMarker = new maplibregl.Marker({
+    color: DARK_MODE ? '#e4e4e7' : '#1e293b',
+    className: 'marcador-direccion'
+  })
     .setLngLat([lon, lat])
     .setPopup(new maplibregl.Popup().setHTML(esc(etiqueta) + '<br>' + esc(subtitulo)))
     .addTo(map);
   map.flyTo({ center: [lon, lat], zoom: esMunicipio ? 12 : 15 });
+  programarDesvanecidoMarcador(addressMarker);
   return etiqueta;
+}
+
+// El pin de la dirección buscada se borra solo pasado este tiempo desde que el mapa llega a él.
+// Suficiente para ver dónde ha caído, sin dejarlo tapando gasolineras el resto de la sesión.
+const MS_MARCADOR_DIRECCION = 5000;
+let temporizadorMarcador = null;
+
+function quitarMarcadorDireccion() {
+  clearTimeout(temporizadorMarcador);
+  addressMarker?.remove(); // también cierra su popup, si estaba abierto
+  addressMarker = null;
+}
+
+function programarDesvanecidoMarcador(marcador) {
+  clearTimeout(temporizadorMarcador);
+  // La cuenta empieza al LLEGAR, no al pedir el vuelo: un flyTo largo tarda varios segundos y,
+  // contando desde el principio, el pin se desvanecería antes de que el mapa llegara a él.
+  map.once('moveend', () => {
+    temporizadorMarcador = setTimeout(() => {
+      // Otra búsqueda pudo sustituirlo mientras tanto: solo se toca el que programó esto
+      if (addressMarker !== marcador) return;
+      marcador.getElement().classList.add('se-desvanece');
+      // Tras el fundido se retira del todo: invisible seguiría ahí comiéndose los toques sobre
+      // las gasolineras de debajo (pointer-events no lo cubre si se hereda 'auto' de MapLibre)
+      temporizadorMarcador = setTimeout(quitarMarcadorDireccion, 900);
+    }, MS_MARCADOR_DIRECCION);
+  });
 }
 
 // Fábrica de buscador de direcciones: el buscador flotante y la pantalla de arranque son dos cuadros de
