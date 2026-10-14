@@ -92,6 +92,26 @@
   /* --toolbar-bottom: dónde acaba la barra flotante, para que los paneles de arriba arranquen
      debajo. El JS lo mide (cambia si los filtros saltan de línea); esto es solo el valor de partida. */
   #map { flex: 1; width: 100%; position: relative; --toolbar-bottom: 46px; }
+
+  /* Círculo de precisión del control de geolocalización. En el ordenador la posición no viene del
+     GPS sino de la red, así que el radio puede ser de kilómetros y queda una mancha azul enorme
+     tapando el mapa. Se desvanece a los pocos segundos (ver programarDesvanecidoPrecision): ya ha
+     cumplido su función, que es avisar de que la posición es aproximada. El punto azul se queda.
+     Van con #map delante para ganarle en especificidad a la regla de MapLibre, que fija
+     opacity .2 sobre esa misma clase y llega en una hoja aparte y asíncrona. */
+  #map .maplibregl-user-location-accuracy-circle {
+    transition: opacity 0.8s ease;
+  }
+  #map .maplibregl-user-location-accuracy-circle.se-desvanece {
+    /* !important a conciencia: MapLibre escribe 'opacity: 1' en el atributo style del elemento (lo
+       usa para mostrar y ocultar el círculo por su cuenta) y un estilo en línea gana a cualquier
+       selector por específico que sea. Sin esto la clase se pone pero no se ve nada. No le quita
+       el control a la librería: en cuanto se retira la clase, su valor en línea vuelve a mandar. */
+    opacity: 0 !important;
+    /* Invisible pero presente: sin esto seguiría comiéndose los toques sobre las gasolineras que
+       le quedaran debajo. */
+    pointer-events: none;
+  }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
   /* Controles flotantes sobre el mapa (buscador y filtros), arriba a la izquierda. El contenedor
@@ -323,18 +343,32 @@
   .maplibregl-popup-anchor-left .maplibregl-popup-tip { border-right-color: var(--background); }
   .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color: var(--background); }
 
-  /* Leyenda de los rangos de precio: solo el grupo de toggles, flotando sobre el mapa sin tarjeta
-     alrededor. Cada tramo es además un filtro. En móvil pasa a ser una franja del marco (ver el
-     @media de 600px). Es hermana de #map y no hija, de ahí el absolute respecto a la página. */
-  #legend-block {
+  /* Esquina inferior del mapa: la lista de más baratas y, debajo, la leyenda de rangos. Antes cada
+     una se posicionaba por su cuenta y había que ir apartando la de abajo cuando aparecía la de
+     arriba; apiladas en una columna se colocan solas. El contenedor no intercepta el puntero
+     (sería una banda muerta sobre el mapa), solo sus hijos. */
+  #bottom-stack {
     position: absolute;
     bottom: calc(10px + env(safe-area-inset-bottom, 0px));
     left: 10px;
-    max-width: calc(100% - 20px);
+    right: 42px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    pointer-events: none;
+  }
+  #bottom-stack > * { pointer-events: auto; }
+
+  /* Leyenda de los rangos de precio: solo el grupo de toggles, flotando sobre el mapa sin tarjeta
+     alrededor. Cada tramo es además un filtro. En móvil pasa a ser una franja del marco (ver el
+     @media de 600px). */
+  #legend-block {
+    max-width: 100%;
     color: var(--foreground);
     font-size: 0.75rem;
     line-height: 1.5;
-    z-index: 1000;
   }
   #legend-block[hidden] { display: none; }
   /* Atribución dentro del menú Vista: enlaces discretos pero reconocibles */
@@ -392,16 +426,14 @@
   .toggle[aria-pressed="false"] .legend-check { background: var(--background); }
   .range { display: flex; gap: 0.3em; }
 
-  /* Panel de las más baratas. Flota sobre el mapa, a la izquierda de los controles de zoom y por
-     debajo de la barra flotante (--toolbar-bottom), que en pantallas medianas llega hasta aquí.
-     Por encima de la leyenda (z-index 1000) porque al abrirlo es lo que el usuario está mirando. */
+  /* Lista de las más baratas: una tira horizontal de tarjetas, apilada encima de la leyenda (ver
+     #bottom-stack). Antes era un panel vertical anclado a la derecha, que en el móvil acababa
+     tapando el mapa entero. En tira ocupa una franja baja, deja ver el mapa y se recorre con el
+     pulgar, que es el gesto natural para comparar precios de un vistazo. */
   #cheap-panel {
-    position: absolute;
-    top: calc(var(--toolbar-bottom) + 10px);
-    right: 56px;
-    width: 290px;
-    max-width: calc(100% - 66px);
-    max-height: calc(100% - var(--toolbar-bottom) - 20px);
+    align-self: flex-start;
+    width: 100%;
+    max-width: 760px;
     display: flex;
     flex-direction: column;
     /* Opaco, no el rgba(...,0.97) de la leyenda. En una tarjeta pequeña ese 3% no se nota, pero
@@ -412,45 +444,28 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
-    z-index: 1100;
     overflow: hidden;
   }
   #cheap-panel[hidden] { display: none; }
+  /* Sin borde inferior: el cambio de tamaño y de color entre el título y las tarjetas ya separa
+     las dos zonas, y una raya más cruzando una tira tan baja solo la trocea. */
   .cheap-head {
     display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 4px 4px 10px;
-    border-bottom: 1px solid var(--border);
+    align-items: baseline;
+    gap: 6px;
+    padding: 6px 4px 2px 8px;
     flex: none;
   }
-  /* La cabecera es el control de plegado, así que es un botón y ocupa todo el ancho que sobra */
-  .cheap-head-btn {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    flex: 1;
-    min-width: 0;
-    padding: 7px 4px;
-    border: none;
-    border-radius: 6px;
-    background: none;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-  }
-  .cheap-head-btn:hover { background: var(--accent); }
-  .cheap-title { font-weight: 600; font-size: 0.8rem; color: var(--foreground); }
-  .cheap-count { flex: 1; font-size: 0.7rem; color: var(--muted-foreground); white-space: nowrap; text-align: right; }
-  .cheap-chevron { flex: none; font-size: 0.8rem; color: var(--muted-foreground); transition: transform 0.15s; }
-  #cheap-panel.is-min .cheap-chevron { transform: rotate(180deg); }
+  .cheap-title { font-weight: 600; font-size: 0.72rem; color: var(--foreground); }
+  .cheap-count { flex: 1; font-size: 0.68rem; color: var(--muted-foreground); white-space: nowrap; text-align: right; }
   .cheap-close {
     display: flex;
     flex: none;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    align-self: center;
+    width: 26px;
+    height: 26px;
     border: none;
     border-radius: 6px;
     background: none;
@@ -458,31 +473,52 @@
     cursor: pointer;
   }
   .cheap-close:hover { background: var(--accent); color: var(--foreground); }
-  #cheap-list { overflow-y: auto; padding: 4px; }
-  /* Minimizado: solo la barra de cabecera. El alto deja de estar topado para que no quede un
-     hueco blanco bajo ella. */
-  #cheap-panel.is-min { max-height: none; }
-  #cheap-panel.is-min #cheap-list { display: none; }
+  /* Fila deslizable en horizontal. La barra de scroll se oculta (se desliza con el dedo, el
+     trackpad o la rueda, ver el listener 'wheel'); overscroll-behavior evita que al llegar al
+     final el gesto se escape a la página. */
+  #cheap-list {
+    display: flex;
+    gap: 6px;
+    padding: 2px 8px 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+  #cheap-list::-webkit-scrollbar { display: none; }
+  /* Tarjetas sin borde: en una fila de doce seguidas, doce rectángulos dibujados eran más ruido
+     que información. Lo que las separa es el hueco entre ellas, y el fondo solo aparece al pasar
+     por encima o al estar seleccionada. */
   .cheap-row {
+    flex: none;
     display: flex;
     align-items: center;
-    gap: 8px;
-    width: 100%;
-    padding: 7px 6px;
+    gap: 6px;
+    width: 132px;
+    padding: 5px 6px;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     background: none;
     font: inherit;
     text-align: left;
     cursor: pointer;
+    scroll-snap-align: start;
+    transition: background-color 0.15s, box-shadow 0.15s;
   }
   .cheap-row:hover { background: var(--accent); }
-  .cheap-rank { flex: none; width: 16px; font-size: 0.72rem; color: var(--muted-foreground); text-align: right; }
+  .cheap-row:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  /* La tarjeta cuyo popup está abierto. Como ya no hay borde, el aro va por dentro (inset) para
+     que marcarla no desplace ni un píxel a sus vecinas. */
+  .cheap-row.is-selected {
+    background: var(--accent);
+    box-shadow: inset 0 0 0 1.5px var(--clase, var(--ring));
+  }
   /* El precio hereda el color de su tramo: el mismo que luce el bocadillo de esa gasolinera */
   .cheap-price {
-    flex: none;
+    display: block;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-variant-numeric: tabular-nums;
     color: var(--clase, var(--foreground));
   }
@@ -500,24 +536,24 @@
   .brand-logo {
     flex: none;
     box-sizing: border-box;
-    width: 24px;
-    height: 24px;
-    padding: 2px;
-    border: 1px solid var(--border);
+    width: 20px;
+    height: 20px;
+    padding: 1px;
     border-radius: 50%;
     background: #fff;
     object-fit: contain;
   }
   .cheap-name {
     display: block;
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     font-weight: 600;
+    line-height: 1.25;
     color: var(--foreground);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .cheap-meta { display: block; font-size: 0.7rem; color: var(--muted-foreground); }
+  .cheap-meta { display: block; font-size: 0.65rem; line-height: 1.25; color: var(--muted-foreground); }
   .cheap-empty { padding: 14px 10px; font-size: 0.78rem; color: var(--muted-foreground); text-align: center; }
   /* El botón que lo abre, dentro del grupo de controles del mapa (ver ListaControl) */
   .cheap-toggle { display: flex; align-items: center; justify-content: center; }
@@ -589,26 +625,20 @@
        veían cinco filas y la sexta cortada, que es justo lo que no sirve cuando lo que buscas es
        comparar precios. La barra flotante se deja fuera a propósito (la hoja arranca debajo):
        desde la lista se puede cambiar de combustible o de marca y verla reordenarse. */
-    #cheap-panel {
-      top: calc(var(--toolbar-bottom) + 8px);
-      right: 0;
-      left: 0;
-      bottom: 0;
-      width: auto;
-      max-width: none;
-      max-height: none;
-      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-      /* El área segura (barra de gestos del iPhone) se respeta por dentro, para que la última
-         fila no quede debajo de ella pero el blanco sí llegue al borde de la pantalla. */
-      padding-bottom: env(safe-area-inset-bottom, 0px);
+    /* En móvil la columna sale del overlay y pasa al flujo normal: la tira y la leyenda quedan
+       como franjas del marco bajo el mapa, igual que ya estaba la leyenda. Así no tapan el mapa ni
+       el popup, que es lo que la lista a pantalla completa hacía mal. */
+    #bottom-stack {
+      position: static;
+      gap: 0;
+      align-items: stretch;
     }
-    /* Minimizada: solo la barra de cabecera, abajo. Es el estado en el que queda tras elegir una
-       gasolinera, porque entonces lo que importa es el popup, pero volver a la lista tiene que
-       ser un toque y no tener que buscar otra vez el botón. */
-    #cheap-panel.is-min {
-      top: auto;
-      border-radius: 14px 14px 0 0;
-      box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.22);
+    /* De tarjeta a franja: sin radio ni sombra, y solo la línea de arriba que la separa del mapa */
+    #cheap-panel {
+      max-width: none;
+      border-width: 1px 0 0;
+      border-radius: 0;
+      box-shadow: none;
     }
   }
 
@@ -1010,18 +1040,20 @@ window.__boot = (() => {
     </div>
   </div>
 
+</div>
+
+<!-- Esquina inferior: la tira de más baratas y, debajo, la leyenda de rangos. Van juntas en una
+     columna porque compiten por el mismo sitio; apiladas se colocan solas, sin que una tenga que
+     apartar a la otra cuando aparece. En escritorio la columna flota sobre el mapa; en móvil pasa
+     a estática y las dos quedan como franjas del marco, bajo el mapa (ver el @media de 600px). -->
+<div id="bottom-stack">
   <!-- Lista de las más baratas de lo que se está viendo. El botón que la abre no está aquí: se
        crea desde JS como control de MapLibre (ver ListaControl) para que caiga en la misma
        columna que el zoom y la geolocalización. -->
   <div id="cheap-panel" role="region" aria-label="Gasolineras más baratas" hidden>
     <div class="cheap-head">
-      <!-- La cabecera entera pliega y despliega: minimizada deja solo esta barra abajo, que es lo
-           que queda a la vista al elegir una gasolinera en móvil (el popup necesita el mapa). -->
-      <button id="cheap-min" class="cheap-head-btn" type="button" aria-expanded="true" aria-controls="cheap-list">
-        <span id="cheap-title" class="cheap-title">Más baratas</span>
-        <span id="cheap-count" class="cheap-count"></span>
-        <span class="cheap-chevron" aria-hidden="true">▾</span>
-      </button>
+      <span id="cheap-title" class="cheap-title">Más baratas</span>
+      <span id="cheap-count" class="cheap-count"></span>
       <button id="cheap-close" class="cheap-close" type="button" aria-label="Cerrar la lista">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
              stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
@@ -1031,15 +1063,15 @@ window.__boot = (() => {
     </div>
     <div id="cheap-list"></div>
   </div>
-</div>
 
-<!-- Leyenda: franja propia bajo el mapa, a todo el ancho y opaca, como parte del marco. Es hermana
-     de #map (no flota sobre él) para que no se vea mapa detrás. -->
-<div id="legend-block" hidden>
-  <!-- Sin título visible: el combustible ya lo dice su botón. Se queda para lectores de pantalla,
-       que es quien da nombre al grupo de toggles. -->
-  <div id="legend-title" class="sr-only"></div>
-  <div id="legend-rows" class="toggle-group" role="group" aria-labelledby="legend-title"></div>
+  <!-- Leyenda: en móvil, franja a todo el ancho y opaca, como parte del marco, para que no se vea
+       mapa detrás. -->
+  <div id="legend-block" hidden>
+    <!-- Sin título visible: el combustible ya lo dice su botón. Se queda para lectores de pantalla,
+         que es quien da nombre al grupo de toggles. -->
+    <div id="legend-title" class="sr-only"></div>
+    <div id="legend-rows" class="toggle-group" role="group" aria-labelledby="legend-title"></div>
+  </div>
 </div>
 
 <script type="module">
@@ -1584,10 +1616,30 @@ function resolverArranque() {
 boot.onElegir = () => { mapReady.then(resolverArranque); };
 mapReady.then(resolverArranque);
 
+// El círculo de precisión se borra solo pasado este tiempo. Suficiente para leer "la posición es
+// aproximada, y por cuánto", que es lo único que aporta, sin dejarlo estorbando el resto de la
+// sesión. El punto azul no se toca: ese sí hay que seguir viéndolo.
+const MS_CIRCULO_PRECISION = 4000;
+let temporizadorCirculo = null;
+
+function programarDesvanecidoPrecision() {
+  clearTimeout(temporizadorCirculo);
+  // El elemento lo crea MapLibre al llegar la primera posición y lo reutiliza en los disparos
+  // siguientes, así que se busca cada vez en lugar de guardarlo: en el primero puede no existir
+  // todavía cuando salta este evento.
+  const circulo = () => map.getContainer().querySelector('.maplibregl-user-location-accuracy-circle');
+  circulo()?.classList.remove('se-desvanece'); // al volver a localizar, reaparece
+  temporizadorCirculo = setTimeout(() => circulo()?.classList.add('se-desvanece'), MS_CIRCULO_PRECISION);
+}
+
 // Éxito: cierra la pantalla de arranque igual con el disparo manual que con el automático de
 // map.on('load'). El error de la geolocalización pedida desde la pantalla lo pinta el propio
 // script inline, que es quien llamó a getCurrentPosition.
-geolocate.on('geolocate', () => { boot.recordarPermiso(); hideStartOverlay(); });
+geolocate.on('geolocate', () => {
+  boot.recordarPermiso();
+  hideStartOverlay();
+  programarDesvanecidoPrecision();
+});
 
 // Con los menús cerrados no se ve ningún control, así que las etiquetas tienen que decir qué se
 // está mirando: el combustible, y un contador en marcas y rangos cuando hay filtro activo.
@@ -1788,7 +1840,14 @@ function esc(valor) {
 // Abre el popup de una gasolinera. Vive aquí, y no dentro del manejador de clic del mapa donde
 // nació, porque ahora tiene dos llamadores: el clic sobre el marcador y una fila de la lista de
 // más baratas, que necesita exactamente el mismo contenido.
-function openStationPopup(feature) {
+// Clave de la gasolinera cuyo popup está abierto, para marcar su tarjeta en la lista. Su id; la
+// versión ligera del .fgb no lo trae, y entonces valen las coordenadas redondeadas (las de un clic
+// en el mapa salen de las teselas y no son idénticas a las originales de la lista).
+let cheapSelectedKey = null;
+const claveEstacion = (feature) => feature.properties.id ??
+  feature.geometry.coordinates.map((c) => c.toFixed(4)).join(',');
+
+function openStationPopup(feature, { desdeLista = false } = {}) {
   const p = feature.properties;
   const coords = feature.geometry.coordinates.slice();
 
@@ -1845,6 +1904,18 @@ function openStationPopup(feature) {
     .setLngLat(coords)
     .setHTML(popupContent)
     .addTo(map);
+
+  // Quitar el popup anterior ya disparó su 'close' (que limpia la selección): la nueva se fija
+  // después. Si se abrió desde el mapa, la tarjeta puede estar fuera de la vista: se desliza
+  // hasta ella; si se abrió desde la propia lista, ya está donde el usuario la pulsó.
+  const clave = claveEstacion(feature);
+  cheapSelectedKey = clave;
+  marcarSeleccionEnLista(!desdeLista);
+  popup.on('close', () => {
+    if (cheapSelectedKey !== clave) return; // ya hay otra seleccionada: no se le quita la marca
+    cheapSelectedKey = null;
+    marcarSeleccionEnLista(false);
+  });
 }
 
 // Traduce un precio a la imagen de badge que le corresponde
@@ -1930,20 +2001,20 @@ function updateLegend(thresholds, prices) {
 // "Las más baratas" tampoco gana nada pasada la treintena.
 const CHEAP_MAX = 30;
 
-const mapEl = document.getElementById('map');
 const cheapPanelEl = document.getElementById('cheap-panel');
 const cheapTitleEl = document.getElementById('cheap-title');
 const cheapCountEl = document.getElementById('cheap-count');
 const cheapListEl = document.getElementById('cheap-list');
-const cheapMinBtn = document.getElementById('cheap-min');
 const cheapCloseBtn = document.getElementById('cheap-close');
-
-// En móvil la lista tapa el mapa entero, así que varias decisiones cambian con el ancho
-const enMovil = () => window.matchMedia('(max-width: 600px)').matches;
 
 // Las features de la lista, ya ordenadas. Se guardan aparte de lo que hay pintado para que al
 // pulsar una fila se pueda abrir su popup con el mismo objeto que vio el mapa.
 let cheapFeatures = [];
+
+// Firma de las gasolineras pintadas ahora mismo. La tira se rehace entera en cada movimiento del
+// mapa y eso devolvería el scroll horizontal al principio: si son las mismas, se conserva donde
+// estaba; si cambiaron, volver al principio es lo correcto.
+let cheapFirma = '';
 
 // Distancia en línea recta (haversine). Sirve para orientar -- "esta está al lado, esta a 8 km" --
 // no para navegar, que de eso ya se encarga el enlace a Google Maps del popup.
@@ -1979,15 +2050,9 @@ function renderCheapList() {
 
   cheapTitleEl.textContent = 'Más baratas · ' + FUEL_LABELS[selectedFuel];
 
-  // Minimizada solo se ve la cabecera, que sí hay que mantener al día: el contador de arriba es
-  // la única señal de que la lista ha cambiado al mover el mapa. Las filas no se pintan.
-  if (cheapPanelEl.classList.contains('is-min')) {
-    cheapCountEl.textContent = cheapFeatures.length ? String(cheapFeatures.length) : '';
-    return;
-  }
-
   if (cheapFeatures.length === 0) {
     cheapCountEl.textContent = '';
+    cheapFirma = '';
     cheapListEl.innerHTML = '<div class="cheap-empty">No hay gasolineras con precio de ' +
       esc(FUEL_LABELS[selectedFuel]) + ' en esta zona.</div>';
     return;
@@ -1997,23 +2062,42 @@ function renderCheapList() {
   const visibles = cheapFeatures.slice(0, CHEAP_MAX);
   cheapCountEl.textContent = total > CHEAP_MAX ? visibles.length + ' de ' + total : String(total);
 
+  const firma = visibles.map(claveEstacion).join('|');
+  const scroll = firma === cheapFirma ? cheapListEl.scrollLeft : 0;
+  cheapFirma = firma;
+
   const centro = map.getCenter();
+  // El puesto va con la distancia y no en su propia columna: en una tarjeta estrecha, una columna
+  // de números a la izquierda se comía el ancho del rótulo, que es lo que de verdad identifica.
   cheapListEl.innerHTML = visibles.map((f, i) => {
     const p = f.properties;
     const [lng, lat] = f.geometry.coordinates;
     const dist = formatoDistancia(distanciaKm(centro.lng, centro.lat, lng, lat));
     const nombre = p.rotulo || brandLabel(brandOf(p));
-    return '<button type="button" class="cheap-row" data-i="' + i + '">' +
-      '<span class="cheap-rank">' + (i + 1) + '</span>' +
-      '<span class="cheap-price" style="--clase:' + colorForBadge(p.badge) + '">' +
-        p.price + ' €</span>' +
+    const sel = claveEstacion(f) === cheapSelectedKey;
+    return '<button type="button" class="cheap-row' + (sel ? ' is-selected' : '') + '"' +
+      ' data-i="' + i + '" data-key="' + esc(claveEstacion(f)) + '" aria-pressed="' + sel + '"' +
+      ' style="--clase:' + colorForBadge(p.badge) + '">' +
       logoMarca(p.brand) +
       '<span class="cheap-text">' +
+        '<span class="cheap-price">' + p.price + ' €</span>' +
         '<span class="cheap-name">' + esc(nombre) + '</span>' +
-        '<span class="cheap-meta">' + dist + '</span>' +
+        '<span class="cheap-meta">#' + (i + 1) + ' · ' + dist + '</span>' +
       '</span>' +
     '</button>';
   }).join('');
+  cheapListEl.scrollLeft = scroll;
+}
+
+// Marca la tarjeta de la gasolinera con popup abierto (y desmarca el resto). 'desplazar' la trae a
+// la vista: hace falta cuando la selección viene de un clic en el mapa y no de la propia lista.
+function marcarSeleccionEnLista(desplazar) {
+  for (const fila of cheapListEl.querySelectorAll('.cheap-row')) {
+    const sel = fila.dataset.key === cheapSelectedKey;
+    fila.classList.toggle('is-selected', sel);
+    fila.setAttribute('aria-pressed', String(sel));
+    if (sel && desplazar) fila.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
 }
 
 // Un solo listener en el contenedor, no uno por fila: las filas se regeneran enteras en cada
@@ -2022,40 +2106,26 @@ cheapListEl.addEventListener('click', (e) => {
   const fila = e.target.closest('.cheap-row');
   if (!fila) return;
   const f = cheapFeatures[Number(fila.dataset.i)];
-  if (!f) return;
-  // Centra SIN tocar el zoom. Antes forzaba zoom 15 y eso arrastraba dos efectos malos: la lista
-  // se recalcula con lo que se ve, así que al volver a ella ya no estaban las 16 de las que
-  // habías elegido sino 2; y con menos de MIN_FOR_CLASSES gasolineras no hay cuartiles, así que
-  // la leyenda de rangos se apagaba sola. Todas las de la lista están ya en pantalla por
-  // definición, así que basta con centrar: es un desplazamiento corto y no cambia el contexto.
-  map.easeTo({ center: f.geometry.coordinates });
-  openStationPopup(f);
-  // En móvil la lista tapa el mapa entero, y el popup está justo debajo: hay que quitarla de en
-  // medio. Se MINIMIZA en vez de cerrarse para que volver a la lista sea un toque en la barra, y
-  // no tener que buscar otra vez el botón entre los controles del mapa. En pantalla grande el
-  // panel no tapa nada y se queda como está, para poder seguir comparando.
-  if (enMovil()) setCheapMin(true);
+  // El mapa NO se mueve: todas las de la lista ya están en pantalla, y moverlo cambiaría lo que la
+  // lista contiene (y con menos de MIN_FOR_CLASSES gasolineras apagaría la leyenda de rangos).
+  if (f) openStationPopup(f, { desdeLista: true });
 });
 
-// Tres estados: cerrada (hidden), desplegada y minimizada (solo la barra de cabecera).
-function setCheapMin(min) {
-  cheapPanelEl.classList.toggle('is-min', min);
-  cheapMinBtn.setAttribute('aria-expanded', String(!min));
-  // La clase va en el contenedor del mapa y no en el panel porque quien tiene que apartarse es
-  // la leyenda, que es hermana suya (ver #map.cheap-min en el CSS).
-  mapEl.classList.toggle('cheap-min', min && !cheapPanelEl.hidden);
-  renderCheapList();
-}
+// La tira se recorre con el dedo o arrastrando, pero con una rueda de ratón el gesto natural es
+// vertical y ahí no hay nada que desplazar: se traduce a horizontal. Solo cuando el movimiento es
+// claramente vertical, para no pelearse con los trackpads, que ya mandan deltaX.
+cheapListEl.addEventListener('wheel', (e) => {
+  if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+  cheapListEl.scrollLeft += e.deltaY;
+  e.preventDefault();
+}, { passive: false });
 
 function toggleCheapPanel(abrir) {
   cheapPanelEl.hidden = !abrir;
   cheapToggleBtn?.setAttribute('aria-pressed', String(abrir));
-  // Abrir siempre despliega: si se quedó minimizada y se cerró, volver a pulsar el botón del
-  // mapa tiene que enseñar la lista, no una barra vacía.
-  setCheapMin(false);
+  renderCheapList(); // al abrir, pinta lo que se haya acumulado mientras estaba cerrada
 }
 
-cheapMinBtn.addEventListener('click', () => setCheapMin(!cheapPanelEl.classList.contains('is-min')));
 cheapCloseBtn.addEventListener('click', () => toggleCheapPanel(false));
 
 // Botón que abre la lista. Va como control de MapLibre y no suelto sobre el mapa para que caiga
@@ -2080,14 +2150,7 @@ class ListaControl {
       '<line x1="9" y1="18" x2="20" y2="18" /><circle cx="4.5" cy="6" r="1.2" fill="currentColor" />' +
       '<circle cx="4.5" cy="12" r="1.2" fill="currentColor" /><circle cx="4.5" cy="18" r="1.2" fill="currentColor" />' +
       '</svg>';
-    // Tres destinos según en qué estado esté: cerrada -> desplegar, minimizada -> desplegar,
-    // desplegada -> cerrar. Minimizada el botón sigue alcanzable (la barra solo ocupa abajo), y
-    // ahí lo que se quiere es recuperar la lista, no cerrarla del todo.
-    cheapToggleBtn.addEventListener('click', () => {
-      if (cheapPanelEl.hidden) toggleCheapPanel(true);
-      else if (cheapPanelEl.classList.contains('is-min')) setCheapMin(false);
-      else toggleCheapPanel(false);
-    });
+    cheapToggleBtn.addEventListener('click', () => toggleCheapPanel(cheapPanelEl.hidden));
     this._container.appendChild(cheapToggleBtn);
     return this._container;
   }
