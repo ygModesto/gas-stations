@@ -526,7 +526,7 @@
     font-size: 0.82rem;
     font-variant-numeric: tabular-nums;
     /* --clase-texto, no --clase: el color del tramo es el relleno del bocadillo y como texto
-       sobre el fondo del panel no siempre se lee (el ámbar se queda en 2,15:1 sobre blanco). Lo
+       sobre el fondo del panel no siempre se lee (el ámbar se queda en 3,19:1 sobre blanco). Lo
        calcula colorTextoForBadge para el tema activo; --clase queda de respaldo. */
     color: var(--clase-texto, var(--clase, var(--foreground)));
   }
@@ -1157,27 +1157,29 @@ const LABEL_MIN_ZOOM = 9;
 // menos) para el zoom alejado, donde solo se pintan puntos de color y esos campos no se usan.
 const FGB_FULL = './public/gasolineras.fgb';
 const FGB_LITE = './public/gasolineras-lite.fgb';
-// Paleta de las 4 clases de precio, de más barata a más cara, más un azul pizarra para las que no
-// sirven el combustible seleccionado. Elegida por diseño; el orden es el semáforo (verde barato ->
-// rojo caro), que es la lectura más intuitiva.
+// Paleta de las 4 clases de precio, de más barata a más cara: semáforo con dos verdes (las dos
+// "baratas"), ámbar y rojo. Tailwind emerald/green-700/amber-600/rose-600. Sale de comparar varias
+// sobre el mapa real, claro y oscuro, y la deciden cuatro restricciones a la vez:
 //
-// Ojo: estos colores son el FONDO del bocadillo y el precio va escrito encima en blanco. Dos de
-// ellos (#10b981 y #f59e0b) son claros para eso -- 2,5:1 y 2,2:1 -- y se dejó así a propósito. En
-// la lista de más baratas, donde el color del tramo ES el texto, sí se ajusta al tema (ver
-// legibleSobre).
+//  - El precio va en BLANCO encima (es el fondo del bocadillo): los cuatro dan 3:1 o más (3,03 /
+//    5,02 / 3,19 / 4,70). Por eso ninguno es tan luminoso como el #10b981 y el #f59e0b de antes,
+//    que se quedaban en 2,5:1 y 2,2:1: esa franja clara es justo la que no sostiene el blanco.
+//  - Los dos mapas: la tierra de 'liberty' es #f8f4f0 y la de 'fiord' #45516e, un gris azulado
+//    MEDIO, no negro. El verde oscuro anterior (#006c4a) tenía casi su misma luminosidad (1,22:1) y
+//    se perdía en modo oscuro; el green-700 lo sube a 1,58:1.
+//  - Daltonismo: con la paleta anterior, para un protanópico el 2º y el 4º tramo eran casi el mismo
+//    color (dE 5,6) -- "casi la más barata" y "la más cara". Ahora el par más parecido es siempre
+//    de tramos contiguos (2º-3º, dE 9,6), que es la confusión menos grave posible. Lo que separa al
+//    rojo de los verdes es que sea rosado (rose, con algo de azul, que la protanopia sí distingue).
+//  - El ámbar tira a naranja (amber-600) para despegarse de las autovías naranjas de 'liberty',
+//    donde el #f59e0b se camuflaba en la vista de puntos.
 //
-// Para daltonismo rojo-verde (el más común) los cuatro siguen cayendo cerca del mismo eje: el par
-// más justo es ámbar vs rojo (dE 17 en deuteranopia). El precio en texto, encima del bocadillo, es
-// la referencia que no depende del color.
-const PRICE_COLORS = ['#10b981', '#006c4a', '#f59e0b', '#ef4444'];
-// Azul pizarra apagado, no el gris de antes. Tres restricciones a la vez: verse sobre el mapa
-// claro Y sobre el oscuro ('fiord', que es azulado), y no confundirse con ningún tramo en
-// deuteranopia. El #475569 anterior se quedaba en 1,65:1 sobre el mapa oscuro -- prácticamente
-// invisible -- y los grises neutros a esa altura pierden separación (dE 13). Tirando el neutro
-// hacia el azul, que es el canal que la deuteranopia conserva, se recuperan las dos: peor contraste
-// de los dos mapas 3,19:1 y dE 18,8. Sigue desaturado a propósito, para leerse como "sin dato" y
-// no como una quinta categoría.
-const NO_PRICE_COLOR = '#6d8aa8';
+// El precio en texto, encima del bocadillo, sigue siendo la referencia que no depende del color.
+const PRICE_COLORS = ['#00a975', '#15803d', '#d97706', '#e11d48'];
+// zinc-400: gris neutro, el de la propia interfaz. Contra el fondo REAL de 'fiord' da 3,09:1 y se
+// lee como "sin dato"; el azul pizarra anterior (#6d8aa8) se quedaba en 2,20:1 y, siendo de la
+// misma familia de color que ese mapa, se camuflaba en él. Sobre 'liberty' da 2,34:1.
+const NO_PRICE_COLOR = '#a1a1aa';
 
 // --- Contraste (WCAG) ---
 // La paleta la decide el diseño, pero el precio se escribe ENCIMA de ella (en el bocadillo) y CON
@@ -1196,8 +1198,9 @@ function contraste(a, b) {
 }
 
 // Para cuando el color del tramo ES el texto (el precio de la lista, sobre el fondo del panel):
-// lo acerca al blanco o al negro, según el fondo, hasta que llega a 4,5:1. #f59e0b sobre blanco se
-// queda en 2,15:1 y necesita oscurecerse; sobre el fondo oscuro, al revés.
+// lo acerca al blanco o al negro, según el fondo, hasta que llega a 4,5:1. El ámbar sobre blanco se
+// queda en 3,19:1 y necesita oscurecerse; sobre el fondo oscuro es al revés, y son el verde oscuro
+// y el rosa los que se aclaran.
 function legibleSobre(color, fondo) {
   const hacia = luminancia(fondo) > 0.5 ? 0 : 255;
   const canales = [0, 1, 2].map((i) => parseInt(color.slice(1 + i * 2, 3 + i * 2), 16));
@@ -2496,10 +2499,10 @@ map.on('load', async () => {
     },
     paint: {
       // Blanco en todos los tramos, por decisión de diseño: el fondo del bocadillo es el color del
-      // tramo (ver makeBadgeImage) y el precio va encima. Ojo: sobre #10b981 y #f59e0b el blanco
-      // se queda en 2,5:1 y 2,2:1, por debajo del 4,5:1 de WCAG; es un compromiso consciente a
-      // cambio de uniformidad. (BADGE_COLOR_MATCH, el color de relleno, sigue usándose tal cual en
-      // DOTS_LAYER_ID, que es un punto de color sobre el mapa base.)
+      // tramo (ver makeBadgeImage) y el precio va encima. La paleta está elegida para sostenerlo:
+      // los cuatro dan 3:1 o más con blanco (ver PRICE_COLORS); dos no llegan al 4,5:1 de WCAG para
+      // texto pequeño, que es el precio de quedarse en tonos vivos. (BADGE_COLOR_MATCH, el color de
+      // relleno, sigue usándose tal cual en DOTS_LAYER_ID, que es un punto de color sobre el mapa.)
       'text-color': '#ffffff'
     }
   });
