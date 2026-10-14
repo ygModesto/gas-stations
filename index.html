@@ -313,9 +313,6 @@
   .maplibregl-ctrl-group button + button { border-top: 1px solid var(--border); }
   .maplibregl-ctrl-group button:not(:disabled):hover { background-color: var(--accent); }
   .maplibregl-ctrl-icon, .maplibregl-ctrl-attrib-button { filter: var(--ctrl-icon-filter); }
-  /* La atribución (la "i" y su texto al desplegarla) con los colores del tema */
-  .maplibregl-ctrl-attrib.maplibregl-compact { background: var(--background); color: var(--foreground); }
-  .maplibregl-ctrl-attrib a { color: var(--muted-foreground); }
   /* El pico del popup, del mismo color que la tarjeta en cualquier lado donde caiga */
   .maplibregl-popup-anchor-top .maplibregl-popup-tip,
   .maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
@@ -327,23 +324,22 @@
   .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color: var(--background); }
 
   /* Leyenda de los rangos de precio: solo el grupo de toggles, flotando sobre el mapa sin tarjeta
-     alrededor. Cada tramo es además un filtro. Apoyada a la misma altura que el botón "i" de la
-     atribución (10px sobre el borde, ver .maplibregl-ctrl-bottom-right) y sin llegar a él:
-     10 + 24 de la "i" + 8 de aire a la derecha. */
+     alrededor. Cada tramo es además un filtro. En móvil pasa a ser una franja del marco (ver el
+     @media de 600px). Es hermana de #map y no hija, de ahí el absolute respecto a la página. */
   #legend-block {
     position: absolute;
     bottom: calc(10px + env(safe-area-inset-bottom, 0px));
     left: 10px;
-    max-width: calc(100% - 52px);
+    max-width: calc(100% - 20px);
     color: var(--foreground);
     font-size: 0.75rem;
     line-height: 1.5;
     z-index: 1000;
   }
-  /* La "i" de la atribución, por encima de la barra de gestos del iPhone igual que la leyenda, y
-     por encima de ella en apilado: al desplegar el texto, este crece hacia la izquierda y no debe
-     quedar detrás de la leyenda. */
-  .maplibregl-ctrl-bottom-right { bottom: env(safe-area-inset-bottom, 0px); z-index: 1001; }
+  #legend-block[hidden] { display: none; }
+  /* Atribución dentro del menú Vista: enlaces discretos pero reconocibles */
+  .menu-attrib a { color: inherit; text-decoration: underline; }
+  .menu-attrib a:hover { color: var(--foreground); }
   /* Los cuatro tramos en horizontal, como el ToggleGroup de shadcn (variante outline, segmentos
      unidos): cada uno es un toggle y pulsarlo muestra u oculta las gasolineras de ese tramo. Sin
      tarjeta debajo, la sombra es la de los demás controles flotantes para despegarse del mapa. */
@@ -372,8 +368,14 @@
   .toggle + .toggle { border-left: none; }
   .toggle:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
   .toggle:last-child { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
-  .toggle:hover { background: var(--accent); color: var(--foreground); }
-  .toggle[aria-pressed="true"] { background: var(--accent); color: var(--foreground); }
+  /* Activo (tramo visible) claro y con el texto normal; apagado, gris y atenuado. El :hover solo
+     con ratón: en táctil se queda pegado tras el toque y taparía el estado real del botón. */
+  .toggle[aria-pressed="true"] { background: var(--background); color: var(--foreground); }
+  .toggle[aria-pressed="false"] { background: var(--accent); color: var(--muted-foreground); }
+  @media (hover: hover) {
+    .toggle:hover { background: var(--accent); color: var(--foreground); }
+    .toggle[aria-pressed="true"]:hover { background: var(--background); }
+  }
   .toggle:focus-visible { outline: none; position: relative; box-shadow: var(--focus-ring); }
   /* El color del tramo dibujado como un checkbox, para que se lea que el toggle se puede pulsar:
      marcado, relleno del color con el check blanco; desmarcado, solo el borde del color. Es
@@ -559,11 +561,24 @@
        recorta un overflow que esté entre él y su bloque contenedor, y ahora ese bloque es la barra. */
     .filters .menu-wrap { position: static; }
     .filters .menu { left: 0; right: 0; min-width: 0; }
+    /* Franja del marco: de borde a borde, en el flujo bajo el mapa (que se encoge) y sin fondo ni
+       relleno propios: los cuatro botones son la franja entera. El área segura del iPhone se
+       rellena con el fondo de la página debajo de ellos. */
     #legend-block {
-      right: 42px;
+      position: static;
+      max-width: none;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      background: var(--background);
       font-size: 0.7rem;
       line-height: 1.35;
     }
+    #legend-block .toggle-group { border-radius: 0; box-shadow: none; }
+    #legend-block .toggle {
+      border-radius: 0;
+      border-width: 1px 0 0;
+      min-height: 40px;
+    }
+    #legend-block .toggle + .toggle { border-left: 1px solid var(--input); }
     /* Los cuatro tramos no caben en una línea cada uno: los dos extremos del rango se apilan dentro
        de su toggle en vez de desbordar la fila, y entonces el guion sobra (se deja solo para lectores
        de pantalla). */
@@ -594,16 +609,6 @@
       top: auto;
       border-radius: 14px 14px 0 0;
       box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.22);
-    }
-    /* Con la barra minimizada abajo, la leyenda de rangos y la atribución del mapa quedarían
-       justo detrás: se suben las dos por encima de ella. La atribución es de MapLibre, de ahí
-       que haya que empujar su contenedor y no un elemento nuestro. */
-    #map.cheap-min #legend-block {
-      bottom: calc(54px + env(safe-area-inset-bottom, 0px));
-    }
-    #map.cheap-min .maplibregl-ctrl-bottom-right,
-    #map.cheap-min .maplibregl-ctrl-bottom-left {
-      bottom: calc(44px + env(safe-area-inset-bottom, 0px));
     }
   }
 
@@ -994,16 +999,15 @@ window.__boot = (() => {
             Con esta opción apagada, cuando dos bocadillos se pisan solo se ve el de la gasolinera
             más barata; la otra se queda como punto.
           </div>
+          <div id="attribution" class="menu-note menu-attrib">
+            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a> ·
+            <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a>
+            <a href="https://openmaptiles.org" target="_blank" rel="noopener">© OpenMapTiles</a><br />
+            Datos: <a href="https://geoportalgasolineras.es" target="_blank" rel="noopener">MITECO</a><span id="attribution-date"></span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-
-  <div id="legend-block" hidden>
-    <!-- Sin título visible: el combustible ya lo dice su botón. Se queda para lectores de pantalla,
-         que es quien da nombre al grupo de toggles. -->
-    <div id="legend-title" class="sr-only"></div>
-    <div id="legend-rows" class="toggle-group" role="group" aria-labelledby="legend-title"></div>
   </div>
 
   <!-- Lista de las más baratas de lo que se está viendo. El botón que la abre no está aquí: se
@@ -1027,6 +1031,15 @@ window.__boot = (() => {
     </div>
     <div id="cheap-list"></div>
   </div>
+</div>
+
+<!-- Leyenda: franja propia bajo el mapa, a todo el ancho y opaca, como parte del marco. Es hermana
+     de #map (no flota sobre él) para que no se vea mapa detrás. -->
+<div id="legend-block" hidden>
+  <!-- Sin título visible: el combustible ya lo dice su botón. Se queda para lectores de pantalla,
+       que es quien da nombre al grupo de toggles. -->
+  <div id="legend-title" class="sr-only"></div>
+  <div id="legend-rows" class="toggle-group" role="group" aria-labelledby="legend-title"></div>
 </div>
 
 <script type="module">
@@ -1086,23 +1099,15 @@ map.addControl(geolocate, 'top-right');
 const legendBlockEl = document.getElementById('legend-block');
 const legendTitleEl = document.getElementById('legend-title');
 const legendRowsEl = document.getElementById('legend-rows');
+new ResizeObserver(() => map.resize()).observe(legendBlockEl);
 
-// 3. Cargar la fecha desde meta.json ligero. Va en la atribución del mapa y no en la barra flotante:
-// la barra son los filtros y en móvil no cabe nada más. Por eso el control se añade aquí, cuando ya
-// se sabe el texto, en lugar de arrancar con 'Datos: MITECO' y tener que reescribirlo después.
-// Siempre compacta y plegada: solo el botón "i", y el texto al pulsarlo. Las licencias del mapa base
-// (ODbL de OpenStreetMap, CC-BY de OpenMapTiles) y de MITECO piden que esté a la vista, pero no
-// desplegada. MapLibre la arranca desplegada y solo la pliega al mover el mapa, de ahí el ajuste.
-const addAttribution = (texto) => {
-  map.addControl(new maplibregl.AttributionControl({ customAttribution: texto, compact: true }));
-  const attribEl = document.querySelector('#map .maplibregl-ctrl-attrib');
-  attribEl?.classList.remove('maplibregl-compact-show');
-  attribEl?.removeAttribute('open');
-};
+// 3. Cargar la fecha desde meta.json ligero. La atribución (mapa base y datos) ya no es el control
+// "i" de MapLibre sino una nota al final del menú Vista (#attribution); aquí solo se completa con
+// la fecha de actualización.
 fetch('./public/meta.json')
   .then(res => res.json())
-  .then(meta => addAttribution('Datos: MITECO · Actualizado: ' + meta.fecha))
-  .catch(() => addAttribution('Datos: MITECO'));
+  .then(meta => { document.getElementById('attribution-date').textContent = ' · Actualizado: ' + meta.fecha; })
+  .catch(() => {});
 
 // 4. Fuente y capa de marcadores con el precio (sustituye a L.marker por elemento DOM)
 const SOURCE_ID = 'gasolineras';
@@ -1895,13 +1900,11 @@ function applyLabels() {
 
 // La leyenda muestra los tramos reales que hay en pantalla, no una escala fija
 function updateLegend(thresholds, prices) {
-  // Dos motivos para no pintarlos: que el usuario los haya apagado, o que no haya escala válida
-  // (pocas gasolineras a la vista, ver computeThresholds).
-  if (!thresholds || !showRanges) {
-    legendBlockEl.hidden = true;
-    return;
-  }
-  const bounds = [prices[0], ...thresholds, prices[prices.length - 1]];
+  // Solo se oculta si el usuario la ha apagado en Vista. Sin escala válida (pocas gasolineras a la
+  // vista, ver computeThresholds) se queda la franja con los cuatro colores y sin cifras.
+  legendBlockEl.hidden = !showRanges;
+  if (!showRanges) return;
+  const bounds = thresholds ? [prices[0], ...thresholds, prices[prices.length - 1]] : null;
   const fmt = (v) => v.toFixed(3) + ' €';
   legendTitleEl.textContent = 'Precio ' + FUEL_LABELS[selectedFuel] + ' en la zona';
   const toggle = (id, color, texto) =>
@@ -1911,10 +1914,10 @@ function updateLegend(thresholds, prices) {
     '</button>';
 
   legendRowsEl.innerHTML = PRICE_COLORS.map((color, i) =>
-    toggle(BADGE_IDS[i], color,
-      '<span class="range"><span>' + fmt(bounds[i]) + '</span><span class="range-sep">–</span><span>' + fmt(bounds[i + 1]) + '</span></span>')
+    toggle(BADGE_IDS[i], color, bounds
+      ? '<span class="range"><span>' + fmt(bounds[i]) + '</span><span class="range-sep">–</span><span>' + fmt(bounds[i + 1]) + '</span></span>'
+      : '<span class="range"><span>–</span></span>')
   ).join('');
-  legendBlockEl.hidden = false;
 }
 
 // --- Lista de las más baratas ---
