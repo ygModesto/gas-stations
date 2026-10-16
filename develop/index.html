@@ -37,15 +37,21 @@
      librería en sí es de React y esto es un único HTML sin build, así que no se usa: solo su
      lenguaje visual, aplicado a mano a los controles flotantes y a la pantalla de arranque. */
   :root {
+    /* Tema de shadcn/studio (theme generator): base "neutral" de shadcn con el rosa como primario.
+       El rosa es el pink-700 de Tailwind v4 (#c6005c): con texto blanco encima da 5,9:1. */
     --background: #ffffff;
-    --foreground: #09090b;
-    --muted-foreground: #71717a;
-    --accent: #f4f4f5;
-    --border: #e4e4e7;
-    --input: #e4e4e7;
-    --ring: #a1a1aa;
-    --primary: #18181b;
-    --primary-foreground: #fafafa;
+    --foreground: #0a0a0a;
+    --muted-foreground: #737373;
+    --accent: #f5f5f5;
+    --border: #e5e5e5;
+    --input: #e5e5e5;
+    --ring: #c6005c;
+    --primary: #c6005c;
+    --primary-foreground: #ffffff;
+    /* Variante suave del primario, para lo que está activo sin ser la acción principal (el menú
+       abierto, el botón de la lista con el panel abierto): pink-50 de fondo y el rosa en el texto. */
+    --primary-soft: #fdf2f8;
+    --primary-soft-foreground: #c6005c;
     --destructive: #dc2626;
     --radius-sm: 4px;
     --radius-md: 8px;
@@ -53,34 +59,37 @@
     --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --focus-ring: 0 0 0 3px rgb(161 161 170 / 0.5);
-    /* Check blanco sobre el relleno oscuro de las casillas marcadas */
-    --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fafafa' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    --focus-ring: 0 0 0 3px rgb(198 0 92 / 0.25);
+    /* Check blanco sobre el relleno rosa de las casillas marcadas */
+    --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
     /* Los iconos de los controles de MapLibre (zoom, brújula, ubicación, "i") son imágenes oscuras:
        en modo oscuro se invierten para que se vean sobre el fondo oscuro. */
     --ctrl-icon-filter: none;
     color-scheme: light dark;
   }
-  /* Modo oscuro del sistema: el tema zinc oscuro de shadcn. El mapa base cambia a la vez (estilo
+  /* Modo oscuro del sistema: la base neutral oscura de shadcn con el rosa un punto más claro. El mapa base cambia a la vez (estilo
      'dark' de OpenFreeMap, ver MAP_STYLE en el script). Las sombras se refuerzan porque sobre un
      mapa oscuro las de opacidad 0.1 no despegan nada. */
   @media (prefers-color-scheme: dark) {
     :root {
-      --background: #09090b;
+      --background: #0a0a0a;
       --foreground: #fafafa;
-      --muted-foreground: #a1a1aa;
-      --accent: #27272a;
-      --border: #27272a;
-      --input: #3f3f46;
-      --ring: #71717a;
-      --primary: #fafafa;
-      --primary-foreground: #18181b;
+      --muted-foreground: #a3a3a3;
+      --accent: #262626;
+      --border: #262626;
+      --input: #404040;
+      /* pink-600 (#e60076): el 700 se hunde sobre el fondo casi negro; con blanco encima da 4,6:1 */
+      --ring: #e60076;
+      --primary: #e60076;
+      --primary-foreground: #ffffff;
+      --primary-soft: rgb(230 0 118 / 0.16);
+      --primary-soft-foreground: #ff7ab8;
       --destructive: #f87171;
       --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
       --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.45), 0 2px 4px -2px rgb(0 0 0 / 0.45);
       --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
-      --focus-ring: 0 0 0 3px rgb(113 113 122 / 0.5);
-      --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2318181b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+      --focus-ring: 0 0 0 3px rgb(230 0 118 / 0.4);
+      --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
       --ctrl-icon-filter: invert(1);
     }
   }
@@ -92,6 +101,31 @@
   /* --toolbar-bottom: dónde acaba la barra flotante, para que los paneles de arriba arranquen
      debajo. El JS lo mide (cambia si los filtros saltan de línea); esto es solo el valor de partida. */
   #map { flex: 1; width: 100%; position: relative; --toolbar-bottom: 46px; }
+
+  /* Círculo de precisión del control de geolocalización. En el ordenador la posición no viene del
+     GPS sino de la red, así que el radio puede ser de kilómetros y queda una mancha azul enorme
+     tapando el mapa. Se desvanece a los pocos segundos (ver programarDesvanecidoPrecision): ya ha
+     cumplido su función, que es avisar de que la posición es aproximada. El punto azul se queda.
+     Van con #map delante para ganarle en especificidad a la regla de MapLibre, que fija
+     opacity .2 sobre esa misma clase y llega en una hoja aparte y asíncrona. */
+  /* El pin que se pone al buscar una dirección (marcador-direccion, ver flyToAddress) se desvanece
+     igual, con la misma clase y por el mismo motivo: marca adónde ha ido el mapa y, una vez
+     llegado, solo tapa gasolineras. */
+  #map .maplibregl-user-location-accuracy-circle,
+  #map .marcador-direccion {
+    transition: opacity 0.8s ease;
+  }
+  #map .maplibregl-user-location-accuracy-circle.se-desvanece,
+  #map .marcador-direccion.se-desvanece {
+    /* !important a conciencia: MapLibre escribe 'opacity: 1' en el atributo style del elemento (lo
+       usa para mostrar y ocultar el círculo por su cuenta) y un estilo en línea gana a cualquier
+       selector por específico que sea. Sin esto la clase se pone pero no se ve nada. No le quita
+       el control a la librería: en cuanto se retira la clase, su valor en línea vuelve a mandar. */
+    opacity: 0 !important;
+    /* Invisible pero presente: sin esto seguiría comiéndose los toques sobre las gasolineras que
+       le quedaran debajo. */
+    pointer-events: none;
+  }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
   /* Controles flotantes sobre el mapa (buscador y filtros), arriba a la izquierda. El contenedor
@@ -136,12 +170,14 @@
     transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
   }
   .btn > span:first-child { overflow: hidden; text-overflow: ellipsis; }
-  .btn:hover, .btn[aria-expanded="true"] { background: var(--accent); }
+  .btn:hover { background: var(--accent); }
+  /* Menú abierto: el estado activo del tema, rosa suave (como la pestaña activa de shadcn/studio) */
+  .btn[aria-expanded="true"] { background: var(--primary-soft); color: var(--primary-soft-foreground); border-color: var(--primary-soft); }
   .btn:focus-visible { outline: none; border-color: var(--ring); box-shadow: var(--shadow-md), var(--focus-ring); }
   /* Punto de "aquí hay algo cambiado". Se usa en lugar de alargar la etiqueta con el detalle: el
      texto hacía crecer el botón y, en 360 px, eso se come a los de al lado ("Marcas" -> "Marc..").
      El qué está cambiado se lee abriendo el menú, que son dos casillas; el punto solo avisa. */
-  .btn-dot { width: 6px; height: 6px; border-radius: 50%; background: #2563eb; flex: none; }
+  .btn-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); flex: none; }
   .btn-dot[hidden] { display: none; }
   .caret { flex: none; color: var(--muted-foreground); transition: transform 0.15s; }
   .btn[aria-expanded="true"] .caret { transform: rotate(180deg); }
@@ -313,9 +349,6 @@
   .maplibregl-ctrl-group button + button { border-top: 1px solid var(--border); }
   .maplibregl-ctrl-group button:not(:disabled):hover { background-color: var(--accent); }
   .maplibregl-ctrl-icon, .maplibregl-ctrl-attrib-button { filter: var(--ctrl-icon-filter); }
-  /* La atribución (la "i" y su texto al desplegarla) con los colores del tema */
-  .maplibregl-ctrl-attrib.maplibregl-compact { background: var(--background); color: var(--foreground); }
-  .maplibregl-ctrl-attrib a { color: var(--muted-foreground); }
   /* El pico del popup, del mismo color que la tarjeta en cualquier lado donde caiga */
   .maplibregl-popup-anchor-top .maplibregl-popup-tip,
   .maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
@@ -326,10 +359,10 @@
   .maplibregl-popup-anchor-left .maplibregl-popup-tip { border-right-color: var(--background); }
   .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color: var(--background); }
 
-  /* Leyenda de los rangos de precio: solo el grupo de toggles, flotando sobre el mapa sin tarjeta
-     alrededor. Cada tramo es además un filtro. Apoyada a la misma altura que el botón "i" de la
-     atribución (10px sobre el borde, ver .maplibregl-ctrl-bottom-right) y sin llegar a él:
-     10 + 24 de la "i" + 8 de aire a la derecha. */
+  /* Esquina inferior del mapa: la lista de más baratas y, debajo, la leyenda de rangos. Antes cada
+     una se posicionaba por su cuenta y había que ir apartando la de abajo cuando aparecía la de
+     arriba; apiladas en una columna se colocan solas. El contenedor no intercepta el puntero
+     (sería una banda muerta sobre el mapa), solo sus hijos. */
   #bottom-stack {
     position: absolute;
     bottom: calc(10px + env(safe-area-inset-bottom, 0px));
@@ -343,16 +376,20 @@
     pointer-events: none;
   }
   #bottom-stack > * { pointer-events: auto; }
+
+  /* Leyenda de los rangos de precio: solo el grupo de toggles, flotando sobre el mapa sin tarjeta
+     alrededor. Cada tramo es además un filtro. En móvil pasa a ser una franja del marco (ver el
+     @media de 600px). */
   #legend-block {
     max-width: 100%;
     color: var(--foreground);
     font-size: 0.75rem;
     line-height: 1.5;
   }
-  /* La "i" de la atribución, por encima de la barra de gestos del iPhone igual que la leyenda, y
-     por encima de ella en apilado: al desplegar el texto, este crece hacia la izquierda y no debe
-     quedar detrás de la leyenda. */
-  .maplibregl-ctrl-bottom-right { bottom: env(safe-area-inset-bottom, 0px); z-index: 1001; }
+  #legend-block[hidden] { display: none; }
+  /* Atribución dentro del menú Vista: enlaces discretos pero reconocibles */
+  .menu-attrib a { color: inherit; text-decoration: underline; }
+  .menu-attrib a:hover { color: var(--foreground); }
   /* Los cuatro tramos en horizontal, como el ToggleGroup de shadcn (variante outline, segmentos
      unidos): cada uno es un toggle y pulsarlo muestra u oculta las gasolineras de ese tramo. Sin
      tarjeta debajo, la sombra es la de los demás controles flotantes para despegarse del mapa. */
@@ -381,8 +418,14 @@
   .toggle + .toggle { border-left: none; }
   .toggle:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
   .toggle:last-child { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
-  .toggle:hover { background: var(--accent); color: var(--foreground); }
-  .toggle[aria-pressed="true"] { background: var(--accent); color: var(--foreground); }
+  /* Activo (tramo visible) claro y con el texto normal; apagado, gris y atenuado. El :hover solo
+     con ratón: en táctil se queda pegado tras el toque y taparía el estado real del botón. */
+  .toggle[aria-pressed="true"] { background: var(--background); color: var(--foreground); }
+  .toggle[aria-pressed="false"] { background: var(--accent); color: var(--muted-foreground); }
+  @media (hover: hover) {
+    .toggle:hover { background: var(--accent); color: var(--foreground); }
+    .toggle[aria-pressed="true"]:hover { background: var(--background); }
+  }
   .toggle:focus-visible { outline: none; position: relative; box-shadow: var(--focus-ring); }
   /* El color del tramo dibujado como un checkbox, para que se lea que el toggle se puede pulsar:
      marcado, relleno del color con el check blanco; desmarcado, solo el borde del color. Es
@@ -399,8 +442,10 @@
   .toggle[aria-pressed="false"] .legend-check { background: var(--background); }
   .range { display: flex; gap: 0.3em; }
 
-  /* Panel de las más baratas: una tira horizontal de tarjetas, apilada encima de la leyenda (ver
-     #bottom-stack). Cada tarjeta es una gasolinera; se desliza en horizontal. */
+  /* Lista de las más baratas: una tira horizontal de tarjetas, apilada encima de la leyenda (ver
+     #bottom-stack). Antes era un panel vertical anclado a la derecha, que en el móvil acababa
+     tapando el mapa entero. En tira ocupa una franja baja, deja ver el mapa y se recorre con el
+     pulgar, que es el gesto natural para comparar precios de un vistazo. */
   #cheap-panel {
     align-self: flex-start;
     width: 100%;
@@ -418,41 +463,25 @@
     overflow: hidden;
   }
   #cheap-panel[hidden] { display: none; }
+  /* Sin borde inferior: el cambio de tamaño y de color entre el título y las tarjetas ya separa
+     las dos zonas, y una raya más cruzando una tira tan baja solo la trocea. */
   .cheap-head {
     display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 4px 4px 10px;
-    border-bottom: 1px solid var(--border);
+    align-items: baseline;
+    gap: 6px;
+    padding: 6px 4px 2px 8px;
     flex: none;
   }
-  /* La cabecera es el control de plegado, así que es un botón y ocupa todo el ancho que sobra */
-  .cheap-head-btn {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    flex: 1;
-    min-width: 0;
-    padding: 7px 4px;
-    border: none;
-    border-radius: 6px;
-    background: none;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-  }
-  .cheap-head-btn:hover { background: var(--accent); }
-  .cheap-title { font-weight: 600; font-size: 0.8rem; color: var(--foreground); }
-  .cheap-count { flex: 1; font-size: 0.7rem; color: var(--muted-foreground); white-space: nowrap; text-align: right; }
-  .cheap-chevron { flex: none; font-size: 0.8rem; color: var(--muted-foreground); transition: transform 0.15s; }
-  #cheap-panel.is-min .cheap-chevron { transform: rotate(180deg); }
+  .cheap-title { font-weight: 600; font-size: 0.72rem; color: var(--foreground); }
+  .cheap-count { flex: 1; font-size: 0.68rem; color: var(--muted-foreground); white-space: nowrap; text-align: right; }
   .cheap-close {
     display: flex;
     flex: none;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    align-self: center;
+    width: 26px;
+    height: 26px;
     border: none;
     border-radius: 6px;
     background: none;
@@ -465,8 +494,8 @@
      final el gesto se escape a la página. */
   #cheap-list {
     display: flex;
-    gap: 8px;
-    padding: 8px;
+    gap: 6px;
+    padding: 2px 8px 8px;
     overflow-x: auto;
     overflow-y: hidden;
     overscroll-behavior-x: contain;
@@ -474,44 +503,43 @@
     scrollbar-width: none;
   }
   #cheap-list::-webkit-scrollbar { display: none; }
-  /* Minimizado: solo la barra de cabecera. */
-  #cheap-panel.is-min #cheap-list { display: none; }
+  /* Tarjetas sin borde: en una fila de doce seguidas, doce rectángulos dibujados eran más ruido
+     que información. Lo que las separa es el hueco entre ellas, y el fondo solo aparece al pasar
+     por encima o al estar seleccionada. */
   .cheap-row {
     flex: none;
     display: flex;
     align-items: center;
-    gap: 8px;
-    width: 156px;
-    padding: 8px;
-    border: 1px solid var(--border);
+    gap: 6px;
+    width: 132px;
+    padding: 5px 6px;
+    border: none;
     border-radius: var(--radius-md);
-    background: var(--background);
+    background: none;
     font: inherit;
     text-align: left;
     cursor: pointer;
     scroll-snap-align: start;
-    transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+    transition: background-color 0.15s, box-shadow 0.15s;
   }
   .cheap-row:hover { background: var(--accent); }
   .cheap-row:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-  /* La tarjeta cuyo popup está abierto: borde y aro del color de su tramo, el mismo de su bocadillo */
+  /* La tarjeta cuyo popup está abierto. Como ya no hay borde, el aro va por dentro (inset) para
+     que marcarla no desplace ni un píxel a sus vecinas. */
   .cheap-row.is-selected {
     background: var(--accent);
-    border-color: var(--clase, var(--ring));
-    box-shadow: 0 0 0 1px var(--clase, var(--ring));
+    box-shadow: inset 0 0 0 1.5px var(--clase, var(--ring));
   }
   /* El precio hereda el color de su tramo: el mismo que luce el bocadillo de esa gasolinera */
   .cheap-price {
     display: block;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     font-variant-numeric: tabular-nums;
-    color: var(--clase, var(--foreground));
-  }
-  /* Los tonos de los tramos son oscuros a propósito (contraste sobre el blanco del bocadillo): como
-     texto sobre el fondo oscuro no se leerían, así que en modo oscuro se aclaran hacia el blanco. */
-  @media (prefers-color-scheme: dark) {
-    .cheap-price { color: color-mix(in srgb, var(--clase, var(--foreground)) 55%, white); }
+    /* --clase-texto, no --clase: el color del tramo es el relleno del bocadillo y como texto
+       sobre el fondo del panel no siempre se lee (el ámbar se queda en 3,19:1 sobre blanco). Lo
+       calcula colorTextoForBadge para el tema activo; --clase queda de respaldo. */
+    color: var(--clase-texto, var(--clase, var(--foreground)));
   }
   /* Los tres son <span> (van dentro de un <button>, donde un <div> sería marcado inválido), así
      que necesitan display:block para apilarse y para que el recorte con puntos suspensivos del
@@ -522,28 +550,28 @@
   .brand-logo {
     flex: none;
     box-sizing: border-box;
-    width: 24px;
-    height: 24px;
-    padding: 2px;
-    border: 1px solid var(--border);
+    width: 20px;
+    height: 20px;
+    padding: 1px;
     border-radius: 50%;
     background: #fff;
     object-fit: contain;
   }
   .cheap-name {
     display: block;
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     font-weight: 600;
+    line-height: 1.25;
     color: var(--foreground);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .cheap-meta { display: block; font-size: 0.7rem; color: var(--muted-foreground); }
+  .cheap-meta { display: block; font-size: 0.65rem; line-height: 1.25; color: var(--muted-foreground); }
   .cheap-empty { padding: 14px 10px; font-size: 0.78rem; color: var(--muted-foreground); text-align: center; }
   /* El botón que lo abre, dentro del grupo de controles del mapa (ver ListaControl) */
   .cheap-toggle { display: flex; align-items: center; justify-content: center; }
-  .cheap-toggle[aria-pressed="true"] { background: var(--accent); }
+  .cheap-toggle[aria-pressed="true"], .calc-toggle[aria-pressed="true"] { background: var(--primary-soft); color: var(--primary-soft-foreground); }
 
   /* Buscador y filtros caben en una sola fila hasta ~760 px. Por debajo, el buscador se queda en el
      icono (36 px) y al enfocarlo se ensancha hasta cubrir toda la barra, tapando los filtros mientras
@@ -583,18 +611,49 @@
        recorta un overflow que esté entre él y su bloque contenedor, y ahora ese bloque es la barra. */
     .filters .menu-wrap { position: static; }
     .filters .menu { left: 0; right: 0; min-width: 0; }
+    /* Franja del marco: de borde a borde, en el flujo bajo el mapa (que se encoge) y sin fondo ni
+       relleno propios: los cuatro botones son la franja entera. El área segura del iPhone se
+       rellena con el fondo de la página debajo de ellos. */
     #legend-block {
-      align-self: stretch;
+      position: static;
+      max-width: none;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      background: var(--background);
       font-size: 0.7rem;
       line-height: 1.35;
     }
+    #legend-block .toggle-group { border-radius: 0; box-shadow: none; }
+    #legend-block .toggle {
+      border-radius: 0;
+      border-width: 1px 0 0;
+      min-height: 40px;
+    }
+    #legend-block .toggle + .toggle { border-left: 1px solid var(--input); }
     /* Los cuatro tramos no caben en una línea cada uno: los dos extremos del rango se apilan dentro
        de su toggle en vez de desbordar la fila, y entonces el guion sobra (se deja solo para lectores
        de pantalla). */
     .toggle { padding: 4px 6px; gap: 5px; font-size: 0.7rem; white-space: normal; text-align: left; }
     .range { flex-direction: column; }
     .range-sep { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-    #cheap-panel { max-width: none; }
+    /* En móvil la lista ocupa todo el mapa, no una hoja a media altura. Con media pantalla se
+       veían cinco filas y la sexta cortada, que es justo lo que no sirve cuando lo que buscas es
+       comparar precios. La barra flotante se deja fuera a propósito (la hoja arranca debajo):
+       desde la lista se puede cambiar de combustible o de marca y verla reordenarse. */
+    /* En móvil la columna sale del overlay y pasa al flujo normal: la tira y la leyenda quedan
+       como franjas del marco bajo el mapa, igual que ya estaba la leyenda. Así no tapan el mapa ni
+       el popup, que es lo que la lista a pantalla completa hacía mal. */
+    #bottom-stack {
+      position: static;
+      gap: 0;
+      align-items: stretch;
+    }
+    /* De tarjeta a franja: sin radio ni sombra, y solo la línea de arriba que la separa del mapa */
+    #cheap-panel {
+      max-width: none;
+      border-width: 1px 0 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
   }
 
   /* Pantalla de arranque: el Dialog de shadcn. Scrim sobre TODO (position:fixed + z-index por
@@ -633,6 +692,34 @@
   .start-title { font-size: 1.125rem; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; }
   .start-desc { font-size: 0.875rem; line-height: 1.45; color: var(--muted-foreground); }
   .start-search { display: flex; flex-direction: column; gap: 6px; }
+  /* Combustible: ToggleGroup de shadcn en versión "single", segmentos unidos y el elegido relleno.
+     Solo sale la primera vez (sin combustible guardado); ver window.__boot. En móvil los nombres
+     largos ("Diésel Premium") se parten en dos líneas en vez de desbordar. */
+  .start-fuel { display: flex; flex-direction: column; gap: 6px; }
+  .start-fuel[hidden] { display: none; }
+  .start-field-label { font-size: 0.8rem; font-weight: 500; }
+  .start-fuel-group { display: flex; border-radius: var(--radius-md); box-shadow: var(--shadow-xs); }
+  .start-fuel-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 44px;
+    padding: 6px 4px;
+    border: 1px solid var(--input);
+    background: var(--background);
+    color: var(--foreground);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+  }
+  .start-fuel-btn + .start-fuel-btn { border-left: none; }
+  .start-fuel-btn:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+  .start-fuel-btn:last-child { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .start-fuel-btn[aria-checked="true"] { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+  @media (hover: hover) { .start-fuel-btn[aria-checked="false"]:hover { background: var(--accent); } }
+  .start-fuel-btn:focus-visible { outline: none; position: relative; box-shadow: var(--focus-ring); }
   .start-search-row {
     display: flex;
     align-items: center;
@@ -825,7 +912,8 @@
   .calc-btn { height: 30px; padding: 0 10px; border: 1px solid var(--input); border-radius: var(--radius-sm);
     background: var(--background); color: var(--foreground); font: inherit; font-size: 0.8rem; cursor: pointer; }
   .calc-btn:hover, .calc-btn[aria-pressed="true"] { background: var(--accent); }
-  .calc-btn.primary { background: var(--primary); border-color: var(--primary); color: var(--background); font-weight: 600; }
+  .calc-btn.primary { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); font-weight: 600; }
+  .calc-btn.primary:hover { opacity: 0.9; background: var(--primary); }
   .calc-btn:disabled { opacity: 0.5; cursor: default; }
   .calc-check { display: flex; align-items: center; gap: 6px; cursor: pointer; }
   #calc-status:empty { display: none; }
@@ -866,6 +954,17 @@
     <div class="start-header">
       <h2 id="start-title" class="start-title">¿Dónde quieres ver los precios?</h2>
       <p id="start-desc" class="start-desc">Busca una dirección o usa tu ubicación para ver las gasolineras de la zona.</p>
+    </div>
+    <div id="start-fuel" class="start-fuel" hidden>
+      <div id="start-fuel-label" class="start-field-label">¿Qué combustible usas?</div>
+      <!-- Los nombres se repiten aquí para que se vean sin esperar al módulo; el módulo los
+           reescribe desde FUEL_LABELS, que es la fuente única. -->
+      <div id="start-fuel-group" class="start-fuel-group" role="radiogroup" aria-labelledby="start-fuel-label">
+        <button type="button" class="start-fuel-btn" role="radio" aria-checked="true" tabindex="0" data-fuel="g95">Gasolina 95</button>
+        <button type="button" class="start-fuel-btn" role="radio" aria-checked="false" tabindex="-1" data-fuel="g98">Gasolina 98</button>
+        <button type="button" class="start-fuel-btn" role="radio" aria-checked="false" tabindex="-1" data-fuel="ga">Diésel</button>
+        <button type="button" class="start-fuel-btn" role="radio" aria-checked="false" tabindex="-1" data-fuel="gapp">Diésel Premium</button>
+      </div>
     </div>
     <div class="start-search">
       <div class="start-search-row">
@@ -916,6 +1015,12 @@ window.__boot = (() => {
     posicion: null,
     // true si pulsó "Ver todo el país".
     verPais: false,
+    // Combustible que el usuario ha pulsado en la pantalla (clave de FUEL_LABELS), o null si no ha
+    // tocado nada. La pantalla solo lo pide la primera vez, o sea sin combustible guardado. Si no
+    // toca nada, vale el que sale marcado (Gasolina 95), que se guarda al cerrar la pantalla.
+    combustible: null,
+    // Lo rellena el módulo del final para aplicar la elección al instante.
+    onCombustible: null,
     // Lo rellena el módulo del final para enterarse de una elección posterior a su arranque.
     onElegir: null
   };
@@ -947,6 +1052,37 @@ window.__boot = (() => {
   });
 
   skipBtn.addEventListener('click', () => { estado.verPais = true; elegido(); });
+
+  // Combustible: radiogroup con una sola opción activa y flechas para moverse, como el ToggleGroup
+  // de shadcn. Se aplica al pulsar (no al cerrar la pantalla) porque la pantalla se cierra por
+  // tres caminos distintos (ubicación, dirección, ver todo el país) y así no hay que cubrir los tres.
+  const fuelEl = document.getElementById('start-fuel');
+  const fuelBtns = [...document.querySelectorAll('.start-fuel-btn')];
+  function elegirCombustible(btn) {
+    fuelBtns.forEach((b) => {
+      const on = b === btn;
+      b.setAttribute('aria-checked', String(on));
+      b.tabIndex = on ? 0 : -1;
+    });
+    estado.combustible = btn.dataset.fuel;
+    estado.onCombustible?.(estado.combustible);
+  }
+  fuelBtns.forEach((btn, i) => {
+    btn.addEventListener('click', () => elegirCombustible(btn));
+    btn.addEventListener('keydown', (e) => {
+      const paso = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      if (!paso) return;
+      e.preventDefault();
+      const sig = fuelBtns[(i + paso + fuelBtns.length) % fuelBtns.length];
+      sig.focus();
+      elegirCombustible(sig);
+    });
+  });
+  // "Primera vez" = nunca se guardó un combustible. Con el almacenamiento bloqueado también cuenta
+  // como primera vez: no hay forma de recordarlo y preguntar de más es lo menos malo.
+  const primeraVez = (() => {
+    try { return !JSON.parse(localStorage.getItem('gasolineras:prefs'))?.fuel; } catch { return true; }
+  })();
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !overlayEl.hidden) skipBtn.click();
   });
@@ -961,6 +1097,15 @@ window.__boot = (() => {
   estado.olvidarPermiso = () => { try { localStorage.removeItem(CLAVE_GEO); } catch { /* sin almacenamiento */ } };
 
   estado.yaTeniaPermiso = (async () => {
+    // Primera vez: la pantalla sale siempre, aunque la ubicación ya estuviera concedida, porque hay
+    // que preguntar el combustible. Devolver false evita además que el mapa se autolocalice y la
+    // cierre por debajo antes de que el usuario elija.
+    if (primeraVez) {
+      fuelEl.hidden = false;
+      overlayEl.hidden = false;
+      requestAnimationFrame(() => inputEl.focus());
+      return false;
+    }
     let permiso = null;
     if (navigator.permissions?.query) {
       try {
@@ -1048,6 +1193,12 @@ window.__boot = (() => {
             Con esta opción apagada, cuando dos bocadillos se pisan solo se ve el de la gasolinera
             más barata; la otra se queda como punto.
           </div>
+          <div id="attribution" class="menu-note menu-attrib">
+            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a> ·
+            <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a>
+            <a href="https://openmaptiles.org" target="_blank" rel="noopener">© OpenMapTiles</a><br />
+            Datos: <a href="https://geoportalgasolineras.es" target="_blank" rel="noopener">MITECO</a><span id="attribution-date"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -1087,21 +1238,20 @@ window.__boot = (() => {
       <div id="calc-out" class="calc-out"></div>
     </div>
   </div>
+</div>
 
-  <!-- Abajo del mapa, apilados: la lista de más baratas encima y la leyenda de rangos debajo. -->
-  <div id="bottom-stack">
+<!-- Esquina inferior: la tira de más baratas y, debajo, la leyenda de rangos. Van juntas en una
+     columna porque compiten por el mismo sitio; apiladas se colocan solas, sin que una tenga que
+     apartar a la otra cuando aparece. En escritorio la columna flota sobre el mapa; en móvil pasa
+     a estática y las dos quedan como franjas del marco, bajo el mapa (ver el @media de 600px). -->
+<div id="bottom-stack">
   <!-- Lista de las más baratas de lo que se está viendo. El botón que la abre no está aquí: se
        crea desde JS como control de MapLibre (ver ListaControl) para que caiga en la misma
        columna que el zoom y la geolocalización. -->
   <div id="cheap-panel" role="region" aria-label="Gasolineras más baratas" hidden>
     <div class="cheap-head">
-      <!-- La cabecera entera pliega y despliega: minimizada deja solo esta barra abajo, que es lo
-           que queda a la vista al elegir una gasolinera en móvil (el popup necesita el mapa). -->
-      <button id="cheap-min" class="cheap-head-btn" type="button" aria-expanded="true" aria-controls="cheap-list">
-        <span id="cheap-title" class="cheap-title">Más baratas</span>
-        <span id="cheap-count" class="cheap-count"></span>
-        <span class="cheap-chevron" aria-hidden="true">▾</span>
-      </button>
+      <span id="cheap-title" class="cheap-title">Más baratas</span>
+      <span id="cheap-count" class="cheap-count"></span>
       <button id="cheap-close" class="cheap-close" type="button" aria-label="Cerrar la lista">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
              stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
@@ -1112,12 +1262,13 @@ window.__boot = (() => {
     <div id="cheap-list"></div>
   </div>
 
+  <!-- Leyenda: en móvil, franja a todo el ancho y opaca, como parte del marco, para que no se vea
+       mapa detrás. -->
   <div id="legend-block" hidden>
     <!-- Sin título visible: el combustible ya lo dice su botón. Se queda para lectores de pantalla,
          que es quien da nombre al grupo de toggles. -->
     <div id="legend-title" class="sr-only"></div>
     <div id="legend-rows" class="toggle-group" role="group" aria-labelledby="legend-title"></div>
-  </div>
   </div>
 </div>
 
@@ -1144,6 +1295,10 @@ const map = new maplibregl.Map({
 // Lo que el usuario haya elegido en la pantalla de arranque, que vive y responde desde mucho antes
 // que este módulo (ver el <script> inline del HTML).
 const boot = window.__boot;
+
+// El rosa del tema (--primary) para lo que se pinta dentro del mapa: los marcadores y las capas no
+// leen variables CSS, así que se lee una vez aquí. Cambia con el modo oscuro, igual que el CSS.
+const THEME_PRIMARY = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#c6005c';
 
 // "El mapa ya puede obedecer": se resuelve al final de map.on('load'), con la fuente y las capas
 // ya creadas. Todo lo que dispara la pantalla de arranque se encola contra esto en vez de hacer
@@ -1179,22 +1334,13 @@ const legendBlockEl = document.getElementById('legend-block');
 const legendTitleEl = document.getElementById('legend-title');
 const legendRowsEl = document.getElementById('legend-rows');
 
-// 3. Cargar la fecha desde meta.json ligero. Va en la atribución del mapa y no en la barra flotante:
-// la barra son los filtros y en móvil no cabe nada más. Por eso el control se añade aquí, cuando ya
-// se sabe el texto, en lugar de arrancar con 'Datos: MITECO' y tener que reescribirlo después.
-// Siempre compacta y plegada: solo el botón "i", y el texto al pulsarlo. Las licencias del mapa base
-// (ODbL de OpenStreetMap, CC-BY de OpenMapTiles) y de MITECO piden que esté a la vista, pero no
-// desplegada. MapLibre la arranca desplegada y solo la pliega al mover el mapa, de ahí el ajuste.
-const addAttribution = (texto) => {
-  map.addControl(new maplibregl.AttributionControl({ customAttribution: texto, compact: true }));
-  const attribEl = document.querySelector('#map .maplibregl-ctrl-attrib');
-  attribEl?.classList.remove('maplibregl-compact-show');
-  attribEl?.removeAttribute('open');
-};
+// 3. Cargar la fecha desde meta.json ligero. La atribución (mapa base y datos) ya no es el control
+// "i" de MapLibre sino una nota al final del menú Vista (#attribution); aquí solo se completa con
+// la fecha de actualización.
 fetch('../public/meta.json')
   .then(res => res.json())
-  .then(meta => addAttribution('Datos: MITECO · Actualizado: ' + meta.fecha))
-  .catch(() => addAttribution('Datos: MITECO'));
+  .then(meta => { document.getElementById('attribution-date').textContent = ' · Actualizado: ' + meta.fecha; })
+  .catch(() => {});
 
 // 4. Fuente y capa de marcadores con el precio (sustituye a L.marker por elemento DOM)
 const SOURCE_ID = 'gasolineras';
@@ -1209,23 +1355,66 @@ const LABEL_MIN_ZOOM = 9;
 // menos) para el zoom alejado, donde solo se pintan puntos de color y esos campos no se usan.
 const FGB_FULL = '../public/gasolineras.fgb';
 const FGB_LITE = '../public/gasolineras-lite.fgb';
-// Paleta de las 4 clases de precio, de más barata a más cara, más un gris para las que no sirven
-// el combustible seleccionado.
+// Paleta de las 4 clases de precio, de más barata a más cara: semáforo con dos verdes (las dos
+// "baratas"), ámbar y rojo. Tailwind emerald/green-700/amber-600/rose-600. Sale de comparar varias
+// sobre el mapa real, claro y oscuro, y la deciden cuatro restricciones a la vez:
 //
-// Dos restricciones la determinan:
-//  - Todos los tonos son oscuros: el precio se pinta en este mismo color directamente sobre el
-//    cuerpo BLANCO del pin (ver makeBadgeImage/text-color), así que necesitan 4,5:1 sobre blanco.
-//    Un amarillo claro no pasaría ese contraste -- de ahí el tono mostaza y no un amarillo puro.
-//  - El orden es el semáforo completo (verde barato -> amarillo -> naranja -> rojo caro), a
-//    petición expresa: es el más intuitivo. Ojo, para daltonismo rojo-verde (el más común) estos
-//    cuatro tonos caen cerca del mismo eje y pueden confundirse entre sí -- una versión anterior
-//    metía un morado en el tercer tramo para evitarlo, a costa de romper la lectura "semáforo". El
-//    precio en texto, que ya iba encima del badge, sigue siendo la referencia que no depende del color.
-const PRICE_COLORS = ['#15803d', '#a16207', '#c2410c', '#b91c1c'];
-// Más oscuro que el #64748b anterior: así se separa de los tramos en deuteranopia (dE 12 -> 15).
-// No se baja más porque con Gasolina 98 o Diésel Premium cerca de la mitad del parque es gris, y
-// un gris muy oscuro dominaría el mapa en vez de leerse como "sin dato".
-const NO_PRICE_COLOR = '#475569';
+//  - El precio va en BLANCO encima (es el fondo del bocadillo): los cuatro dan 3:1 o más (3,03 /
+//    5,02 / 3,19 / 4,70). Por eso ninguno es tan luminoso como el #10b981 y el #f59e0b de antes,
+//    que se quedaban en 2,5:1 y 2,2:1: esa franja clara es justo la que no sostiene el blanco.
+//  - Los dos mapas: la tierra de 'liberty' es #f8f4f0 y la de 'fiord' #45516e, un gris azulado
+//    MEDIO, no negro. El verde oscuro anterior (#006c4a) tenía casi su misma luminosidad (1,22:1) y
+//    se perdía en modo oscuro; el green-700 lo sube a 1,58:1.
+//  - Daltonismo: con la paleta anterior, para un protanópico el 2º y el 4º tramo eran casi el mismo
+//    color (dE 5,6) -- "casi la más barata" y "la más cara". Ahora el par más parecido es siempre
+//    de tramos contiguos (2º-3º, dE 9,6), que es la confusión menos grave posible. Lo que separa al
+//    rojo de los verdes es que sea rosado (rose, con algo de azul, que la protanopia sí distingue).
+//  - El ámbar tira a naranja (amber-600) para despegarse de las autovías naranjas de 'liberty',
+//    donde el #f59e0b se camuflaba en la vista de puntos.
+//
+// El precio en texto, encima del bocadillo, sigue siendo la referencia que no depende del color.
+const PRICE_COLORS = ['#00a975', '#15803d', '#d97706', '#e11d48'];
+// zinc-400: gris neutro, el de la propia interfaz. Contra el fondo REAL de 'fiord' da 3,09:1 y se
+// lee como "sin dato"; el azul pizarra anterior (#6d8aa8) se quedaba en 2,20:1 y, siendo de la
+// misma familia de color que ese mapa, se camuflaba en él. Sobre 'liberty' da 2,34:1.
+const NO_PRICE_COLOR = '#a1a1aa';
+
+// --- Contraste (WCAG) ---
+// La paleta la decide el diseño, pero el precio se escribe ENCIMA de ella (en el bocadillo) y CON
+// ella (en la lista). Deducir el color legible en vez de fijarlo a mano es lo que permite cambiar
+// la paleta sin repasar a ojo dónde dejó de leerse algo.
+function luminancia(hex) {
+  const canal = (i) => {
+    const c = parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16) / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * canal(0) + 0.7152 * canal(1) + 0.0722 * canal(2);
+}
+function contraste(a, b) {
+  const [alto, bajo] = [luminancia(a), luminancia(b)].sort((x, y) => y - x);
+  return (alto + 0.05) / (bajo + 0.05);
+}
+
+// Para cuando el color del tramo ES el texto (el precio de la lista, sobre el fondo del panel):
+// lo acerca al blanco o al negro, según el fondo, hasta que llega a 4,5:1. El ámbar sobre blanco se
+// queda en 3,19:1 y necesita oscurecerse; sobre el fondo oscuro es al revés, y son el verde oscuro
+// y el rosa los que se aclaran.
+function legibleSobre(color, fondo) {
+  const hacia = luminancia(fondo) > 0.5 ? 0 : 255;
+  const canales = [0, 1, 2].map((i) => parseInt(color.slice(1 + i * 2, 3 + i * 2), 16));
+  let salida = color;
+  for (let t = 0.04; t <= 1 && contraste(salida, fondo) < 4.5; t += 0.04) {
+    salida = '#' + canales
+      .map((v) => Math.round(v + (hacia - v) * t).toString(16).padStart(2, '0'))
+      .join('');
+  }
+  return salida;
+}
+
+// El tema no cambia sin recargar, así que las variantes de texto se calculan una vez.
+const SURFACE = DARK_MODE ? '#0a0a0a' : '#ffffff';
+const PRICE_TEXT_COLORS = PRICE_COLORS.map((c) => legibleSobre(c, SURFACE));
+const NO_PRICE_TEXT_COLOR = legibleSobre(NO_PRICE_COLOR, SURFACE);
 const BADGE_IDS = PRICE_COLORS.map((_, i) => 'badge-' + i);
 const NO_PRICE_BADGE_ID = 'badge-sin-precio';
 // Expresión compartida: traduce la propiedad 'badge' de una feature a su color de tramo. La usa el
@@ -1496,14 +1685,45 @@ async function flyToAddress(via, numero) {
   // las gasolineras. Se espera aquí y no al entrar, para que la consulta del portal de arriba
   // corra en paralelo con lo que quede de carga.
   await mapReady;
-  if (addressMarker) addressMarker.remove();
-  // Pin claro sobre el mapa oscuro: el pizarra de siempre se perdería sobre él
-  addressMarker = new maplibregl.Marker({ color: DARK_MODE ? '#e4e4e7' : '#1e293b' })
+  quitarMarcadorDireccion();
+  // Pin del color del tema: se distingue de los bocadillos (verde a rojo) y del punto azul de la ubicación
+  addressMarker = new maplibregl.Marker({
+    color: THEME_PRIMARY,
+    className: 'marcador-direccion'
+  })
     .setLngLat([lon, lat])
     .setPopup(new maplibregl.Popup().setHTML(esc(etiqueta) + '<br>' + esc(subtitulo)))
     .addTo(map);
   map.flyTo({ center: [lon, lat], zoom: esMunicipio ? 12 : 15 });
+  programarDesvanecidoMarcador(addressMarker);
   return etiqueta;
+}
+
+// El pin de la dirección buscada se borra solo pasado este tiempo desde que el mapa llega a él.
+// Suficiente para ver dónde ha caído, sin dejarlo tapando gasolineras el resto de la sesión.
+const MS_MARCADOR_DIRECCION = 5000;
+let temporizadorMarcador = null;
+
+function quitarMarcadorDireccion() {
+  clearTimeout(temporizadorMarcador);
+  addressMarker?.remove(); // también cierra su popup, si estaba abierto
+  addressMarker = null;
+}
+
+function programarDesvanecidoMarcador(marcador) {
+  clearTimeout(temporizadorMarcador);
+  // La cuenta empieza al LLEGAR, no al pedir el vuelo: un flyTo largo tarda varios segundos y,
+  // contando desde el principio, el pin se desvanecería antes de que el mapa llegara a él.
+  map.once('moveend', () => {
+    temporizadorMarcador = setTimeout(() => {
+      // Otra búsqueda pudo sustituirlo mientras tanto: solo se toca el que programó esto
+      if (addressMarker !== marcador) return;
+      marcador.getElement().classList.add('se-desvanece');
+      // Tras el fundido se retira del todo: invisible seguiría ahí comiéndose los toques sobre
+      // las gasolineras de debajo (pointer-events no lo cubre si se hereda 'auto' de MapLibre)
+      temporizadorMarcador = setTimeout(quitarMarcadorDireccion, 900);
+    }, MS_MARCADOR_DIRECCION);
+  });
 }
 
 // Fábrica de buscador de direcciones: el buscador flotante y la pantalla de arranque son dos cuadros de
@@ -1512,6 +1732,10 @@ async function flyToAddress(via, numero) {
 // elementos y qué hacer al elegir un resultado (onPick).
 function createAddressSearch({ inputEl, statusEl, resultsEl, onPick, afterRender }) {
   let debounce = null;
+  // Número de la última búsqueda. La espera entre pulsaciones no basta: una búsqueda puede encadenar
+  // hasta tres peticiones, y si "calle may" responde después que "calle mayor", sus resultados se
+  // quedarían en pantalla. Solo pinta la búsqueda que sigue siendo la última.
+  let ultima = 0;
 
   function setStatus(texto, esError) {
     statusEl.textContent = texto || '';
@@ -1555,6 +1779,8 @@ function createAddressSearch({ inputEl, statusEl, resultsEl, onPick, afterRender
   }
 
   async function run(q) {
+    const id = ++ultima;
+    const vigente = () => id === ultima;
     if (q.length < 3) {
       resultsEl.innerHTML = '';
       setStatus('');
@@ -1567,6 +1793,7 @@ function createAddressSearch({ inputEl, statusEl, resultsEl, onPick, afterRender
       // nunca dígitos. Se resuelve aparte, contra /cp, que sí filtra por él directamente.
       if (/^\d{5}$/.test(q)) {
         const cps = await addrApiGet(`/cp/${q}`);
+        if (!vigente()) return;
         render(cps.map((cp) => ({
           tipo_vial: null,
           nombre: 'Código postal ' + cp.cod_postal,
@@ -1583,6 +1810,7 @@ function createAddressSearch({ inputEl, statusEl, resultsEl, onPick, afterRender
       // ("Rosalía de Castro" existe en decenas), prioriza el más próximo a lo que ya se está viendo.
       const center = map.getCenter();
       let vias = await addrApiGet('/buscar', { q, limit: 8, lat: center.lat, lon: center.lng });
+      if (!vigente()) return; // y de paso no se lanza el reintento sin número
       let numero = null;
       // Sin resultados: puede que un token sea un número de portal, que /buscar no indexa (solo
       // nombres de calle). Se reintenta sin él y se filtra por si esa vía tiene de verdad ese
@@ -1602,9 +1830,10 @@ function createAddressSearch({ inputEl, statusEl, resultsEl, onPick, afterRender
           else if (municipios.length) { vias = municipios; }
         }
       }
+      if (!vigente()) return;
       render(vias, numero);
     } catch (err) {
-      setStatus('Error buscando: ' + err.message, true);
+      if (vigente()) setStatus('Error buscando: ' + err.message, true);
     }
   }
 
@@ -1638,6 +1867,7 @@ createAddressSearch({
 // verdad necesita el mapa: el buscador de direcciones y ejecutar la elección del usuario.
 function hideStartOverlay() {
   boot.overlayEl.hidden = true;
+  savePrefs(); // fija el combustible que salía marcado aunque no lo haya tocado (ver boot.combustible)
 }
 
 createAddressSearch({
@@ -1668,13 +1898,33 @@ function resolverArranque() {
     updateMarkers(); // sin flyTo de por medio no hay 'moveend' que lo dispare solo
   }
 }
-boot.onElegir = () => { mapReady.then(resolverArranque); };
+boot.onElegir = () => { savePrefs(); mapReady.then(resolverArranque); };
 mapReady.then(resolverArranque);
+
+// El círculo de precisión se borra solo pasado este tiempo. Suficiente para leer "la posición es
+// aproximada, y por cuánto", que es lo único que aporta, sin dejarlo estorbando el resto de la
+// sesión. El punto azul no se toca: ese sí hay que seguir viéndolo.
+const MS_CIRCULO_PRECISION = 4000;
+let temporizadorCirculo = null;
+
+function programarDesvanecidoPrecision() {
+  clearTimeout(temporizadorCirculo);
+  // El elemento lo crea MapLibre al llegar la primera posición y lo reutiliza en los disparos
+  // siguientes, así que se busca cada vez en lugar de guardarlo: en el primero puede no existir
+  // todavía cuando salta este evento.
+  const circulo = () => map.getContainer().querySelector('.maplibregl-user-location-accuracy-circle');
+  circulo()?.classList.remove('se-desvanece'); // al volver a localizar, reaparece
+  temporizadorCirculo = setTimeout(() => circulo()?.classList.add('se-desvanece'), MS_CIRCULO_PRECISION);
+}
 
 // Éxito: cierra la pantalla de arranque igual con el disparo manual que con el automático de
 // map.on('load'). El error de la geolocalización pedida desde la pantalla lo pinta el propio
 // script inline, que es quien llamó a getCurrentPosition.
-geolocate.on('geolocate', () => { boot.recordarPermiso(); hideStartOverlay(); });
+geolocate.on('geolocate', () => {
+  boot.recordarPermiso();
+  hideStartOverlay();
+  programarDesvanecidoPrecision();
+});
 
 // Con los menús cerrados no se ve ningún control, así que las etiquetas tienen que decir qué se
 // está mirando: el combustible, y un contador en marcas y rangos cuando hay filtro activo.
@@ -1726,6 +1976,21 @@ fuelListEl.querySelectorAll('input').forEach((radio) => {
     applyLabels(); // recalcula las etiquetas sin volver a leer el .fgb
   });
 });
+
+// Combustible elegido en la pantalla de arranque (ver window.__boot): mismo efecto que cambiarlo en
+// el menú. La elección puede haber ocurrido antes de que existiera este módulo, de ahí que se
+// aplique también una vez aquí. Los nombres de los botones salen de FUEL_LABELS.
+document.querySelectorAll('.start-fuel-btn').forEach((btn) => { btn.textContent = FUEL_LABELS[btn.dataset.fuel]; });
+function elegirCombustibleDeArranque(clave) {
+  if (!FUEL_LABELS[clave]) return;
+  selectedFuel = clave;
+  fuelListEl.querySelector('input[value="' + clave + '"]').checked = true;
+  syncBar();
+  savePrefs();
+  mapReady.then(applyLabels);
+}
+if (boot.combustible) elegirCombustibleDeArranque(boot.combustible);
+boot.onCombustible = elegirCombustibleDeArranque;
 
 // --- Marcas ---
 // Las casillas se generan desde ALL_BRANDS para no repetir el listado en el HTML
@@ -1862,6 +2127,14 @@ function colorForBadge(badge) {
   return i === -1 ? NO_PRICE_COLOR : PRICE_COLORS[i];
 }
 
+// La variante del mismo tramo que se puede LEER sobre el fondo del panel. El color de relleno
+// (colorForBadge) sirve para manchas -- el punto del mapa, el aro de la tarjeta -- pero no siempre
+// para texto: el precio de la lista va de este color.
+function colorTextoForBadge(badge) {
+  const i = BADGE_IDS.indexOf(badge);
+  return i === -1 ? NO_PRICE_TEXT_COLOR : PRICE_TEXT_COLORS[i];
+}
+
 // Los rótulos y direcciones de MITECO son texto libre y el popup se inyecta con setHTML(), así
 // que un '<' o un '&' en el dato rompería el marcado. Sin regex, para no depender de escapes.
 function esc(valor) {
@@ -1941,12 +2214,13 @@ function openStationPopup(feature, { desdeLista = false } = {}) {
     .addTo(map);
 
   // Quitar el popup anterior ya disparó su 'close' (que limpia la selección): la nueva se fija
-  // después. Si se abrió desde el mapa, la tarjeta puede estar fuera de la vista: se desliza hasta ella.
+  // después. Si se abrió desde el mapa, la tarjeta puede estar fuera de la vista: se desliza
+  // hasta ella; si se abrió desde la propia lista, ya está donde el usuario la pulsó.
   const clave = claveEstacion(feature);
   cheapSelectedKey = clave;
   marcarSeleccionEnLista(!desdeLista);
   popup.on('close', () => {
-    if (cheapSelectedKey !== clave) return;
+    if (cheapSelectedKey !== clave) return; // ya hay otra seleccionada: no se le quita la marca
     cheapSelectedKey = null;
     marcarSeleccionEnLista(false);
   });
@@ -2005,13 +2279,11 @@ function applyLabels() {
 
 // La leyenda muestra los tramos reales que hay en pantalla, no una escala fija
 function updateLegend(thresholds, prices) {
-  // Dos motivos para no pintarlos: que el usuario los haya apagado, o que no haya escala válida
-  // (pocas gasolineras a la vista, ver computeThresholds).
-  if (!thresholds || !showRanges) {
-    legendBlockEl.hidden = true;
-    return;
-  }
-  const bounds = [prices[0], ...thresholds, prices[prices.length - 1]];
+  // Solo se oculta si el usuario la ha apagado en Vista. Sin escala válida (pocas gasolineras a la
+  // vista, ver computeThresholds) se queda la franja con los cuatro colores y sin cifras.
+  legendBlockEl.hidden = !showRanges;
+  if (!showRanges) return;
+  const bounds = thresholds ? [prices[0], ...thresholds, prices[prices.length - 1]] : null;
   const fmt = (v) => v.toFixed(3) + ' €';
   legendTitleEl.textContent = 'Precio ' + FUEL_LABELS[selectedFuel] + ' en la zona';
   const toggle = (id, color, texto) =>
@@ -2021,10 +2293,10 @@ function updateLegend(thresholds, prices) {
     '</button>';
 
   legendRowsEl.innerHTML = PRICE_COLORS.map((color, i) =>
-    toggle(BADGE_IDS[i], color,
-      '<span class="range"><span>' + fmt(bounds[i]) + '</span><span class="range-sep">–</span><span>' + fmt(bounds[i + 1]) + '</span></span>')
+    toggle(BADGE_IDS[i], color, bounds
+      ? '<span class="range"><span>' + fmt(bounds[i]) + '</span><span class="range-sep">–</span><span>' + fmt(bounds[i + 1]) + '</span></span>'
+      : '<span class="range"><span>–</span></span>')
   ).join('');
-  legendBlockEl.hidden = false;
 }
 
 // --- Lista de las más baratas ---
@@ -2041,12 +2313,16 @@ const cheapPanelEl = document.getElementById('cheap-panel');
 const cheapTitleEl = document.getElementById('cheap-title');
 const cheapCountEl = document.getElementById('cheap-count');
 const cheapListEl = document.getElementById('cheap-list');
-const cheapMinBtn = document.getElementById('cheap-min');
 const cheapCloseBtn = document.getElementById('cheap-close');
 
 // Las features de la lista, ya ordenadas. Se guardan aparte de lo que hay pintado para que al
 // pulsar una fila se pueda abrir su popup con el mismo objeto que vio el mapa.
 let cheapFeatures = [];
+
+// Firma de las gasolineras pintadas ahora mismo. La tira se rehace entera en cada movimiento del
+// mapa y eso devolvería el scroll horizontal al principio: si son las mismas, se conserva donde
+// estaba; si cambiaron, volver al principio es lo correcto.
+let cheapFirma = '';
 
 // Distancia en línea recta (haversine). Sirve para orientar -- "esta está al lado, esta a 8 km" --
 // no para navegar, que de eso ya se encarga el enlace a Google Maps del popup.
@@ -2082,13 +2358,6 @@ function renderCheapList() {
 
   cheapTitleEl.textContent = 'Más baratas · ' + FUEL_LABELS[selectedFuel];
 
-  // Minimizada solo se ve la cabecera, que sí hay que mantener al día: el contador de arriba es
-  // la única señal de que la lista ha cambiado al mover el mapa. Las filas no se pintan.
-  if (cheapPanelEl.classList.contains('is-min')) {
-    cheapCountEl.textContent = cheapFeatures.length ? String(cheapFeatures.length) : '';
-    return;
-  }
-
   if (cheapFeatures.length === 0) {
     cheapCountEl.textContent = '';
     cheapFirma = '';
@@ -2101,13 +2370,13 @@ function renderCheapList() {
   const visibles = cheapFeatures.slice(0, CHEAP_MAX);
   cheapCountEl.textContent = total > CHEAP_MAX ? visibles.length + ' de ' + total : String(total);
 
-  // La lista se rehace entera en cada movimiento del mapa y eso devolvería el scroll a 0: si las
-  // gasolineras son las mismas se conserva donde estaba; si cambiaron, vuelve al principio.
   const firma = visibles.map(claveEstacion).join('|');
   const scroll = firma === cheapFirma ? cheapListEl.scrollLeft : 0;
   cheapFirma = firma;
 
   const centro = map.getCenter();
+  // El puesto va con la distancia y no en su propia columna: en una tarjeta estrecha, una columna
+  // de números a la izquierda se comía el ancho del rótulo, que es lo que de verdad identifica.
   cheapListEl.innerHTML = visibles.map((f, i) => {
     const p = f.properties;
     const [lng, lat] = f.geometry.coordinates;
@@ -2116,7 +2385,8 @@ function renderCheapList() {
     const sel = claveEstacion(f) === cheapSelectedKey;
     return '<button type="button" class="cheap-row' + (sel ? ' is-selected' : '') + '"' +
       ' data-i="' + i + '" data-key="' + esc(claveEstacion(f)) + '" aria-pressed="' + sel + '"' +
-      ' style="--clase:' + colorForBadge(p.badge) + '">' +
+      ' style="--clase:' + colorForBadge(p.badge) +
+      ';--clase-texto:' + colorTextoForBadge(p.badge) + '">' +
       logoMarca(p.brand) +
       '<span class="cheap-text">' +
         '<span class="cheap-price">' + p.price + ' €</span>' +
@@ -2127,8 +2397,6 @@ function renderCheapList() {
   }).join('');
   cheapListEl.scrollLeft = scroll;
 }
-
-let cheapFirma = '';
 
 // Marca la tarjeta de la gasolinera con popup abierto (y desmarca el resto). 'desplazar' la trae a
 // la vista: hace falta cuando la selección viene de un clic en el mapa y no de la propia lista.
@@ -2141,41 +2409,32 @@ function marcarSeleccionEnLista(desplazar) {
   }
 }
 
-// Un solo listener en el contenedor, no uno por tarjeta: se regeneran enteras en cada movimiento
-// del mapa y reengancharlas una a una sería tirar y recrear decenas de listeners.
+// Un solo listener en el contenedor, no uno por fila: las filas se regeneran enteras en cada
+// movimiento del mapa y reengancharlas una a una sería tirar y recrear decenas de listeners.
 cheapListEl.addEventListener('click', (e) => {
   const fila = e.target.closest('.cheap-row');
   if (!fila) return;
   const f = cheapFeatures[Number(fila.dataset.i)];
-  // El mapa NO se mueve: todas las de la lista ya están en pantalla, y mover la vista cambiaría
-  // lo que contiene la lista (y podría apagar la leyenda de rangos al quedar pocas gasolineras).
+  // El mapa NO se mueve: todas las de la lista ya están en pantalla, y moverlo cambiaría lo que la
+  // lista contiene (y con menos de MIN_FOR_CLASSES gasolineras apagaría la leyenda de rangos).
   if (f) openStationPopup(f, { desdeLista: true });
 });
 
-// La rueda del ratón solo mueve en vertical: se traduce a desplazamiento horizontal. Con
-// trackpad o dedo (deltaX) se deja el comportamiento nativo.
+// La tira se recorre con el dedo o arrastrando, pero con una rueda de ratón el gesto natural es
+// vertical y ahí no hay nada que desplazar: se traduce a horizontal. Solo cuando el movimiento es
+// claramente vertical, para no pelearse con los trackpads, que ya mandan deltaX.
 cheapListEl.addEventListener('wheel', (e) => {
   if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
   cheapListEl.scrollLeft += e.deltaY;
   e.preventDefault();
 }, { passive: false });
 
-// Tres estados: cerrada (hidden), desplegada y minimizada (solo la barra de cabecera).
-function setCheapMin(min) {
-  cheapPanelEl.classList.toggle('is-min', min);
-  cheapMinBtn.setAttribute('aria-expanded', String(!min));
-  renderCheapList();
-}
-
 function toggleCheapPanel(abrir) {
   cheapPanelEl.hidden = !abrir;
   cheapToggleBtn?.setAttribute('aria-pressed', String(abrir));
-  // Abrir siempre despliega: si se quedó minimizada y se cerró, volver a pulsar el botón del
-  // mapa tiene que enseñar la lista, no una barra vacía.
-  setCheapMin(false);
+  renderCheapList(); // al abrir, pinta lo que se haya acumulado mientras estaba cerrada
 }
 
-cheapMinBtn.addEventListener('click', () => setCheapMin(!cheapPanelEl.classList.contains('is-min')));
 cheapCloseBtn.addEventListener('click', () => toggleCheapPanel(false));
 
 // Botón que abre la lista. Va como control de MapLibre y no suelto sobre el mapa para que caiga
@@ -2200,14 +2459,7 @@ class ListaControl {
       '<line x1="9" y1="18" x2="20" y2="18" /><circle cx="4.5" cy="6" r="1.2" fill="currentColor" />' +
       '<circle cx="4.5" cy="12" r="1.2" fill="currentColor" /><circle cx="4.5" cy="18" r="1.2" fill="currentColor" />' +
       '</svg>';
-    // Tres destinos según en qué estado esté: cerrada -> desplegar, minimizada -> desplegar,
-    // desplegada -> cerrar. Minimizada el botón sigue alcanzable (la barra solo ocupa abajo), y
-    // ahí lo que se quiere es recuperar la lista, no cerrarla del todo.
-    cheapToggleBtn.addEventListener('click', () => {
-      if (cheapPanelEl.hidden) toggleCheapPanel(true);
-      else if (cheapPanelEl.classList.contains('is-min')) setCheapMin(false);
-      else toggleCheapPanel(false);
-    });
+    cheapToggleBtn.addEventListener('click', () => toggleCheapPanel(cheapPanelEl.hidden));
     this._container.appendChild(cheapToggleBtn);
     return this._container;
   }
@@ -2493,9 +2745,11 @@ map.on('load', async () => {
       'text-justify': 'left'
     },
     paint: {
-      // Blanco fijo, no BADGE_COLOR_MATCH: desde que el fondo del bocadillo es el color del tramo
-      // (ver makeBadgeImage) el texto va sobre ese color, no sobre blanco -- BADGE_COLOR_MATCH
-      // sigue usándose tal cual en DOTS_LAYER_ID, que es un punto de color sobre el mapa base.
+      // Blanco en todos los tramos, por decisión de diseño: el fondo del bocadillo es el color del
+      // tramo (ver makeBadgeImage) y el precio va encima. La paleta está elegida para sostenerlo:
+      // los cuatro dan 3:1 o más con blanco (ver PRICE_COLORS); dos no llegan al 4,5:1 de WCAG para
+      // texto pequeño, que es el precio de quedarse en tonos vivos. (BADGE_COLOR_MATCH, el color de
+      // relleno, sigue usándose tal cual en DOTS_LAYER_ID, que es un punto de color sobre el mapa.)
       'text-color': '#ffffff'
     }
   });
@@ -2596,6 +2850,11 @@ function padBbox(bbox, factor) {
   };
 }
 
+// Número de la última llamada a updateMarkers. Dos movimientos seguidos lanzan dos lecturas en
+// paralelo, y la primera puede acabar después (p. ej. toda España con el .fgb ligero, y luego un
+// vuelo a una calle): sin esto, la lectura vieja pisaría a la nueva con otra zona y otro fichero.
+let markersReq = 0;
+
 // 5. Cargar únicamente las gasolineras visibles con FlatGeobuf, vía HTTP Range Request
 async function updateMarkers() {
   // Red de seguridad: sin la fuente ni las capas creadas (map.on('load')) no hay dónde pintar, y
@@ -2603,6 +2862,7 @@ async function updateMarkers() {
   // esperan por su cuenta (resolverArranque, flyToAddress), pero esto cubre cualquier 'moveend'
   // temprano sin tener que acordarse de ello en cada sitio.
   await mapReady;
+  const req = ++markersReq;
   // Se carga a cualquier zoom: en vista alejada las estaciones se pintan como puntos (DOTS_LAYER_ID)
   // y al acercarse pasan a recuadros con precio (LAYER_ID).
   const bounds = map.getBounds();
@@ -2633,8 +2893,12 @@ async function updateMarkers() {
   try {
     const iter = flatgeobuf.deserialize(src, fetchBbox);
     for await (const feature of iter) {
+      // Ya hay una lectura más nueva: se abandona esta (salir del bucle cierra el iterador, que
+      // deja de pedir rangos) y no se toca ni la caché ni lo pintado.
+      if (req !== markersReq) return;
       features.push(feature);
     }
+    if (req !== markersReq) return;
     fgbCache = { src, bbox: fetchBbox, features };
     // Solo lo que cae en el bbox real, no en el margen: éste es puro caché, no debe colar
     // gasolineras fuera de pantalla en el cálculo de cuartiles de applyLabels().
@@ -2642,7 +2906,7 @@ async function updateMarkers() {
     // Una sola actualización de la capa por movimiento, con el precio ya calculado
     applyLabels();
   } catch (err) {
-    console.error('Error leyendo FlatGeobuf:', err);
+    if (req === markersReq) console.error('Error leyendo FlatGeobuf:', err);
   }
 }
 
@@ -2725,7 +2989,7 @@ function setCalcStatus(texto, esError) {
 function setCalcOrigin(lngLat, guardar = true) {
   calcOrigin = [lngLat[0], lngLat[1]];
   if (!calcOriginMarker) {
-    calcOriginMarker = new maplibregl.Marker({ color: '#7c3aed', draggable: true })
+    calcOriginMarker = new maplibregl.Marker({ color: THEME_PRIMARY, draggable: true })
       .setLngLat(calcOrigin)
       .addTo(map);
     calcOriginMarker.on('dragend', () => {
@@ -3230,13 +3494,13 @@ mapReady.then(() => {
   const capas = map.getStyle().layers.map((l) => l.id);
   const debajo = capas.find((id) => id === DOTS_LAYER_ID || id === LAYER_ID);
   map.addLayer({ id: 'calc-radio-fill', type: 'fill', source: 'calc-radio',
-    paint: { 'fill-color': '#7c3aed', 'fill-opacity': 0.05 } }, debajo);
+    paint: { 'fill-color': THEME_PRIMARY, 'fill-opacity': 0.05 } }, debajo);
   map.addLayer({ id: 'calc-radio-line', type: 'line', source: 'calc-radio',
-    paint: { 'line-color': '#7c3aed', 'line-width': 1.5, 'line-dasharray': [3, 2] } }, debajo);
+    paint: { 'line-color': THEME_PRIMARY, 'line-width': 1.5, 'line-dasharray': [3, 2] } }, debajo);
   map.addLayer({ id: 'calc-rutas', type: 'line', source: 'calc-rutas',
     layout: { 'line-cap': 'round', 'line-join': 'round', 'line-sort-key': ['get', 'orden'] },
     paint: {
-      'line-color': ['case', ['==', ['get', 'sel'], 1], '#7c3aed', CALC_COLOR_MATCH],
+      'line-color': ['case', ['==', ['get', 'sel'], 1], THEME_PRIMARY, CALC_COLOR_MATCH],
       'line-width': ['case', ['==', ['get', 'sel'], 1], 6, ['==', ['get', 'estado'], 'mejor'], 5, 2.5],
       'line-opacity': ['case', ['any', ['==', ['get', 'sel'], 1], ['==', ['get', 'estado'], 'mejor']], 0.95, 0.55]
     } }, debajo);
