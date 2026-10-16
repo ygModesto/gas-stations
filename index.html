@@ -1099,7 +1099,6 @@ map.addControl(geolocate, 'top-right');
 const legendBlockEl = document.getElementById('legend-block');
 const legendTitleEl = document.getElementById('legend-title');
 const legendRowsEl = document.getElementById('legend-rows');
-new ResizeObserver(() => map.resize()).observe(legendBlockEl);
 
 // 3. Cargar la fecha desde meta.json ligero. La atribución (mapa base y datos) ya no es el control
 // "i" de MapLibre sino una nota al final del menú Vista (#attribution); aquí solo se completa con
@@ -2242,7 +2241,8 @@ function loadImage(src) {
 // Icono de gasolinera para las que no tienen marca reconocida (o la tienen pero sin logo todavía,
 // ver iconImageExpr) -- mejor un surtidor genérico que el círculo liso de antes. De Maki
 // (github.com/mapbox/maki), el set de iconos de Mapbox para puntos de interés en mapas, CC0.
-const GENERIC_FUEL_ICON_SRC = './public/logos/fuel-generic.svg';
+const LOGOS_DIR = './public/logos/';
+const GENERIC_FUEL_ICON_SRC = LOGOS_DIR + 'fuel-generic.svg';
 
 // URL del logo de cada marca que se cargó (la rellena loadBrandLogos), para el popup y la lista.
 const brandLogoSrc = new Map();
@@ -2250,22 +2250,45 @@ function logoMarca(brand) {
   return '<img class="brand-logo" src="' + (brandLogoSrc.get(brand) ?? GENERIC_FUEL_ICON_SRC) + '" alt="">';
 }
 
-// Descarga el manifiesto de fetch-logos.mjs y precarga como <img> solo los logos de marcas que la
-// app reconoce (BRANDS): las que trae marcas.yaml de más (ASC CARBURANTES, CONFORT AUTO...) no
-// tienen hueco propio en el desplegable todavía, así que cargarlas no serviría de nada.
-// Si el manifiesto no existe o una imagen falla, esa marca sencillamente se queda sin logo -- no
-// es un error fatal, cae en el mismo icono genérico que las que nunca tuvieron web conocida.
+// Recorta un logo del sprite a su propio canvas. makeBadgeImage lo dibuja igual que un <img>
+// (solo usa width, height y drawImage), y el popup y la lista lo usan como data URL.
+function logoDesdeSprite(spriteImg, celda) {
+  const canvas = document.createElement('canvas');
+  canvas.width = celda.w;
+  canvas.height = celda.h;
+  canvas.getContext('2d').drawImage(spriteImg, celda.x, celda.y, celda.w, celda.h, 0, 0, celda.w, celda.h);
+  return { canvas, url: canvas.toDataURL('image/png') };
+}
+
+// Descarga el manifiesto de fetch-logos.mjs y prepara solo los logos de marcas que la app reconoce
+// (BRANDS): las que trae marcas.yaml de más (ASC CARBURANTES, CONFORT AUTO...) no tienen hueco
+// propio en el desplegable todavía, así que cargarlas no serviría de nada.
+// Los logos llegan todos juntos en sprite.webp (con sus posiciones en sprite.json, ver
+// tools/logo-sprite.html): tres peticiones en paralelo en vez de una por marca, y ~50 KB en vez de
+// ~500, porque los originales vienen a cientos de px y aquí se pintan a 20-24. Si el sprite falta o
+// no trae el fichero que pide el manifiesto (un logo nuevo sin regenerar el sprite), esa marca se
+// carga suelta como antes. Si falla todo, sin logo: cae en el icono genérico, no es un error fatal.
 async function loadBrandLogos() {
   const logos = new Map();
-  let manifest;
-  try {
-    manifest = await fetch('./public/logos/manifest.json').then((r) => r.json());
-  } catch {
-    return logos; // sin manifiesto (build viejo, o aún no se ha corrido fetch-logos.mjs): sin logos
-  }
+  const [manifest, sprite, spriteImg] = await Promise.all([
+    fetch(LOGOS_DIR + 'manifest.json').then((r) => r.json()).catch(() => null),
+    fetch(LOGOS_DIR + 'sprite.json').then((r) => r.json()).catch(() => null),
+    loadImage(LOGOS_DIR + 'sprite.webp')
+  ]);
+  if (!manifest) return logos; // sin manifiesto (build viejo, o aún no se ha corrido fetch-logos.mjs)
+  const recortes = new Map(); // fichero -> recorte: varias marcas comparten logo (CEPSA y MOEVE)
   await Promise.all(
     BRANDS.filter((b) => manifest[b]).map(async (b) => {
-      const img = await loadImage(`./public/logos/${manifest[b]}`);
+      const file = manifest[b];
+      const celda = spriteImg && sprite?.files?.[file];
+      if (celda) {
+        if (!recortes.has(file)) recortes.set(file, logoDesdeSprite(spriteImg, celda));
+        const { canvas, url } = recortes.get(file);
+        logos.set(b, canvas);
+        brandLogoSrc.set(b, url);
+        return;
+      }
+      const img = await loadImage(LOGOS_DIR + file);
       if (img) { logos.set(b, img); brandLogoSrc.set(b, img.src); }
     })
   );

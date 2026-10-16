@@ -150,12 +150,14 @@ async function main() {
 
   // Elimina del directorio los ficheros de imagen que ya no aparecen en el manifest nuevo
   // (p.ej. los .webp viejos de Logo Link que ahora quedan sustituidos por un .svg/.png mejor).
-  // _fuel-generic.svg no es de ninguna marca (ver GENERIC_FUEL_ICON_SRC en index.html), así que
-  // nunca sale en el manifest -- sin esta excepción, esta limpieza lo borraría cada vez.
+  // Hay ficheros que no son de ninguna marca y nunca salen en el manifest: fuel-generic.svg (ver
+  // GENERIC_FUEL_ICON_SRC en index.html) y el sprite con todos los logos (ver
+  // tools/logo-sprite.html). Sin esta excepción, esta limpieza los borraría cada vez.
+  const KEEP_ALWAYS = new Set(['manifest.json', 'fuel-generic.svg', 'sprite.webp', 'sprite.json']);
   const keepFiles = new Set(Object.values(manifest));
   const existing = await fs.readdir(OUT_DIR);
   for (const f of existing) {
-    if (f === 'manifest.json' || f === '_fuel-generic.svg') continue;
+    if (KEEP_ALWAYS.has(f)) continue;
     if (!keepFiles.has(f)) {
       await fs.unlink(path.join(OUT_DIR, f));
       console.log(`BORRADO ${f} (ya no esta en el manifest)`);
@@ -167,6 +169,7 @@ async function main() {
   console.log(`\n${Object.keys(manifest).length} marcas en manifest.json.`);
   if (skipped.length) console.log('Omitidas (no estan en BRANDS o son duplicado):', skipped.join(', '));
   if (missing.length) console.log('Sin asset en logos-raw:', missing.join(', '));
+  console.log('\nRegenera el sprite: abre tools/logo-sprite.html con serve.ps1 y guarda sprite.webp y sprite.json en public/logos/.');
 }
 
 main();

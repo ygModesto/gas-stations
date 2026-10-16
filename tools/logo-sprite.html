@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sprite de logos</title>
+<style>
+  :root { --bg: #fff; --fg: #0f172a; --muted: #64748b; --border: #e2e8f0; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8; --border: #334155; } }
+  body { margin: 0; padding: 16px; background: var(--bg); color: var(--fg); font: 14px/1.5 system-ui, sans-serif; }
+  h1 { font-size: 1.1rem; margin: 0 0 4px; }
+  p { margin: 4px 0 12px; color: var(--muted); }
+  #status { margin: 12px 0; }
+  #preview { max-width: 100%; border: 1px solid var(--border); background: repeating-conic-gradient(#ccc 0 25%, #fff 0 50%) 0 0 / 16px 16px; }
+  a { color: inherit; margin-right: 12px; }
+  #warn { color: #b91c1c; white-space: pre-line; }
+</style>
+</head>
+<body>
+<h1>Sprite de logos</h1>
+<p>
+  Junta todos los logos de <code>public/logos/manifest.json</code> en una sola imagen, para que la
+  web los pida de una vez. Ábrela con <code>serve.ps1</code> (http://localhost:8000/tools/logo-sprite.html),
+  descarga los dos ficheros y guárdalos en <code>public/logos/</code>. Hay que repetirlo cada vez
+  que cambie un logo o el manifiesto.
+</p>
+<div id="status">Generando…</div>
+<div id="links"></div>
+<div id="warn"></div>
+<img id="preview" alt="Vista previa del sprite" />
+
+<script type="module">
+// Lado corto de cada logo en el sprite. En la web se pintan como mucho a ~20 px (hueco del
+// bocadillo, con recorte "cover") y a 24 px (popup y lista, "contain"): 64 px cubren esos tamaños
+// en pantallas de densidad 3x. Se guarda cada logo con su proporción, sin recortar, porque el
+// bocadillo y la lista lo encuadran de forma distinta.
+const SHORT_SIDE = 64;
+const GAP = 4;          // separación transparente, para que la compresión no mezcle vecinos
+const MAX_WIDTH = 512;  // ancho del sprite; las filas se llenan hasta aquí
+const QUALITY = 0.9;    // WebP con pérdida: el canal alfa se guarda aparte y sin pérdida
+const DIR = '../public/logos/';
+
+const statusEl = document.getElementById('status');
+const warnEl = document.getElementById('warn');
+
+// Un SVG con solo viewBox (sin width/height) no tiene tamaño propio y algunos navegadores lo
+// cargan a 0×0: la proporción se saca del viewBox.
+async function loadLogo(file) {
+  const src = DIR + file;
+  const img = new Image();
+  img.src = src;
+  await img.decode();
+  let w = img.naturalWidth;
+  let h = img.naturalHeight;
+  const esSvg = file.toLowerCase().endsWith('.svg');
+  if (esSvg && (!w || !h)) {
+    const txt = await fetch(src).then((r) => r.text());
+    const vb = txt.match(/viewBox="([^"]+)"/);
+    if (vb) [, , w, h] = vb[1].trim().split(/[\s,]+/).map(Number);
+  }
+  if (!w || !h) throw new Error('sin tamaño');
+  // Los vectores se rasterizan directamente al tamaño final; los mapas de bits no se amplían
+  const escala = esSvg ? SHORT_SIDE / Math.min(w, h) : Math.min(1, SHORT_SIDE / Math.min(w, h));
+  return { file, img, w: Math.round(w * escala), h: Math.round(h * escala) };
+}
+
+async function build() {
+  const manifest = await fetch(DIR + 'manifest.json').then((r) => r.json());
+  const files = [...new Set(Object.values(manifest))].sort();
+  const logos = [];
+  const fallos = [];
+  for (const file of files) {
+    try { logos.push(await loadLogo(file)); } catch (e) { fallos.push(file + ': ' + e.message); }
+  }
+
+  // Empaquetado por estanterías: de más alto a más bajo, llenando filas de MAX_WIDTH
+  logos.sort((a, b) => b.h - a.h || b.w - a.w);
+  let x = GAP, y = GAP, filaH = 0;
+  for (const l of logos) {
+    if (x + l.w + GAP > MAX_WIDTH) { x = GAP; y += filaH + GAP; filaH = 0; }
+    l.x = x; l.y = y;
+    x += l.w + GAP;
+    filaH = Math.max(filaH, l.h);
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = MAX_WIDTH;
+  canvas.height = y + filaH + GAP;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingQuality = 'high';
+  for (const l of logos) ctx.drawImage(l.img, l.x, l.y, l.w, l.h);
+
+  const blob = await new Promise((r) => canvas.toBlob(r, 'image/webp', QUALITY));
+  if (!blob || blob.type !== 'image/webp') throw new Error('Este navegador no sabe codificar WebP');
+  const json = {
+    // Para comprobar a mano de qué manifiesto salió; la web no lo usa
+    generado: new Date().toISOString(),
+    lado_corto: SHORT_SIDE,
+    files: Object.fromEntries(logos.sort((a, b) => a.file.localeCompare(b.file))
+      .map((l) => [l.file, { x: l.x, y: l.y, w: l.w, h: l.h }]))
+  };
+  const jsonTxt = JSON.stringify(json, null, 2) + '\n';
+
+  const webpUrl = URL.createObjectURL(blob);
+  document.getElementById('preview').src = webpUrl;
+  document.getElementById('links').innerHTML =
+    '<a download="sprite.webp" href="' + webpUrl + '">Descargar sprite.webp</a>' +
+    '<a download="sprite.json" href="' + URL.createObjectURL(new Blob([jsonTxt], { type: 'application/json' })) + '">Descargar sprite.json</a>';
+  statusEl.textContent = logos.length + ' logos en ' + canvas.width + '×' + canvas.height + ' px, ' +
+    (blob.size / 1024).toFixed(1) + ' KB.';
+  if (fallos.length) warnEl.textContent = 'No se pudieron cargar (la web los pedirá sueltos):\n' + fallos.join('\n');
+
+  // Para generarlo sin interfaz (Chrome headless): el resultado queda aquí en base64
+  const b64 = await new Promise((r) => { const fr = new FileReader(); fr.onload = () => r(fr.result.split(',')[1]); fr.readAsDataURL(blob); });
+  window.__sprite = { webp: b64, json: jsonTxt, fallos };
+}
+
+build().catch((e) => {
+  statusEl.textContent = 'Error: ' + e.message;
+  window.__sprite = { error: e.message };
+});
+</script>
+</body>
+</html>

@@ -787,6 +787,70 @@
   .popup-nav:hover { opacity: 0.9; }
   .popup-nav:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
+
+  /* --- Calculadora "¿dónde me compensa repostar?" (en pruebas, solo develop) ---
+     Panel de depuración: enseña los parámetros, cada paso del cálculo y la tabla de candidatas,
+     para poder revisar a mano por qué gana una gasolinera y no otra. Flota a la izquierda bajo la
+     barra; en móvil ocupa todo el ancho. */
+  #calc-panel {
+    position: absolute;
+    top: calc(var(--toolbar-bottom) + 10px);
+    left: 10px;
+    width: 420px;
+    max-width: calc(100% - 66px);
+    max-height: calc(100% - var(--toolbar-bottom) - 20px);
+    overflow-y: auto;
+    z-index: 1002;
+    background: var(--background);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    font-size: 0.8rem;
+  }
+  #calc-panel[hidden] { display: none; }
+  .calc-head { position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 8px 8px 12px; background: var(--background); border-bottom: 1px solid var(--border); z-index: 1; }
+  .calc-title { font-weight: 600; font-size: 0.875rem; }
+  .calc-body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 10px; }
+  .calc-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .calc-form label { display: flex; flex-direction: column; gap: 3px; color: var(--muted-foreground); font-size: 0.75rem; }
+  .calc-form label.wide { grid-column: 1 / -1; }
+  .calc-form input[type="number"], .calc-form input[type="url"] {
+    height: 30px; padding: 0 8px; border: 1px solid var(--input); border-radius: var(--radius-sm);
+    background: var(--background); color: var(--foreground); font: inherit; font-size: 0.8rem; }
+  .calc-form input:focus-visible { outline: none; border-color: var(--ring); box-shadow: var(--focus-ring); }
+  .calc-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .calc-row .grow { flex: 1; min-width: 0; color: var(--muted-foreground); }
+  .calc-btn { height: 30px; padding: 0 10px; border: 1px solid var(--input); border-radius: var(--radius-sm);
+    background: var(--background); color: var(--foreground); font: inherit; font-size: 0.8rem; cursor: pointer; }
+  .calc-btn:hover, .calc-btn[aria-pressed="true"] { background: var(--accent); }
+  .calc-btn.primary { background: var(--primary); border-color: var(--primary); color: var(--background); font-weight: 600; }
+  .calc-btn:disabled { opacity: 0.5; cursor: default; }
+  .calc-check { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  #calc-status:empty { display: none; }
+  #calc-status.error { color: var(--destructive); }
+  .calc-out h4 { margin: 12px 0 4px; font-size: 0.8rem; }
+  .calc-out .best { padding: 8px 10px; border: 1px solid #15803d; border-radius: var(--radius-md); }
+  .calc-out ol { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+  .calc-out code, .calc-out .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.72rem; }
+  .calc-out a { color: inherit; word-break: break-all; }
+  .calc-out .muted { color: var(--muted-foreground); }
+  .calc-out .warn { color: var(--destructive); }
+  .calc-table-wrap { overflow-x: auto; }
+  .calc-out table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: 0.72rem; }
+  .calc-out th, .calc-out td { padding: 3px 5px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+  .calc-out th:nth-child(2), .calc-out td:nth-child(2), .calc-out td:last-child, .calc-out th:last-child { text-align: left; }
+  .calc-out td:nth-child(2) { max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+  .calc-out tbody tr { cursor: pointer; }
+  .calc-out tbody tr:hover { background: var(--accent); }
+  .calc-out tr.is-sel { outline: 2px solid var(--ring); outline-offset: -2px; }
+  .calc-st { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; background: var(--c); }
+  .calc-toggle svg { display: block; margin: auto; }
+  @media (max-width: 600px) {
+    #calc-panel { left: 0; right: 0; width: auto; max-width: none; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      top: calc(var(--toolbar-bottom) + 8px); bottom: 0; max-height: none; }
+  }
 </style>
 </head>
 <body>
@@ -986,6 +1050,41 @@ window.__boot = (() => {
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Calculadora de dónde compensa repostar (en pruebas). El botón que la abre es un control de
+       MapLibre (ver CalcControl), en la columna de la derecha como el de la lista. -->
+  <div id="calc-panel" role="region" aria-label="Dónde me compensa repostar" hidden>
+    <div class="calc-head">
+      <span class="calc-title">¿Dónde me compensa repostar?</span>
+      <button id="calc-close" class="cheap-close" type="button" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+          <line x1="5" y1="5" x2="19" y2="19" /><line x1="19" y1="5" x2="5" y2="19" />
+        </svg>
+      </button>
+    </div>
+    <div class="calc-body">
+      <div class="calc-form">
+        <label>Litros a repostar<input id="calc-litros" type="number" min="1" step="1" value="40" /></label>
+        <label>Consumo (L/100 km)<input id="calc-consumo" type="number" min="0.1" step="0.1" value="6" /></label>
+        <label>Precio mínimo en España (€/L)<input id="calc-pmin" type="number" min="0" step="0.001" placeholder="p. ej. 1.490" /></label>
+        <label>Valor del tiempo (€/h)<input id="calc-vtiempo" type="number" min="0" step="1" value="0" /></label>
+        <label>Velocidad máx. para la cota (km/h)<input id="calc-vmax" type="number" min="1" step="1" value="120" /></label>
+        <label>Tope de radio (km)<input id="calc-tope" type="number" min="1" step="1" value="100" /></label>
+        <label class="wide">Servidor OSRM<input id="calc-osrm" type="url" /></label>
+      </div>
+      <div class="calc-row">
+        <span id="calc-origin-text" class="grow">Sin ubicación</span>
+        <button id="calc-pick" class="calc-btn" type="button" aria-pressed="false">Elegir en el mapa</button>
+        <button id="calc-center" class="calc-btn" type="button">Centro del mapa</button>
+      </div>
+      <div class="calc-row">
+        <label class="calc-check grow"><input type="checkbox" id="calc-draw" checked /> Dibujar las rutas calculadas</label>
+        <button id="calc-run" class="calc-btn primary" type="button">Calcular</button>
+      </div>
+      <div id="calc-status"></div>
+      <div id="calc-out" class="calc-out"></div>
     </div>
   </div>
 
@@ -2263,7 +2362,8 @@ function loadImage(src) {
 // Icono de gasolinera para las que no tienen marca reconocida (o la tienen pero sin logo todavía,
 // ver iconImageExpr) -- mejor un surtidor genérico que el círculo liso de antes. De Maki
 // (github.com/mapbox/maki), el set de iconos de Mapbox para puntos de interés en mapas, CC0.
-const GENERIC_FUEL_ICON_SRC = '../public/logos/_fuel-generic.svg';
+const LOGOS_DIR = '../public/logos/';
+const GENERIC_FUEL_ICON_SRC = LOGOS_DIR + 'fuel-generic.svg';
 
 // URL del logo de cada marca que se cargó (la rellena loadBrandLogos), para el popup y la lista.
 const brandLogoSrc = new Map();
@@ -2271,22 +2371,45 @@ function logoMarca(brand) {
   return '<img class="brand-logo" src="' + (brandLogoSrc.get(brand) ?? GENERIC_FUEL_ICON_SRC) + '" alt="">';
 }
 
-// Descarga el manifiesto de fetch-logos.mjs y precarga como <img> solo los logos de marcas que la
-// app reconoce (BRANDS): las que trae marcas.yaml de más (ASC CARBURANTES, CONFORT AUTO...) no
-// tienen hueco propio en el desplegable todavía, así que cargarlas no serviría de nada.
-// Si el manifiesto no existe o una imagen falla, esa marca sencillamente se queda sin logo -- no
-// es un error fatal, cae en el mismo icono genérico que las que nunca tuvieron web conocida.
+// Recorta un logo del sprite a su propio canvas. makeBadgeImage lo dibuja igual que un <img>
+// (solo usa width, height y drawImage), y el popup y la lista lo usan como data URL.
+function logoDesdeSprite(spriteImg, celda) {
+  const canvas = document.createElement('canvas');
+  canvas.width = celda.w;
+  canvas.height = celda.h;
+  canvas.getContext('2d').drawImage(spriteImg, celda.x, celda.y, celda.w, celda.h, 0, 0, celda.w, celda.h);
+  return { canvas, url: canvas.toDataURL('image/png') };
+}
+
+// Descarga el manifiesto de fetch-logos.mjs y prepara solo los logos de marcas que la app reconoce
+// (BRANDS): las que trae marcas.yaml de más (ASC CARBURANTES, CONFORT AUTO...) no tienen hueco
+// propio en el desplegable todavía, así que cargarlas no serviría de nada.
+// Los logos llegan todos juntos en sprite.webp (con sus posiciones en sprite.json, ver
+// tools/logo-sprite.html): tres peticiones en paralelo en vez de una por marca, y ~50 KB en vez de
+// ~500, porque los originales vienen a cientos de px y aquí se pintan a 20-24. Si el sprite falta o
+// no trae el fichero que pide el manifiesto (un logo nuevo sin regenerar el sprite), esa marca se
+// carga suelta como antes. Si falla todo, sin logo: cae en el icono genérico, no es un error fatal.
 async function loadBrandLogos() {
   const logos = new Map();
-  let manifest;
-  try {
-    manifest = await fetch('../public/logos/manifest.json').then((r) => r.json());
-  } catch {
-    return logos; // sin manifiesto (build viejo, o aún no se ha corrido fetch-logos.mjs): sin logos
-  }
+  const [manifest, sprite, spriteImg] = await Promise.all([
+    fetch(LOGOS_DIR + 'manifest.json').then((r) => r.json()).catch(() => null),
+    fetch(LOGOS_DIR + 'sprite.json').then((r) => r.json()).catch(() => null),
+    loadImage(LOGOS_DIR + 'sprite.webp')
+  ]);
+  if (!manifest) return logos; // sin manifiesto (build viejo, o aún no se ha corrido fetch-logos.mjs)
+  const recortes = new Map(); // fichero -> recorte: varias marcas comparten logo (CEPSA y MOEVE)
   await Promise.all(
     BRANDS.filter((b) => manifest[b]).map(async (b) => {
-      const img = await loadImage(`../public/logos/${manifest[b]}`);
+      const file = manifest[b];
+      const celda = spriteImg && sprite?.files?.[file];
+      if (celda) {
+        if (!recortes.has(file)) recortes.set(file, logoDesdeSprite(spriteImg, celda));
+        const { canvas, url } = recortes.get(file);
+        logos.set(b, canvas);
+        brandLogoSrc.set(b, url);
+        return;
+      }
+      const img = await loadImage(LOGOS_DIR + file);
       if (img) { logos.set(b, img); brandLogoSrc.set(b, img.src); }
     })
   );
@@ -2411,7 +2534,7 @@ map.on('load', async () => {
   map.on('mouseleave', INTERACTIVE_LAYERS, () => { map.getCanvas().style.cursor = ''; });
 
   map.on('click', INTERACTIVE_LAYERS, (e) => {
-    if (!canPopup()) return;
+    if (!canPopup() || calcPicking) return;
     openStationPopup(e.features[0]);
   });
 
@@ -2522,6 +2645,611 @@ async function updateMarkers() {
     console.error('Error leyendo FlatGeobuf:', err);
   }
 }
+
+// --- ¿Dónde me compensa repostar? (en pruebas, solo develop) ---
+// Coste de ir a repostar a la gasolinera s desde el origen, ida y vuelta:
+//   coste(s) = L·p_s + 2·d_s·(c/100)·p_s + 2·t_s·v
+// L litros a echar, c consumo en L/100 km, p_s su precio, v el valor del tiempo en €/h, y d_s y t_s
+// la distancia y la duración por carretera que da OSRM (solo ida: la vuelta se supone igual).
+// La distancia en línea recta h_s nunca supera a la de carretera, ni h_s/v_max a la duración, así
+// que con ellas sale una cota optimista LB(s) <= coste(s). Si LB(s) ya es peor que el mejor coste
+// real encontrado, s se descarta sin pedir ruta. Y como ninguna gasolinera baja de p_min, más allá
+// de este radio (en línea recta) ninguna puede ganar:
+//   d_max = (mejor − L·p_min) / (2·((c/100)·p_min + v/v_max))
+// Todo se calcula alrededor del origen elegido, no de lo que se ve en pantalla.
+
+const CALC_PREFS_KEY = 'gasolineras:calc';
+const CALC_REF_K = 5;         // candidatas (las de mejor cota) con las que se fija la referencia
+const CALC_FIRST_KM = 5;      // primer radio de búsqueda de la referencia; se dobla si no llega
+const CALC_BATCH = 25;        // destinos por petición /table
+const CALC_MAX_ITER = 8;      // vueltas de ajuste de p_min y d_max
+const CALC_ROUTE_CONC = 6;    // peticiones /route en paralelo para dibujar
+const CALC_MAX_ROWS = 400;    // filas pintadas en la tabla (el JSON lleva todas)
+const CALC_COLORS = {
+  mejor: '#15803d',
+  evaluada: '#2563eb',
+  podada: '#94a3b8',
+  inalcanzable: '#b91c1c'
+};
+const CALC_STATUS_LABEL = {
+  mejor: 'mejor',
+  evaluada: 'ruta calculada',
+  podada: 'podada por cota',
+  inalcanzable: 'sin ruta'
+};
+const CALC_EMPTY = { type: 'FeatureCollection', features: [] };
+
+// La URL vive en config.yaml (servicios.osrm); este valor es solo el de reserva si no carga.
+const OSRM_FALLBACK = 'http://localhost:5000';
+const osrmBaseCfg = fetch('../config.yaml')
+  .then((r) => (r.ok ? r.text() : ''))
+  .then((txt) => (txt.match(/^[ \t]+osrm:[ \t]*(\S+)/m) || [])[1] || OSRM_FALLBACK)
+  .catch(() => OSRM_FALLBACK);
+
+const calcPanelEl = document.getElementById('calc-panel');
+const calcIn = {
+  litros: document.getElementById('calc-litros'),
+  consumo: document.getElementById('calc-consumo'),
+  pmin: document.getElementById('calc-pmin'),
+  vtiempo: document.getElementById('calc-vtiempo'),
+  vmax: document.getElementById('calc-vmax'),
+  tope: document.getElementById('calc-tope'),
+  osrm: document.getElementById('calc-osrm')
+};
+const calcOriginTextEl = document.getElementById('calc-origin-text');
+const calcPickBtn = document.getElementById('calc-pick');
+const calcCenterBtn = document.getElementById('calc-center');
+const calcDrawEl = document.getElementById('calc-draw');
+const calcRunBtn = document.getElementById('calc-run');
+const calcStatusEl = document.getElementById('calc-status');
+const calcOutEl = document.getElementById('calc-out');
+let calcToggleBtn = null;
+let calcPicking = false;   // el próximo clic en el mapa fija el origen (y no abre popups)
+let calcOrigin = null;     // [lng, lat]
+let calcOriginMarker = null;
+let calcLast = null;       // último cálculo: lo leen la tabla, el mapa y "Copiar JSON"
+let calcSelKey = null;
+
+function saveCalcPrefs() {
+  try {
+    const valores = Object.fromEntries(Object.entries(calcIn).map(([k, el]) => [k, el.value]));
+    localStorage.setItem(CALC_PREFS_KEY, JSON.stringify({ ...valores, origin: calcOrigin }));
+  } catch { /* sin persistencia: funciona igual, solo no se recuerda */ }
+}
+
+function setCalcStatus(texto, esError) {
+  calcStatusEl.textContent = texto;
+  calcStatusEl.classList.toggle('error', !!esError);
+}
+
+function setCalcOrigin(lngLat, guardar = true) {
+  calcOrigin = [lngLat[0], lngLat[1]];
+  if (!calcOriginMarker) {
+    calcOriginMarker = new maplibregl.Marker({ color: '#7c3aed', draggable: true })
+      .setLngLat(calcOrigin)
+      .addTo(map);
+    calcOriginMarker.on('dragend', () => {
+      const ll = calcOriginMarker.getLngLat();
+      setCalcOrigin([ll.lng, ll.lat]);
+    });
+  } else {
+    calcOriginMarker.setLngLat(calcOrigin);
+  }
+  calcOriginMarker.getElement().style.display = calcPanelEl.hidden ? 'none' : '';
+  calcOriginTextEl.textContent = 'Origen: ' + calcOrigin[1].toFixed(5) + ', ' + calcOrigin[0].toFixed(5);
+  if (guardar) saveCalcPrefs();
+}
+
+function setCalcPicking(on) {
+  calcPicking = on;
+  calcPickBtn.setAttribute('aria-pressed', String(on));
+  calcPickBtn.textContent = on ? 'Toca el mapa…' : 'Elegir en el mapa';
+  map.getCanvas().style.cursor = on ? 'crosshair' : '';
+}
+
+try {
+  const guardado = JSON.parse(localStorage.getItem(CALC_PREFS_KEY)) || {};
+  for (const [k, el] of Object.entries(calcIn)) if (guardado[k] != null && guardado[k] !== '') el.value = guardado[k];
+  if (Array.isArray(guardado.origin)) setCalcOrigin(guardado.origin, false);
+} catch { /* preferencias corruptas o inaccesibles: valores por defecto */ }
+osrmBaseCfg.then((url) => { if (!calcIn.osrm.value) calcIn.osrm.value = url; });
+Object.values(calcIn).forEach((el) => el.addEventListener('change', saveCalcPrefs));
+
+calcPickBtn.addEventListener('click', () => setCalcPicking(!calcPicking));
+calcCenterBtn.addEventListener('click', () => {
+  const c = map.getCenter();
+  setCalcOrigin([c.lng, c.lat]);
+});
+map.on('click', (e) => {
+  if (!calcPicking) return;
+  setCalcOrigin([e.lngLat.lng, e.lngLat.lat]);
+  setCalcPicking(false);
+});
+document.getElementById('calc-close').addEventListener('click', () => toggleCalcPanel(false));
+calcRunBtn.addEventListener('click', runCalc);
+
+// Al cerrar el panel se esconde también lo que dibuja en el mapa, y vuelve al abrirlo
+function toggleCalcPanel(abrir) {
+  calcPanelEl.hidden = !abrir;
+  calcToggleBtn?.setAttribute('aria-pressed', String(abrir));
+  if (!abrir) setCalcPicking(false);
+  if (calcOriginMarker) calcOriginMarker.getElement().style.display = abrir ? '' : 'none';
+  setCalcLayersVisible(abrir);
+}
+
+class CalcControl {
+  onAdd() {
+    this._container = document.createElement('div');
+    this._container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
+    calcToggleBtn = document.createElement('button');
+    calcToggleBtn.type = 'button';
+    calcToggleBtn.className = 'calc-toggle';
+    calcToggleBtn.setAttribute('aria-label', 'Dónde me compensa repostar');
+    calcToggleBtn.setAttribute('aria-pressed', 'false');
+    calcToggleBtn.setAttribute('aria-controls', 'calc-panel');
+    calcToggleBtn.title = 'Dónde me compensa repostar (en pruebas)';
+    // Surtidor
+    calcToggleBtn.innerHTML =
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" ' +
+      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M3 22h12" /><path d="M4 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17" /><path d="M4 10h10" />' +
+      '<path d="M14 13h2a2 2 0 0 1 2 2v3a1.5 1.5 0 0 0 3 0V8l-3-3" /></svg>';
+    calcToggleBtn.addEventListener('click', () => toggleCalcPanel(calcPanelEl.hidden));
+    this._container.appendChild(calcToggleBtn);
+    return this._container;
+  }
+  onRemove() { this._container.remove(); }
+}
+map.addControl(new CalcControl(), 'top-right');
+
+// Recuadro que contiene el círculo de 'km' alrededor de un punto (aproximación esférica, de sobra
+// para radios de decenas de km)
+function bboxAround([lng, lat], km) {
+  const dLat = km / 111.32;
+  const dLng = km / (111.32 * Math.cos(lat * Math.PI / 180));
+  return { minX: lng - dLng, minY: lat - dLat, maxX: lng + dLng, maxY: lat + dLat };
+}
+
+function circlePolygon([lng, lat], km) {
+  const dLat = km / 111.32;
+  const dLng = km / (111.32 * Math.cos(lat * Math.PI / 180));
+  const anillo = [];
+  for (let i = 0; i <= 64; i++) {
+    const a = (i / 64) * 2 * Math.PI;
+    anillo.push([lng + dLng * Math.sin(a), lat + dLat * Math.cos(a)]);
+  }
+  return { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [anillo] } };
+}
+
+// Lee del .fgb completo (trae el rótulo y la dirección, que hacen falta para depurar) las
+// gasolineras con el combustible pedido en un recuadro de ±km alrededor del origen. Solo amplía:
+// si ya se leyó un recuadro mayor, no vuelve a la red. Las que repiten conservan lo ya calculado.
+async function calcLoadStations(ctx, km) {
+  if (km <= ctx.loadedKm) return;
+  const t0 = performance.now();
+  const lista = [];
+  for await (const f of flatgeobuf.deserialize(FGB_FULL, bboxAround(ctx.origin, km))) {
+    const precio = Number(f.properties[ctx.fuel]);
+    if (!precio) continue;
+    const [lng, lat] = f.geometry.coordinates;
+    lista.push({
+      key: claveEstacion(f),
+      feature: f,
+      lng,
+      lat,
+      precio,
+      rotulo: f.properties.rotulo || 'Gasolinera',
+      direccion: String(f.properties.direccion ?? '').replace(/[\s,]+$/, ''),
+      recta: distanciaKm(ctx.origin[0], ctx.origin[1], lng, lat)
+    });
+  }
+  const previas = new Map(ctx.stations.map((s) => [s.key, s]));
+  ctx.stations = lista.map((s) => previas.get(s.key) || s);
+  ctx.loadedKm = km;
+  ctx.log.push('Leídas ' + lista.length + ' gasolineras con ' + FUEL_LABELS[ctx.fuel] +
+    ' en un recuadro de ±' + km.toFixed(1) + ' km (' + Math.round(performance.now() - t0) + ' ms)');
+}
+
+function calcLB(ctx, s) {
+  s.lb = ctx.L * s.precio + 2 * s.recta * (ctx.k * s.precio + ctx.v / ctx.vmax);
+}
+
+function calcBest(ctx) {
+  let best = null;
+  for (const s of ctx.stations) if (s.coste != null && (!best || s.coste < best.coste)) best = s;
+  return best;
+}
+
+const fmtCoord = ([lng, lat]) => lng.toFixed(6) + ',' + lat.toFixed(6);
+
+// Una petición /table: del origen a todos los destinos del lote, con distancia y duración. Es lo
+// que da el coste real; /route solo se usa luego para dibujar.
+async function osrmTable(ctx, destinos) {
+  const coords = [ctx.origin, ...destinos.map((s) => [s.lng, s.lat])].map(fmtCoord).join(';');
+  const url = ctx.osrm + '/table/v1/driving/' + coords + '?sources=0&annotations=distance,duration';
+  const t0 = performance.now();
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('OSRM /table respondió ' + res.status);
+  const j = await res.json();
+  if (j.code !== 'Ok') throw new Error('OSRM /table: ' + j.code + (j.message ? ' – ' + j.message : ''));
+  destinos.forEach((s, i) => {
+    const d = j.distances?.[0]?.[i + 1];
+    const t = j.durations?.[0]?.[i + 1];
+    if (d == null || t == null) { s.estado = 'inalcanzable'; return; }
+    s.carretera = d / 1000;
+    s.minutos = t / 60;
+    s.costeViaje = 2 * s.carretera * ctx.k * s.precio + 2 * (s.minutos / 60) * ctx.v;
+    s.coste = ctx.L * s.precio + s.costeViaje;
+    s.estado = 'evaluada';
+  });
+  const ms = Math.round(performance.now() - t0);
+  ctx.osrmCalls.push({ tipo: 'table', destinos: destinos.length, ms, url });
+  return ms;
+}
+
+// Geometría de la ruta de cada gasolinera evaluada, solo para dibujarla. Su distancia puede no
+// coincidir al metro con la de /table; la que cuenta para el coste es la de /table.
+async function calcRoutes(ctx) {
+  const evaluadas = ctx.stations.filter((s) => s.coste != null);
+  const t0 = performance.now();
+  let i = 0;
+  let fallos = 0;
+  const worker = async () => {
+    while (i < evaluadas.length) {
+      const s = evaluadas[i++];
+      const url = ctx.osrm + '/route/v1/driving/' + fmtCoord(ctx.origin) + ';' + fmtCoord([s.lng, s.lat]) +
+        '?overview=full&geometries=geojson';
+      try {
+        const j = await fetch(url).then((r) => r.json());
+        if (j.code === 'Ok') s.geom = j.routes[0].geometry;
+        else fallos++;
+      } catch { fallos++; }
+    }
+  };
+  await Promise.all(Array.from({ length: CALC_ROUTE_CONC }, worker));
+  ctx.osrmCalls.push({
+    tipo: 'route',
+    destinos: evaluadas.length,
+    ms: Math.round(performance.now() - t0),
+    url: evaluadas.length ? ctx.osrm + '/route/v1/driving/' + fmtCoord(ctx.origin) + ';' +
+      fmtCoord([evaluadas[0].lng, evaluadas[0].lat]) + '?overview=full&geometries=geojson' : '',
+    nota: fallos ? fallos + ' sin geometría' : ''
+  });
+}
+
+async function runCalc() {
+  const num = (el) => Number(String(el.value).replace(',', '.'));
+  const L = num(calcIn.litros);
+  const c = num(calcIn.consumo);
+  const pmin = num(calcIn.pmin);
+  const v = num(calcIn.vtiempo) || 0;
+  const vmax = num(calcIn.vmax);
+  const tope = num(calcIn.tope);
+  const osrm = calcIn.osrm.value.trim().replace(/\/+$/, '');
+  if (!calcOrigin) return setCalcStatus('Elige primero la ubicación de origen.', true);
+  if (!(pmin > 0)) return setCalcStatus('Falta el precio mínimo en España.', true);
+  if (!(L > 0) || !(c > 0) || !(vmax > 0) || !(tope > 0) || v < 0) return setCalcStatus('Revisa los parámetros: tienen que ser positivos.', true);
+  if (!osrm) return setCalcStatus('Falta la URL del servidor OSRM.', true);
+  setCalcPicking(false);
+  saveCalcPrefs();
+
+  const ctx = {
+    origin: calcOrigin.slice(), fuel: selectedFuel, L, c, k: c / 100, pmin, v, vmax, tope, osrm,
+    stations: [], loadedKm: 0, log: [], avisos: [], osrmCalls: [], iteraciones: [], lotes: 0
+  };
+  const t0 = performance.now();
+  calcRunBtn.disabled = true;
+  setCalcStatus('Calculando…');
+  try {
+    // 1. Referencia: las CALC_REF_K de mejor cota más la más cercana en línea recta, con su coste
+    // real. La mejor de ellas es el primer "mejor coste", con el que sale el radio.
+    let r = Math.min(CALC_FIRST_KM, tope);
+    await calcLoadStations(ctx, r);
+    while (ctx.stations.length < CALC_REF_K && r < tope) {
+      r = Math.min(r * 2, tope);
+      await calcLoadStations(ctx, r);
+    }
+    if (!ctx.stations.length) throw new Error('No hay gasolineras con ' + FUEL_LABELS[ctx.fuel] + ' a menos de ' + tope + ' km.');
+    ctx.stations.forEach((s) => calcLB(ctx, s));
+    const porCota = [...ctx.stations].sort((a, b) => a.lb - b.lb);
+    ctx.cercana = ctx.stations.reduce((a, b) => (b.recta < a.recta ? b : a));
+    const referencia = [...new Set([ctx.cercana, ...porCota.slice(0, CALC_REF_K)])];
+    const msRef = await osrmTable(ctx, referencia);
+    let best = calcBest(ctx);
+    if (!best) throw new Error('OSRM no encontró ruta a ninguna de las gasolineras de referencia.');
+    ctx.referenciaInicial = { key: best.key, rotulo: best.rotulo, coste: best.coste };
+    ctx.log.push('Referencia: ' + referencia.length + ' gasolineras (las ' + CALC_REF_K +
+      ' de mejor cota + la más cercana) con OSRM /table (' + msRef + ' ms). Mejor coste: ' +
+      best.coste.toFixed(2) + ' € en ' + best.rotulo);
+
+    // 2. Radio: d_max con p_min, y se repite con el precio mínimo real dentro de ese radio
+    // mientras cambie. Nunca descarta de más: lo de fuera ya no podía ganar, y lo de dentro no
+    // baja de ese mínimo.
+    let p = pmin;
+    for (let i = 0; i < CALC_MAX_ITER; i++) {
+      const dmaxBruto = (best.coste - L * p) / (2 * (ctx.k * p + v / vmax));
+      const dmax = Math.max(0, Math.min(dmaxBruto, tope));
+      await calcLoadStations(ctx, dmax);
+      ctx.stations.forEach((s) => { if (s.lb == null) calcLB(ctx, s); });
+      const dentro = ctx.stations.filter((s) => s.recta <= dmax);
+      const pR = dentro.length ? Math.min(...dentro.map((s) => s.precio)) : p;
+      ctx.iteraciones.push({ p, dmaxBruto, dmax, dentro: dentro.length, pR });
+      ctx.dmax = dmax;
+      if (pR < p - 1e-9) {
+        ctx.avisos.push('El precio mínimo usado (' + p.toFixed(3) + ' €) no es el mínimo real: dentro del radio hay una a ' +
+          pR.toFixed(3) + ' €. Se repite con ese precio, porque con uno más alto el radio se quedaría corto.');
+      }
+      if (Math.abs(pR - p) < 1e-9) break;
+      p = pR;
+    }
+    const ultima = ctx.iteraciones[ctx.iteraciones.length - 1];
+    if (ultima.dmaxBruto > tope) {
+      ctx.avisos.push('El radio teórico (' + ultima.dmaxBruto.toFixed(1) + ' km) supera el tope de ' + tope +
+        ' km: se ha recortado, así que más allá del tope podría haber alguna mejor.');
+    }
+    ctx.log.push('Radio de búsqueda: ' + ctx.dmax.toFixed(2) + ' km tras ' + ctx.iteraciones.length +
+      ' vuelta(s) de ajuste del precio mínimo');
+
+    // 3. Poda: en orden de cota, lotes de /table hasta que la siguiente cota ya no mejora al mejor
+    for (;;) {
+      const pendientes = ctx.stations
+        .filter((s) => s.recta <= ctx.dmax && !s.estado)
+        .sort((a, b) => a.lb - b.lb);
+      const lote = [];
+      for (const s of pendientes) {
+        if (s.lb >= best.coste) break;
+        lote.push(s);
+        if (lote.length === CALC_BATCH) break;
+      }
+      if (!lote.length) break;
+      const ms = await osrmTable(ctx, lote);
+      ctx.lotes++;
+      const antes = best;
+      best = calcBest(ctx);
+      ctx.log.push('Lote ' + ctx.lotes + ': ' + lote.length + ' rutas con /table (' + ms + ' ms), cotas de ' +
+        lote[0].lb.toFixed(2) + ' a ' + lote[lote.length - 1].lb.toFixed(2) + ' €. ' +
+        (best !== antes ? 'Nuevo mejor: ' + best.coste.toFixed(2) + ' € en ' + best.rotulo : 'Sin cambio de mejor'));
+    }
+    const podadas = ctx.stations.filter((s) => s.recta <= ctx.dmax && !s.estado);
+    podadas.forEach((s) => { s.estado = 'podada'; });
+    best.estado = 'mejor';
+    ctx.best = best;
+    ctx.log.push('Podadas por cota sin pedir ruta: ' + podadas.length + ' de ' +
+      ctx.stations.filter((s) => s.recta <= ctx.dmax).length + ' dentro del radio');
+
+    // 4. Rutas para el mapa
+    if (calcDrawEl.checked) {
+      await calcRoutes(ctx);
+      ctx.log.push('Dibujadas las rutas de las ' + ctx.stations.filter((s) => s.geom).length + ' evaluadas con /route');
+    }
+    ctx.ms = Math.round(performance.now() - t0);
+    setCalcStatus('Hecho en ' + ctx.ms + ' ms.');
+  } catch (err) {
+    console.error('Cálculo de repostaje:', err);
+    const cors = err instanceof TypeError
+      ? ' (no se pudo conectar: ¿está OSRM arrancado en ' + osrm + ' y devuelve cabeceras CORS?)' : '';
+    setCalcStatus('Error: ' + err.message + cors, true);
+    ctx.error = err.message;
+  } finally {
+    calcRunBtn.disabled = false;
+  }
+  calcLast = ctx;
+  calcSelKey = ctx.best?.key ?? null;
+  renderCalc();
+  drawCalc();
+  if (ctx.best) {
+    console.log('Cálculo de repostaje', calcJSON(ctx));
+    const b = new maplibregl.LngLatBounds(ctx.origin, ctx.origin);
+    ctx.stations.filter((s) => s.estado).forEach((s) => b.extend([s.lng, s.lat]));
+    map.fitBounds(b, { padding: 60, maxZoom: 14 });
+  }
+}
+
+// Precio por debajo del cual una gasolinera a d km en línea recta podría ganar al mejor: es la
+// cota igualada al mejor coste, despejando p. Son los "círculos" de la idea original.
+function calcPrecioMax(ctx, d) {
+  return (ctx.best.coste - 2 * d * ctx.v / ctx.vmax) / (ctx.L + 2 * d * ctx.k);
+}
+
+function calcJSON(ctx) {
+  const limpia = (s) => s && {
+    key: s.key, rotulo: s.rotulo, direccion: s.direccion, lng: s.lng, lat: s.lat, precio: s.precio,
+    recta_km: s.recta, cota: s.lb, carretera_km: s.carretera ?? null, minutos: s.minutos ?? null,
+    coste_viaje: s.costeViaje ?? null, coste: s.coste ?? null, estado: s.estado || 'fuera de radio'
+  };
+  return {
+    parametros: {
+      origen: ctx.origin, combustible: ctx.fuel, litros: ctx.L, consumo_l100: ctx.c, p_min: ctx.pmin,
+      valor_tiempo_eur_h: ctx.v, v_max_kmh: ctx.vmax, tope_km: ctx.tope, osrm: ctx.osrm
+    },
+    resultado: { mejor: limpia(ctx.best), cercana: limpia(ctx.cercana), d_max_km: ctx.dmax, ms: ctx.ms, error: ctx.error },
+    pasos: ctx.log,
+    avisos: ctx.avisos,
+    iteraciones_radio: ctx.iteraciones,
+    osrm: ctx.osrmCalls,
+    gasolineras: ctx.stations.map(limpia).sort((a, b) => a.cota - b.cota)
+  };
+}
+
+function renderCalc() {
+  const ctx = calcLast;
+  if (!ctx) { calcOutEl.innerHTML = ''; return; }
+  const eur = (x) => (x == null ? '—' : x.toFixed(2) + ' €');
+  const lit = (x) => x.toFixed(3) + ' €/L';
+  const km = (x) => (x == null ? '—' : x.toFixed(2));
+  let h = '';
+
+  if (ctx.best) {
+    const b = ctx.best;
+    const cer = ctx.cercana;
+    const ahorro = cer?.coste != null && cer !== b ? cer.coste - b.coste : null;
+    h += '<div class="best"><strong>' + esc(b.rotulo) + '</strong> · ' + lit(b.precio) +
+      '<div class="muted">' + esc(b.direccion) + '</div>' +
+      '<div>' + b.carretera.toFixed(2) + ' km y ' + b.minutos.toFixed(1) + ' min por carretera (solo ida)</div>' +
+      '<div>Coste total ' + eur(b.coste) + ' = ' + eur(ctx.L * b.precio) + ' de combustible + ' + eur(b.costeViaje) + ' de viaje</div>' +
+      (cer === b ? '<div class="muted">Es también la más cercana.</div>'
+        : ahorro != null ? '<div>Frente a la más cercana (' + esc(cer.rotulo) + ', ' + lit(cer.precio) + ', ' +
+          eur(cer.coste) + '): ahorras <strong>' + eur(ahorro) + '</strong></div>' : '') +
+      '</div>';
+  }
+
+  if (ctx.avisos.length) h += '<h4>Avisos</h4><ol>' + ctx.avisos.map((a) => '<li class="warn">' + esc(a) + '</li>').join('') + '</ol>';
+
+  h += '<h4>Parámetros</h4><div class="mono">' +
+    'origen = ' + ctx.origin[1].toFixed(5) + ', ' + ctx.origin[0].toFixed(5) + '<br>' +
+    'combustible = ' + esc(FUEL_LABELS[ctx.fuel]) + ' · L = ' + ctx.L + ' · c = ' + ctx.c + ' L/100 km<br>' +
+    'p_min = ' + ctx.pmin + ' · v = ' + ctx.v + ' €/h · v_max = ' + ctx.vmax + ' km/h · tope = ' + ctx.tope + ' km<br>' +
+    'coste = L·p + 2·d·(c/100)·p + 2·t·v<br>' +
+    'cota  = L·p + 2·h·((c/100)·p + v/v_max)</div>' +
+    '<div class="muted">d y t por carretera (OSRM, solo ida, la vuelta se supone igual); h en línea recta. ' +
+    'No se aplica el filtro de marcas.</div>';
+
+  h += '<h4>Pasos</h4><ol>' + ctx.log.map((l) => '<li>' + esc(l) + '</li>').join('') +
+    (ctx.error ? '<li class="warn">' + esc(ctx.error) + '</li>' : '') + '</ol>';
+
+  if (ctx.iteraciones.length) {
+    h += '<h4>Radio de búsqueda</h4><div class="calc-table-wrap"><table><thead><tr>' +
+      '<th>#</th><th>p usado</th><th>d_max teórico</th><th>d_max</th><th>dentro</th><th>p mín. dentro</th></tr></thead><tbody>' +
+      ctx.iteraciones.map((it, i) => '<tr><td>' + (i + 1) + '</td><td style="text-align:right">' + it.p.toFixed(3) +
+        '</td><td>' + it.dmaxBruto.toFixed(2) + ' km</td><td>' + it.dmax.toFixed(2) + ' km</td><td>' + it.dentro +
+        '</td><td style="text-align:right">' + it.pR.toFixed(3) + '</td></tr>').join('') +
+      '</tbody></table></div>';
+  }
+
+  if (ctx.best && ctx.dmax > 0) {
+    const ds = [0.5, 1, 2, 3, 5, 7.5, 10, 15, 20, 30, 50, 75, 100].filter((d) => d <= ctx.dmax);
+    if (!ds.length || ds[ds.length - 1] < ctx.dmax) ds.push(ctx.dmax);
+    h += '<h4>Precio máximo según distancia en línea recta</h4>' +
+      '<div class="muted">Para ganar a la mejor (' + eur(ctx.best.coste) + '), una gasolinera a esa distancia tiene que costar menos de:</div>' +
+      '<div class="mono">' + ds.map((d) => d.toFixed(1) + ' km → ' + calcPrecioMax(ctx, d).toFixed(3) + ' €/L').join('<br>') + '</div>';
+  }
+
+  if (ctx.osrmCalls.length) {
+    h += '<h4>Llamadas a OSRM</h4><ol>' + ctx.osrmCalls.map((o) =>
+      '<li>' + o.tipo + ' · ' + o.destinos + ' destinos · ' + o.ms + ' ms' + (o.nota ? ' · ' + esc(o.nota) : '') +
+      (o.url ? '<br><a class="mono" href="' + esc(o.url) + '" target="_blank" rel="noopener">' +
+        esc(o.url.length > 160 ? o.url.slice(0, 160) + '…' : o.url) + '</a>' : '') + '</li>').join('') + '</ol>';
+  }
+
+  const filas = ctx.stations.filter((s) => s.estado).sort((a, b) => a.lb - b.lb);
+  const fuera = ctx.stations.length - filas.length;
+  if (filas.length) {
+    h += '<h4>Gasolineras (' + filas.length + ', por cota)</h4>' +
+      (fuera ? '<div class="muted">Otras ' + fuera + ' leídas quedan fuera del radio y no se listan (sí en el JSON).</div>' : '') +
+      '<div class="calc-table-wrap"><table><thead><tr><th>#</th><th>Rótulo</th><th>€/L</th><th>recta km</th>' +
+      '<th>cota €</th><th>carr. km</th><th>min</th><th>coste €</th><th>estado</th></tr></thead><tbody>' +
+      filas.slice(0, CALC_MAX_ROWS).map((s, i) =>
+        '<tr data-key="' + esc(s.key) + '"' + (s.key === calcSelKey ? ' class="is-sel"' : '') + '><td>' + (i + 1) +
+        '</td><td title="' + esc(s.rotulo + ' · ' + s.direccion) + '">' + esc(s.rotulo) + '</td><td>' + s.precio.toFixed(3) +
+        '</td><td>' + km(s.recta) + '</td><td>' + s.lb.toFixed(2) + '</td><td>' + km(s.carretera) + '</td><td>' +
+        (s.minutos == null ? '—' : s.minutos.toFixed(1)) + '</td><td>' + (s.coste == null ? '—' : s.coste.toFixed(2)) +
+        '</td><td><span class="calc-st" style="--c:' + CALC_COLORS[s.estado] + '"></span>' + CALC_STATUS_LABEL[s.estado] +
+        '</td></tr>').join('') +
+      '</tbody></table></div>' +
+      (filas.length > CALC_MAX_ROWS ? '<div class="muted">Se muestran las ' + CALC_MAX_ROWS + ' primeras.</div>' : '');
+  }
+
+  h += '<div class="calc-row" style="margin-top:10px"><button id="calc-copy" class="calc-btn" type="button">Copiar JSON</button>' +
+    '<span class="muted">También va a la consola.</span></div>';
+  calcOutEl.innerHTML = h;
+}
+
+// Clic en una fila: resalta su ruta y abre su popup
+calcOutEl.addEventListener('click', async (e) => {
+  if (e.target.closest('#calc-copy')) {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(calcJSON(calcLast), null, 2));
+      setCalcStatus('JSON copiado al portapapeles.');
+    } catch {
+      setCalcStatus('No se pudo copiar; está en la consola.', true);
+      console.log(calcJSON(calcLast));
+    }
+    return;
+  }
+  const fila = e.target.closest('tr[data-key]');
+  if (!fila || !calcLast) return;
+  const s = calcLast.stations.find((x) => x.key === fila.dataset.key);
+  if (!s) return;
+  calcSelKey = s.key;
+  calcOutEl.querySelectorAll('tr.is-sel').forEach((tr) => tr.classList.remove('is-sel'));
+  fila.classList.add('is-sel');
+  drawCalc();
+  if (s.geom) {
+    const b = new maplibregl.LngLatBounds(calcLast.origin, calcLast.origin);
+    s.geom.coordinates.forEach((c) => b.extend(c));
+    map.fitBounds(b, { padding: 60, maxZoom: 15 });
+  } else {
+    map.easeTo({ center: [s.lng, s.lat] });
+  }
+  openStationPopup(s.feature);
+});
+
+const CALC_LAYERS = ['calc-radio-fill', 'calc-radio-line', 'calc-rutas', 'calc-puntos'];
+
+function setCalcLayersVisible(visible) {
+  if (!map.getLayer('calc-puntos')) return;
+  CALC_LAYERS.forEach((id) => map.setLayoutProperty(id, 'visibility', visible ? 'visible' : 'none'));
+}
+
+function drawCalc() {
+  if (!map.getSource('calc-puntos')) return;
+  const ctx = calcLast;
+  if (!ctx) {
+    ['calc-radio', 'calc-rutas', 'calc-puntos'].forEach((id) => map.getSource(id).setData(CALC_EMPTY));
+    return;
+  }
+  const conEstado = ctx.stations.filter((s) => s.estado);
+  map.getSource('calc-radio').setData({
+    type: 'FeatureCollection',
+    features: ctx.dmax > 0 ? [circlePolygon(ctx.origin, ctx.dmax)] : []
+  });
+  map.getSource('calc-rutas').setData({
+    type: 'FeatureCollection',
+    features: conEstado.filter((s) => s.geom).map((s) => ({
+      type: 'Feature',
+      geometry: s.geom,
+      properties: { estado: s.estado, sel: s.key === calcSelKey ? 1 : 0, orden: s.estado === 'mejor' ? 2 : s.key === calcSelKey ? 3 : 1 }
+    }))
+  });
+  map.getSource('calc-puntos').setData({
+    type: 'FeatureCollection',
+    features: conEstado.map((s) => ({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
+      properties: { estado: s.estado, sel: s.key === calcSelKey ? 1 : 0 }
+    }))
+  });
+}
+
+const CALC_COLOR_MATCH = ['match', ['get', 'estado'], ...Object.entries(CALC_COLORS).flat(), '#94a3b8'];
+
+// Las capas se crean cuando el mapa ya tiene las suyas: el radio y las rutas quedan por debajo de
+// los bocadillos, y los puntos de estado por encima de todo.
+mapReady.then(() => {
+  ['calc-radio', 'calc-rutas', 'calc-puntos'].forEach((id) => map.addSource(id, { type: 'geojson', data: CALC_EMPTY }));
+  const capas = map.getStyle().layers.map((l) => l.id);
+  const debajo = capas.find((id) => id === DOTS_LAYER_ID || id === LAYER_ID);
+  map.addLayer({ id: 'calc-radio-fill', type: 'fill', source: 'calc-radio',
+    paint: { 'fill-color': '#7c3aed', 'fill-opacity': 0.05 } }, debajo);
+  map.addLayer({ id: 'calc-radio-line', type: 'line', source: 'calc-radio',
+    paint: { 'line-color': '#7c3aed', 'line-width': 1.5, 'line-dasharray': [3, 2] } }, debajo);
+  map.addLayer({ id: 'calc-rutas', type: 'line', source: 'calc-rutas',
+    layout: { 'line-cap': 'round', 'line-join': 'round', 'line-sort-key': ['get', 'orden'] },
+    paint: {
+      'line-color': ['case', ['==', ['get', 'sel'], 1], '#7c3aed', CALC_COLOR_MATCH],
+      'line-width': ['case', ['==', ['get', 'sel'], 1], 6, ['==', ['get', 'estado'], 'mejor'], 5, 2.5],
+      'line-opacity': ['case', ['any', ['==', ['get', 'sel'], 1], ['==', ['get', 'estado'], 'mejor']], 0.95, 0.55]
+    } }, debajo);
+  map.addLayer({ id: 'calc-puntos', type: 'circle', source: 'calc-puntos',
+    paint: {
+      'circle-radius': ['case', ['==', ['get', 'sel'], 1], 8, 5],
+      'circle-color': CALC_COLOR_MATCH,
+      'circle-stroke-color': '#ffffff',
+      'circle-stroke-width': ['case', ['==', ['get', 'sel'], 1], 3, 1.5]
+    } });
+  setCalcLayersVisible(!calcPanelEl.hidden);
+  drawCalc();
+});
 
 // Escuchar el evento cuando el usuario termina de mover o hacer zoom en el mapa
 map.on('moveend', updateMarkers);
