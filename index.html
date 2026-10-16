@@ -681,6 +681,34 @@
   .start-title { font-size: 1.125rem; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; }
   .start-desc { font-size: 0.875rem; line-height: 1.45; color: var(--muted-foreground); }
   .start-search { display: flex; flex-direction: column; gap: 6px; }
+  /* Combustible: ToggleGroup de shadcn en versión "single", segmentos unidos y el elegido relleno.
+     Solo sale la primera vez (sin combustible guardado); ver window.__boot. En móvil los nombres
+     largos ("Diésel Premium") se parten en dos líneas en vez de desbordar. */
+  .start-fuel { display: flex; flex-direction: column; gap: 6px; }
+  .start-fuel[hidden] { display: none; }
+  .start-field-label { font-size: 0.8rem; font-weight: 500; }
+  .start-fuel-group { display: flex; border-radius: var(--radius-md); box-shadow: var(--shadow-xs); }
+  .start-fuel-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 44px;
+    padding: 6px 4px;
+    border: 1px solid var(--input);
+    background: var(--background);
+    color: var(--foreground);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+  }
+  .start-fuel-btn + .start-fuel-btn { border-left: none; }
+  .start-fuel-btn:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+  .start-fuel-btn:last-child { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .start-fuel-btn[aria-checked="true"] { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+  @media (hover: hover) { .start-fuel-btn[aria-checked="false"]:hover { background: var(--accent); } }
+  .start-fuel-btn:focus-visible { outline: none; position: relative; box-shadow: var(--focus-ring); }
   .start-search-row {
     display: flex;
     align-items: center;
@@ -851,6 +879,17 @@
       <h2 id="start-title" class="start-title">¿Dónde quieres ver los precios?</h2>
       <p id="start-desc" class="start-desc">Busca una dirección o usa tu ubicación para ver las gasolineras de la zona.</p>
     </div>
+    <div id="start-fuel" class="start-fuel" hidden>
+      <div id="start-fuel-label" class="start-field-label">¿Qué combustible usas?</div>
+      <!-- Los nombres se repiten aquí para que se vean sin esperar al módulo; el módulo los
+           reescribe desde FUEL_LABELS, que es la fuente única. -->
+      <div id="start-fuel-group" class="start-fuel-group" role="radiogroup" aria-labelledby="start-fuel-label">
+        <button type="button" class="start-fuel-btn" role="radio" aria-checked="true" tabindex="0" data-fuel="g95">Gasolina 95</button>
+        <button type="button" class="start-fuel-btn" role="radio" aria-checked="false" tabindex="-1" data-fuel="g98">Gasolina 98</button>
+        <button type="button" class="start-fuel-btn" role="radio" aria-checked="false" tabindex="-1" data-fuel="ga">Diésel</button>
+        <button type="button" class="start-fuel-btn" role="radio" aria-checked="false" tabindex="-1" data-fuel="gapp">Diésel Premium</button>
+      </div>
+    </div>
     <div class="start-search">
       <div class="start-search-row">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -900,6 +939,12 @@ window.__boot = (() => {
     posicion: null,
     // true si pulsó "Ver todo el país".
     verPais: false,
+    // Combustible que el usuario ha pulsado en la pantalla (clave de FUEL_LABELS), o null si no ha
+    // tocado nada. La pantalla solo lo pide la primera vez, o sea sin combustible guardado. Si no
+    // toca nada, vale el que sale marcado (Gasolina 95), que se guarda al cerrar la pantalla.
+    combustible: null,
+    // Lo rellena el módulo del final para aplicar la elección al instante.
+    onCombustible: null,
     // Lo rellena el módulo del final para enterarse de una elección posterior a su arranque.
     onElegir: null
   };
@@ -931,6 +976,37 @@ window.__boot = (() => {
   });
 
   skipBtn.addEventListener('click', () => { estado.verPais = true; elegido(); });
+
+  // Combustible: radiogroup con una sola opción activa y flechas para moverse, como el ToggleGroup
+  // de shadcn. Se aplica al pulsar (no al cerrar la pantalla) porque la pantalla se cierra por
+  // tres caminos distintos (ubicación, dirección, ver todo el país) y así no hay que cubrir los tres.
+  const fuelEl = document.getElementById('start-fuel');
+  const fuelBtns = [...document.querySelectorAll('.start-fuel-btn')];
+  function elegirCombustible(btn) {
+    fuelBtns.forEach((b) => {
+      const on = b === btn;
+      b.setAttribute('aria-checked', String(on));
+      b.tabIndex = on ? 0 : -1;
+    });
+    estado.combustible = btn.dataset.fuel;
+    estado.onCombustible?.(estado.combustible);
+  }
+  fuelBtns.forEach((btn, i) => {
+    btn.addEventListener('click', () => elegirCombustible(btn));
+    btn.addEventListener('keydown', (e) => {
+      const paso = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      if (!paso) return;
+      e.preventDefault();
+      const sig = fuelBtns[(i + paso + fuelBtns.length) % fuelBtns.length];
+      sig.focus();
+      elegirCombustible(sig);
+    });
+  });
+  // "Primera vez" = nunca se guardó un combustible. Con el almacenamiento bloqueado también cuenta
+  // como primera vez: no hay forma de recordarlo y preguntar de más es lo menos malo.
+  const primeraVez = (() => {
+    try { return !JSON.parse(localStorage.getItem('gasolineras:prefs'))?.fuel; } catch { return true; }
+  })();
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !overlayEl.hidden) skipBtn.click();
   });
@@ -945,6 +1021,15 @@ window.__boot = (() => {
   estado.olvidarPermiso = () => { try { localStorage.removeItem(CLAVE_GEO); } catch { /* sin almacenamiento */ } };
 
   estado.yaTeniaPermiso = (async () => {
+    // Primera vez: la pantalla sale siempre, aunque la ubicación ya estuviera concedida, porque hay
+    // que preguntar el combustible. Devolver false evita además que el mapa se autolocalice y la
+    // cierre por debajo antes de que el usuario elija.
+    if (primeraVez) {
+      fuelEl.hidden = false;
+      overlayEl.hidden = false;
+      requestAnimationFrame(() => inputEl.focus());
+      return false;
+    }
     let permiso = null;
     if (navigator.permissions?.query) {
       try {
@@ -1533,6 +1618,10 @@ function programarDesvanecidoMarcador(marcador) {
 // elementos y qué hacer al elegir un resultado (onPick).
 function createAddressSearch({ inputEl, statusEl, resultsEl, onPick, afterRender }) {
   let debounce = null;
+  // Número de la última búsqueda. La espera entre pulsaciones no basta: una búsqueda puede encadenar
+  // hasta tres peticiones, y si "calle may" responde después que "calle mayor", sus resultados se
+  // quedarían en pantalla. Solo pinta la búsqueda que sigue siendo la última.
+  let ultima = 0;
 
   function setStatus(texto, esError) {
     statusEl.textContent = texto || '';
@@ -1576,6 +1665,8 @@ function createAddressSearch({ inputEl, statusEl, resultsEl, onPick, afterRender
   }
 
   async function run(q) {
+    const id = ++ultima;
+    const vigente = () => id === ultima;
     if (q.length < 3) {
       resultsEl.innerHTML = '';
       setStatus('');
@@ -1588,6 +1679,7 @@ function createAddressSearch({ inputEl, statusEl, resultsEl, onPick, afterRender
       // nunca dígitos. Se resuelve aparte, contra /cp, que sí filtra por él directamente.
       if (/^\d{5}$/.test(q)) {
         const cps = await addrApiGet(`/cp/${q}`);
+        if (!vigente()) return;
         render(cps.map((cp) => ({
           tipo_vial: null,
           nombre: 'Código postal ' + cp.cod_postal,
@@ -1604,6 +1696,7 @@ function createAddressSearch({ inputEl, statusEl, resultsEl, onPick, afterRender
       // ("Rosalía de Castro" existe en decenas), prioriza el más próximo a lo que ya se está viendo.
       const center = map.getCenter();
       let vias = await addrApiGet('/buscar', { q, limit: 8, lat: center.lat, lon: center.lng });
+      if (!vigente()) return; // y de paso no se lanza el reintento sin número
       let numero = null;
       // Sin resultados: puede que un token sea un número de portal, que /buscar no indexa (solo
       // nombres de calle). Se reintenta sin él y se filtra por si esa vía tiene de verdad ese
@@ -1623,9 +1716,10 @@ function createAddressSearch({ inputEl, statusEl, resultsEl, onPick, afterRender
           else if (municipios.length) { vias = municipios; }
         }
       }
+      if (!vigente()) return;
       render(vias, numero);
     } catch (err) {
-      setStatus('Error buscando: ' + err.message, true);
+      if (vigente()) setStatus('Error buscando: ' + err.message, true);
     }
   }
 
@@ -1659,6 +1753,7 @@ createAddressSearch({
 // verdad necesita el mapa: el buscador de direcciones y ejecutar la elección del usuario.
 function hideStartOverlay() {
   boot.overlayEl.hidden = true;
+  savePrefs(); // fija el combustible que salía marcado aunque no lo haya tocado (ver boot.combustible)
 }
 
 createAddressSearch({
@@ -1689,7 +1784,7 @@ function resolverArranque() {
     updateMarkers(); // sin flyTo de por medio no hay 'moveend' que lo dispare solo
   }
 }
-boot.onElegir = () => { mapReady.then(resolverArranque); };
+boot.onElegir = () => { savePrefs(); mapReady.then(resolverArranque); };
 mapReady.then(resolverArranque);
 
 // El círculo de precisión se borra solo pasado este tiempo. Suficiente para leer "la posición es
@@ -1767,6 +1862,21 @@ fuelListEl.querySelectorAll('input').forEach((radio) => {
     applyLabels(); // recalcula las etiquetas sin volver a leer el .fgb
   });
 });
+
+// Combustible elegido en la pantalla de arranque (ver window.__boot): mismo efecto que cambiarlo en
+// el menú. La elección puede haber ocurrido antes de que existiera este módulo, de ahí que se
+// aplique también una vez aquí. Los nombres de los botones salen de FUEL_LABELS.
+document.querySelectorAll('.start-fuel-btn').forEach((btn) => { btn.textContent = FUEL_LABELS[btn.dataset.fuel]; });
+function elegirCombustibleDeArranque(clave) {
+  if (!FUEL_LABELS[clave]) return;
+  selectedFuel = clave;
+  fuelListEl.querySelector('input[value="' + clave + '"]').checked = true;
+  syncBar();
+  savePrefs();
+  mapReady.then(applyLabels);
+}
+if (boot.combustible) elegirCombustibleDeArranque(boot.combustible);
+boot.onCombustible = elegirCombustibleDeArranque;
 
 // --- Marcas ---
 // Las casillas se generan desde ALL_BRANDS para no repetir el listado en el HTML
@@ -2626,6 +2736,11 @@ function padBbox(bbox, factor) {
   };
 }
 
+// Número de la última llamada a updateMarkers. Dos movimientos seguidos lanzan dos lecturas en
+// paralelo, y la primera puede acabar después (p. ej. toda España con el .fgb ligero, y luego un
+// vuelo a una calle): sin esto, la lectura vieja pisaría a la nueva con otra zona y otro fichero.
+let markersReq = 0;
+
 // 5. Cargar únicamente las gasolineras visibles con FlatGeobuf, vía HTTP Range Request
 async function updateMarkers() {
   // Red de seguridad: sin la fuente ni las capas creadas (map.on('load')) no hay dónde pintar, y
@@ -2633,6 +2748,7 @@ async function updateMarkers() {
   // esperan por su cuenta (resolverArranque, flyToAddress), pero esto cubre cualquier 'moveend'
   // temprano sin tener que acordarse de ello en cada sitio.
   await mapReady;
+  const req = ++markersReq;
   // Se carga a cualquier zoom: en vista alejada las estaciones se pintan como puntos (DOTS_LAYER_ID)
   // y al acercarse pasan a recuadros con precio (LAYER_ID).
   const bounds = map.getBounds();
@@ -2663,8 +2779,12 @@ async function updateMarkers() {
   try {
     const iter = flatgeobuf.deserialize(src, fetchBbox);
     for await (const feature of iter) {
+      // Ya hay una lectura más nueva: se abandona esta (salir del bucle cierra el iterador, que
+      // deja de pedir rangos) y no se toca ni la caché ni lo pintado.
+      if (req !== markersReq) return;
       features.push(feature);
     }
+    if (req !== markersReq) return;
     fgbCache = { src, bbox: fetchBbox, features };
     // Solo lo que cae en el bbox real, no en el margen: éste es puro caché, no debe colar
     // gasolineras fuera de pantalla en el cálculo de cuartiles de applyLabels().
@@ -2672,7 +2792,7 @@ async function updateMarkers() {
     // Una sola actualización de la capa por movimiento, con el precio ya calculado
     applyLabels();
   } catch (err) {
-    console.error('Error leyendo FlatGeobuf:', err);
+    if (req === markersReq) console.error('Error leyendo FlatGeobuf:', err);
   }
 }
 
