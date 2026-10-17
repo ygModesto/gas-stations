@@ -2974,9 +2974,15 @@ let calcOriginMarker = null;
 let calcLast = null;       // último cálculo: lo leen la tabla, el mapa y "Copiar JSON"
 let calcSelKey = null;
 
+// La URL de OSRM no se guarda: manda la de config.yaml, para que cambiar de servidor no deje a
+// quien ya usó la calculadora apuntando al viejo. Se puede cambiar a mano, pero solo para la sesión.
+const CALC_NO_GUARDAR = new Set(['osrm']);
+
 function saveCalcPrefs() {
   try {
-    const valores = Object.fromEntries(Object.entries(calcIn).map(([k, el]) => [k, el.value]));
+    const valores = Object.fromEntries(Object.entries(calcIn)
+      .filter(([k]) => !CALC_NO_GUARDAR.has(k))
+      .map(([k, el]) => [k, el.value]));
     localStorage.setItem(CALC_PREFS_KEY, JSON.stringify({ ...valores, origin: calcOrigin }));
   } catch { /* sin persistencia: funciona igual, solo no se recuerda */ }
 }
@@ -3013,7 +3019,9 @@ function setCalcPicking(on) {
 
 try {
   const guardado = JSON.parse(localStorage.getItem(CALC_PREFS_KEY)) || {};
-  for (const [k, el] of Object.entries(calcIn)) if (guardado[k] != null && guardado[k] !== '') el.value = guardado[k];
+  for (const [k, el] of Object.entries(calcIn)) {
+    if (!CALC_NO_GUARDAR.has(k) && guardado[k] != null && guardado[k] !== '') el.value = guardado[k];
+  }
   if (Array.isArray(guardado.origin)) setCalcOrigin(guardado.origin, false);
 } catch { /* preferencias corruptas o inaccesibles: valores por defecto */ }
 osrmBaseCfg.then((url) => { if (!calcIn.osrm.value) calcIn.osrm.value = url; });
