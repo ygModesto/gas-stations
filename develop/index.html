@@ -2944,7 +2944,7 @@ const CALC_STATUS_LABEL = {
 const CALC_EMPTY = { type: 'FeatureCollection', features: [] };
 
 // La URL vive en config.yaml (servicios.osrm); este valor es solo el de reserva si no carga.
-const OSRM_FALLBACK = 'http://localhost:5000';
+const OSRM_FALLBACK = 'https://routes.ygmodesto.com';
 const osrmBaseCfg = fetch('../config.yaml')
   .then((r) => (r.ok ? r.text() : ''))
   .then((txt) => (txt.match(/^[ \t]+osrm:[ \t]*(\S+)/m) || [])[1] || OSRM_FALLBACK)
