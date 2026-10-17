@@ -3,4 +3,3 @@ servidor:
 
 servicios:
   direcciones: https://cu44cd5pmg.execute-api.eu-south-2.amazonaws.com
-  osrm: https://routes.ygmodesto.com

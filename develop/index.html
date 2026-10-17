@@ -1223,7 +1223,6 @@ window.__boot = (() => {
         <label>Valor del tiempo (€/h)<input id="calc-vtiempo" type="number" min="0" step="1" value="0" /></label>
         <label>Velocidad máx. para la cota (km/h)<input id="calc-vmax" type="number" min="1" step="1" value="120" /></label>
         <label>Tope de radio (km)<input id="calc-tope" type="number" min="1" step="1" value="100" /></label>
-        <label class="wide">Servidor OSRM<input id="calc-osrm" type="url" /></label>
       </div>
       <div class="calc-row">
         <span id="calc-origin-text" class="grow">Sin ubicación</span>
@@ -2943,12 +2942,8 @@ const CALC_STATUS_LABEL = {
 };
 const CALC_EMPTY = { type: 'FeatureCollection', features: [] };
 
-// La URL vive en config.yaml (servicios.osrm); este valor es solo el de reserva si no carga.
-const OSRM_FALLBACK = 'https://routes.ygmodesto.com';
-const osrmBaseCfg = fetch('../config.yaml')
-  .then((r) => (r.ok ? r.text() : ''))
-  .then((txt) => (txt.match(/^[ \t]+osrm:[ \t]*(\S+)/m) || [])[1] || OSRM_FALLBACK)
-  .catch(() => OSRM_FALLBACK);
+// Servidor OSRM propio. Fijo: no se elige en el formulario ni se lee de config.yaml.
+const OSRM_URL = 'https://routes.ygmodesto.com';
 
 const calcPanelEl = document.getElementById('calc-panel');
 const calcIn = {
@@ -2957,8 +2952,7 @@ const calcIn = {
   pmin: document.getElementById('calc-pmin'),
   vtiempo: document.getElementById('calc-vtiempo'),
   vmax: document.getElementById('calc-vmax'),
-  tope: document.getElementById('calc-tope'),
-  osrm: document.getElementById('calc-osrm')
+  tope: document.getElementById('calc-tope')
 };
 const calcOriginTextEl = document.getElementById('calc-origin-text');
 const calcPickBtn = document.getElementById('calc-pick');
@@ -2974,15 +2968,9 @@ let calcOriginMarker = null;
 let calcLast = null;       // último cálculo: lo leen la tabla, el mapa y "Copiar JSON"
 let calcSelKey = null;
 
-// La URL de OSRM no se guarda: manda la de config.yaml, para que cambiar de servidor no deje a
-// quien ya usó la calculadora apuntando al viejo. Se puede cambiar a mano, pero solo para la sesión.
-const CALC_NO_GUARDAR = new Set(['osrm']);
-
 function saveCalcPrefs() {
   try {
-    const valores = Object.fromEntries(Object.entries(calcIn)
-      .filter(([k]) => !CALC_NO_GUARDAR.has(k))
-      .map(([k, el]) => [k, el.value]));
+    const valores = Object.fromEntries(Object.entries(calcIn).map(([k, el]) => [k, el.value]));
     localStorage.setItem(CALC_PREFS_KEY, JSON.stringify({ ...valores, origin: calcOrigin }));
   } catch { /* sin persistencia: funciona igual, solo no se recuerda */ }
 }
@@ -3019,12 +3007,9 @@ function setCalcPicking(on) {
 
 try {
   const guardado = JSON.parse(localStorage.getItem(CALC_PREFS_KEY)) || {};
-  for (const [k, el] of Object.entries(calcIn)) {
-    if (!CALC_NO_GUARDAR.has(k) && guardado[k] != null && guardado[k] !== '') el.value = guardado[k];
-  }
+  for (const [k, el] of Object.entries(calcIn)) if (guardado[k] != null && guardado[k] !== '') el.value = guardado[k];
   if (Array.isArray(guardado.origin)) setCalcOrigin(guardado.origin, false);
 } catch { /* preferencias corruptas o inaccesibles: valores por defecto */ }
-osrmBaseCfg.then((url) => { if (!calcIn.osrm.value) calcIn.osrm.value = url; });
 Object.values(calcIn).forEach((el) => el.addEventListener('change', saveCalcPrefs));
 
 calcPickBtn.addEventListener('click', () => setCalcPicking(!calcPicking));
@@ -3197,11 +3182,10 @@ async function runCalc() {
   const v = num(calcIn.vtiempo) || 0;
   const vmax = num(calcIn.vmax);
   const tope = num(calcIn.tope);
-  const osrm = calcIn.osrm.value.trim().replace(/\/+$/, '');
+  const osrm = OSRM_URL;
   if (!calcOrigin) return setCalcStatus('Elige primero la ubicación de origen.', true);
   if (!(pmin > 0)) return setCalcStatus('Falta el precio mínimo en España.', true);
   if (!(L > 0) || !(c > 0) || !(vmax > 0) || !(tope > 0) || v < 0) return setCalcStatus('Revisa los parámetros: tienen que ser positivos.', true);
-  if (!osrm) return setCalcStatus('Falta la URL del servidor OSRM.', true);
   setCalcPicking(false);
   saveCalcPrefs();
 
@@ -3299,7 +3283,7 @@ async function runCalc() {
   } catch (err) {
     console.error('Cálculo de repostaje:', err);
     const cors = err instanceof TypeError
-      ? ' (no se pudo conectar: ¿está OSRM arrancado en ' + osrm + ' y devuelve cabeceras CORS?)' : '';
+      ? ' (no se pudo conectar con el servidor de rutas ' + osrm + ')' : '';
     setCalcStatus('Error: ' + err.message + cors, true);
     ctx.error = err.message;
   } finally {
