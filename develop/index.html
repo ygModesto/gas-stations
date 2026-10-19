@@ -26,7 +26,7 @@
 
 <!-- FlatGeobuf JS (Lector de archivos binarios espaciales). Sigue publicando bundle UMD,
      así que se carga como script clásico y expone el global `flatgeobuf`.
-     Con 'defer' porque solo se usa dentro de updateMarkers(), mucho después del primer pintado:
+     Con 'defer' porque solo se usa dentro de cargarGasolineras(), mucho después del primer pintado:
      sin él bloquea el parseo del HTML y el markup de la pantalla de arranque ni siquiera existe
      hasta que unpkg contesta. Los scripts diferidos corren en orden de documento y antes que el
      <script type="module"> de abajo, así que el global `flatgeobuf` llega a tiempo igual. -->
@@ -1022,8 +1022,19 @@ window.__boot = (() => {
     // Lo rellena el módulo del final para aplicar la elección al instante.
     onCombustible: null,
     // Lo rellena el módulo del final para enterarse de una elección posterior a su arranque.
-    onElegir: null
+    onElegir: null,
+    // Promise<ArrayBuffer> del .fgb completo, pedido YA, durante el parseo: así baja en paralelo
+    // con MapLibre y mientras se elige la ubicación, en vez de empezar cuando el mapa ya está
+    // listo. Lo consume cargarGasolineras() en el módulo (y la misma ruta va en FGB_FULL).
+    fgbDatos: null
   };
+  estado.fgbDatos = fetch('../public/gasolineras.fgb').then((r) => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.arrayBuffer();
+  });
+  // Si falla antes de que el módulo la recoja, que no salga como promesa rechazada sin capturar:
+  // el error lo trata cargarGasolineras(), que reintenta.
+  estado.fgbDatos.catch(() => {});
 
   function fallo(texto) {
     statusEl.textContent = texto;
@@ -1349,11 +1360,9 @@ const DOTS_LAYER_ID = 'gasolineras-dots';
 // encima como recuadros con el precio (capa LAYER_ID). El corte coincide con el zoom a partir del
 // cual la ventana es lo bastante pequeña como para que quepan las etiquetas sin saturar.
 const LABEL_MIN_ZOOM = 9;
-// Dos ficheros para la misma capa: el completo (con rótulo, dirección, horario…) para el zoom
-// cercano donde se ven recuadros y popups, y uno ligero (solo geometría + los 4 precios, ~55%
-// menos) para el zoom alejado, donde solo se pintan puntos de color y esos campos no se usan.
+// Todas las gasolineras, con rótulo, dirección y horario. Se baja entero una sola vez (ver
+// cargarGasolineras); la misma ruta la usa el script inline del arranque para adelantar la descarga.
 const FGB_FULL = '../public/gasolineras.fgb';
-const FGB_LITE = '../public/gasolineras-lite.fgb';
 // Paleta de las 4 clases de precio, de más barata a más cara: semáforo con dos verdes (las dos
 // "baratas"), ámbar y rojo. Tailwind emerald/green-700/amber-600/rose-600. Sale de comparar varias
 // sobre el mapa real, claro y oscuro, y la deciden cuatro restricciones a la vez:
@@ -2776,8 +2785,9 @@ map.on('load', async () => {
 
   // Hover y clic sobre las DOS capas: un punto visible es una gasolinera que perdió el solape, y
   // sería absurdo verla y no poder consultarla (un símbolo oculto por colisión no se dibuja, así
-  // que su recuadro tampoco recibe clics). Por debajo de LABEL_MIN_ZOOM no son interactivos: ahí
-  // se carga el .fgb ligero, sin rótulo, dirección ni horario, y el popup saldría medio vacío.
+  // que su recuadro tampoco recibe clics). Por debajo de LABEL_MIN_ZOOM no son interactivos. Nació
+  // porque ahí se cargaba el .fgb ligero, sin rótulo, dirección ni horario; ahora los datos van
+  // completos a cualquier zoom, así que se mantiene solo como decisión de interfaz.
   const INTERACTIVE_LAYERS = [LAYER_ID, DOTS_LAYER_ID];
   const canPopup = () => map.getZoom() >= LABEL_MIN_ZOOM;
 
@@ -2814,17 +2824,6 @@ map.on('load', async () => {
   });
 });
 
-// Caché del último tramo pedido al .fgb: si el bbox que hace falta ahora cae DENTRO del que ya se
-// pidió (mismo fichero), nos ahorramos la petición de red y filtramos lo que ya tenemos en memoria.
-// Guarda solo el último tramo, no un histórico: cada fetch real lo sustituye entero -- de ahí que
-// sea un único objeto (o null, "sin caché todavía") y no tres variables que mantener en sync.
-let fgbCache = null;
-
-function bboxContains(outer, inner) {
-  return inner.minX >= outer.minX && inner.maxX <= outer.maxX &&
-         inner.minY >= outer.minY && inner.maxY <= outer.maxY;
-}
-
 // geometry.coordinates de una Feature de FlatGeobuf viene en [lng, lat], como cualquier GeoJSON
 // (así lo construye fetch-data: Point(lng, lat), no al revés).
 function featureInBbox(feature, bbox) {
@@ -2832,29 +2831,39 @@ function featureInBbox(feature, bbox) {
   return lng >= bbox.minX && lng <= bbox.maxX && lat >= bbox.minY && lat <= bbox.maxY;
 }
 
-// Amplía el bbox un 50% de su ancho/alto a cada lado antes de pedirlo: así un paneo corto dentro
-// de ese margen no vuelve a tocar la red (sirve del caché de arriba) y solo hace falta un fetch
-// nuevo al salirse de la zona ya cubierta o al cruzar LABEL_MIN_ZOOM (cambia de fichero). Con toda
-// España en pantalla el margen no cuesta nada de verdad -- el bbox ya cubre el país entero, así
-// que ampliarlo no trae ni un punto más --; en zooms cercanos sí baja algo más de lo estrictamente
-// visible, a cambio de bastantes menos peticiones al mover el mapa dentro de la misma zona.
-function padBbox(bbox, factor) {
-  const dx = (bbox.maxX - bbox.minX) * factor;
-  const dy = (bbox.maxY - bbox.minY) * factor;
-  return {
-    minX: bbox.minX - dx,
-    minY: bbox.minY - dy,
-    maxX: bbox.maxX + dx,
-    maxY: bbox.maxY + dy
-  };
+// Todas las gasolineras de España en memoria (~11.400). El .fgb completo se baja ENTERO una sola vez
+// y cada movimiento del mapa solo filtra aquí lo visible: ~4 ms y ninguna petición.
+// Antes se leía por rangos (HTTP Range) lo visible en cada movimiento que saliera de la zona ya
+// cargada: 5 peticiones encadenadas (cabecera, niveles del índice, datos), unos 450 ms en el móvil
+// aunque fueran pocos datos. Y sin comprimir: con Range el navegador pide los bytes tal cual, cuando
+// el fichero entero viaja con gzip (2,6 MB -> ~800 KB). Por eso tampoco hace falta ya el .fgb
+// ligero, que solo existía para leer menos bytes por rangos en la vista alejada.
+// La descarga la empieza el script inline del arranque (boot.fgbDatos); aquí se recoge y se
+// procesa (~0,1-0,25 s según el móvil). Si falla, el siguiente movimiento lo vuelve a intentar.
+let gasolinerasPromise = null;
+function cargarGasolineras() {
+  if (!gasolinerasPromise) {
+    // La descarga temprana solo vale para el primer intento; si falló, los siguientes van a la red
+    const datos = boot.fgbDatos ?? fetch(FGB_FULL).then((r) => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.arrayBuffer();
+    });
+    boot.fgbDatos = null;
+    gasolinerasPromise = (async () => {
+      const features = [];
+      for await (const f of flatgeobuf.deserialize(new Uint8Array(await datos))) features.push(f);
+      return features;
+    })();
+    gasolinerasPromise.catch(() => { gasolinerasPromise = null; });
+  }
+  return gasolinerasPromise;
 }
 
-// Número de la última llamada a updateMarkers. Dos movimientos seguidos lanzan dos lecturas en
-// paralelo, y la primera puede acabar después (p. ej. toda España con el .fgb ligero, y luego un
-// vuelo a una calle): sin esto, la lectura vieja pisaría a la nueva con otra zona y otro fichero.
+// Número de la última llamada a updateMarkers. Mientras se espera la descarga (solo la primera
+// vez) pueden llegar varios movimientos: cuando termina, solo pinta el último.
 let markersReq = 0;
 
-// 5. Cargar únicamente las gasolineras visibles con FlatGeobuf, vía HTTP Range Request
+// 5. Pintar las gasolineras visibles, filtradas de las que ya están en memoria
 async function updateMarkers() {
   // Red de seguridad: sin la fuente ni las capas creadas (map.on('load')) no hay dónde pintar, y
   // ahora la pantalla de arranque responde mucho antes de que eso ocurra. Los caminos conocidos ya
@@ -2862,8 +2871,15 @@ async function updateMarkers() {
   // temprano sin tener que acordarse de ello en cada sitio.
   await mapReady;
   const req = ++markersReq;
-  // Se carga a cualquier zoom: en vista alejada las estaciones se pintan como puntos (DOTS_LAYER_ID)
-  // y al acercarse pasan a recuadros con precio (LAYER_ID).
+  let todas;
+  try {
+    todas = await cargarGasolineras();
+  } catch (err) {
+    if (req === markersReq) console.error('Error descargando las gasolineras:', err);
+    return;
+  }
+  if (req !== markersReq) return;
+  // El bbox se lee después de esperar: el mapa pudo moverse mientras bajaba el fichero
   const bounds = map.getBounds();
   const bbox = {
     minX: bounds.getWest(),
@@ -2871,42 +2887,10 @@ async function updateMarkers() {
     maxX: bounds.getEast(),
     maxY: bounds.getNorth()
   };
-
-  // En zoom alejado (solo puntos) basta el fichero ligero; al acercarse, con recuadros y popups,
-  // se necesita el completo. El corte coincide con el de las capas (LABEL_MIN_ZOOM).
-  // El ligero incluye la columna 'brand', así que el filtro de marcas funciona también aquí sin
-  // tener que bajar el completo: son 1,73 MB frente a 2,90 MB para el país entero.
-  const src = map.getZoom() < LABEL_MIN_ZOOM ? FGB_LITE : FGB_FULL;
-
-  // El bbox visible ya está cubierto por el último tramo pedido a este mismo fichero: no hace
-  // falta red, solo filtrar lo que ya tenemos. El caso más habitual es hacer zoom in (el bbox se
-  // encoge) o moverse poco dentro de una zona ya cargada (gracias al margen de padBbox).
-  if (fgbCache && fgbCache.src === src && bboxContains(fgbCache.bbox, bbox)) {
-    currentFeatures = fgbCache.features.filter((f) => featureInBbox(f, bbox));
-    applyLabels();
-    return;
-  }
-
-  const fetchBbox = padBbox(bbox, 0.5);
-  const features = [];
-  try {
-    const iter = flatgeobuf.deserialize(src, fetchBbox);
-    for await (const feature of iter) {
-      // Ya hay una lectura más nueva: se abandona esta (salir del bucle cierra el iterador, que
-      // deja de pedir rangos) y no se toca ni la caché ni lo pintado.
-      if (req !== markersReq) return;
-      features.push(feature);
-    }
-    if (req !== markersReq) return;
-    fgbCache = { src, bbox: fetchBbox, features };
-    // Solo lo que cae en el bbox real, no en el margen: éste es puro caché, no debe colar
-    // gasolineras fuera de pantalla en el cálculo de cuartiles de applyLabels().
-    currentFeatures = features.filter((f) => featureInBbox(f, bbox));
-    // Una sola actualización de la capa por movimiento, con el precio ya calculado
-    applyLabels();
-  } catch (err) {
-    if (req === markersReq) console.error('Error leyendo FlatGeobuf:', err);
-  }
+  // Se pinta a cualquier zoom: en vista alejada como puntos (DOTS_LAYER_ID) y al acercarse como
+  // recuadros con precio (LAYER_ID). Una sola actualización de la capa por movimiento.
+  currentFeatures = todas.filter((f) => featureInBbox(f, bbox));
+  applyLabels();
 }
 
 // --- ¿Dónde me compensa repostar? (en pruebas, solo develop) ---
@@ -3105,14 +3089,16 @@ function circlePolygon([lng, lat], km) {
   return { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [anillo] } };
 }
 
-// Lee del .fgb completo (trae el rótulo y la dirección, que hacen falta para depurar) las
-// gasolineras con el combustible pedido en un recuadro de ±km alrededor del origen. Solo amplía:
-// si ya se leyó un recuadro mayor, no vuelve a la red. Las que repiten conservan lo ya calculado.
+// Saca de las gasolineras en memoria (ver cargarGasolineras) las que tienen el combustible pedido
+// en un recuadro de ±km alrededor del origen. Solo amplía: si ya se sacó un recuadro mayor, no
+// repite. Las que repiten conservan lo ya calculado.
 async function calcLoadStations(ctx, km) {
   if (km <= ctx.loadedKm) return;
   const t0 = performance.now();
   const lista = [];
-  for await (const f of flatgeobuf.deserialize(FGB_FULL, bboxAround(ctx.origin, km))) {
+  const recuadro = bboxAround(ctx.origin, km);
+  for (const f of await cargarGasolineras()) {
+    if (!featureInBbox(f, recuadro)) continue;
     const precio = Number(f.properties[ctx.fuel]);
     if (!precio) continue;
     const [lng, lat] = f.geometry.coordinates;
@@ -3131,7 +3117,7 @@ async function calcLoadStations(ctx, km) {
   ctx.stations = lista.map((s) => previas.get(s.key) || s);
   ctx.loadedKm = km;
   ctx.log.push('Leídas ' + lista.length + ' gasolineras con ' + FUEL_LABELS[ctx.fuel] +
-    ' en un recuadro de ±' + km.toFixed(1) + ' km (' + Math.round(performance.now() - t0) + ' ms)');
+    ' en un recuadro de ±' + km.toFixed(1) + ' km (' + Math.round(performance.now() - t0) + ' ms, en memoria)');
 }
 
 function calcLB(ctx, s) {
