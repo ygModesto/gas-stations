@@ -935,9 +935,72 @@
   .calc-out tr.is-sel { outline: 2px solid var(--ring); outline-offset: -2px; }
   .calc-st { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; background: var(--c); }
   .calc-toggle svg { display: block; margin: auto; }
+  /* Hoja compacta: los parámetros casi nunca cambian entre un cálculo y otro, así que se resumen en
+     una línea que despliega el formulario. Lo que sí se toca cada vez es el origen y "Calcular". */
+  .calc-summary {
+    display: flex; align-items: center; gap: 8px; width: 100%; min-height: 34px; padding: 6px 10px;
+    border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background);
+    color: var(--foreground); font: inherit; font-size: 0.8rem; text-align: left; cursor: pointer;
+  }
+  .calc-summary > span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .calc-summary .calc-edit { flex: none; color: var(--primary-soft-foreground); font-weight: 600; }
+  .calc-form[hidden], .calc-out[hidden], .calc-link[hidden] { display: none; }
+  .calc-field-label { font-size: 0.75rem; color: var(--muted-foreground); margin-bottom: -4px; }
+  /* Origen: dos segmentos unidos, como el ToggleGroup del combustible de la pantalla de inicio */
+  .calc-origin-group { display: flex; border-radius: var(--radius-md); box-shadow: var(--shadow-xs); }
+  .calc-origin-btn {
+    flex: 1 1 0; min-width: 0; min-height: 40px; display: inline-flex; align-items: center; justify-content: center;
+    gap: 6px; padding: 6px 8px; border: 1px solid var(--input); background: var(--background);
+    color: var(--foreground); font: inherit; font-size: 0.8rem; font-weight: 500; cursor: pointer;
+  }
+  .calc-origin-btn + .calc-origin-btn { border-left: none; }
+  .calc-origin-btn:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+  .calc-origin-btn:last-child { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .calc-origin-btn[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+  @media (hover: hover) { .calc-origin-btn[aria-pressed="false"]:hover { background: var(--accent); } }
+  .calc-origin-btn:focus-visible { outline: none; position: relative; box-shadow: var(--focus-ring); }
+  .calc-origin-text { font-size: 0.75rem; color: var(--muted-foreground); }
+  .calc-run-wide { width: 100%; height: 40px; font-size: 0.875rem; }
+  .calc-link {
+    align-self: flex-start; padding: 0; border: none; background: none; color: var(--muted-foreground);
+    font: inherit; font-size: 0.75rem; text-decoration: underline; cursor: pointer;
+  }
+  /* Elegir el origen con una cruz fija en el centro del mapa (como Uber o Cabify): se mueve el mapa
+     debajo. En el móvil es más preciso que tocar el punto (el dedo lo tapa) y no abre popups. */
+  #calc-pick-overlay { position: absolute; inset: 0; z-index: 1003; pointer-events: none; }
+  #calc-pick-overlay[hidden] { display: none; }
+  .calc-cross {
+    position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%);
+    color: var(--primary); filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 1px 3px rgb(0 0 0 / 0.35));
+  }
+  .calc-pick-bar {
+    position: absolute; left: 10px; right: 10px; bottom: 10px; max-width: 420px; margin: 0 auto;
+    display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; pointer-events: auto;
+    background: var(--background); color: var(--foreground); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); font-size: 0.8rem;
+  }
+  .calc-pick-actions { display: flex; gap: 8px; }
+  .calc-pick-actions .calc-btn { flex: 1; height: 40px; font-size: 0.85rem; }
+  /* Tarjetas de "Compensa ir" en la tira de más baratas: una línea más (coste total y ahorro) */
+  .cheap-row.calc-card { width: 150px; }
+  .calc-card .cheap-price { color: var(--foreground); }
+  .calc-card.es-mejor .cheap-price { color: var(--primary-soft-foreground); }
+  .calc-card .calc-coste { display: block; font-size: 0.68rem; font-weight: 600; line-height: 1.25; color: var(--foreground); }
+  .calc-card .calc-ahorro { color: #15803d; }
+  @media (prefers-color-scheme: dark) { .calc-card .calc-ahorro { color: #4ade80; } }
+  /* Acción en la cabecera de la tira ("Detalles"), al lado del cierre */
+  .cheap-action {
+    flex: none; align-self: center; padding: 3px 6px; border: none; border-radius: 6px; background: none;
+    color: var(--primary-soft-foreground); font: inherit; font-size: 0.68rem; font-weight: 600; cursor: pointer;
+  }
+  .cheap-action:hover { background: var(--accent); }
+  .cheap-action[hidden] { display: none; }
+  /* En el móvil, hoja pegada abajo del mapa y solo tan alta como su contenido: el mapa se sigue
+     viendo por encima. Con los detalles desplegados crece hasta el 80 % y scrollea. */
   @media (max-width: 600px) {
-    #calc-panel { left: 0; right: 0; width: auto; max-width: none; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-      top: calc(var(--toolbar-bottom) + 8px); bottom: 0; max-height: none; }
+    #calc-panel { left: 0; right: 0; top: auto; bottom: 0; width: auto; max-width: none; max-height: 80%;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    .calc-pick-bar { left: 8px; right: 8px; bottom: 8px; }
   }
 </style>
 </head>
@@ -1227,7 +1290,10 @@ window.__boot = (() => {
       </button>
     </div>
     <div class="calc-body">
-      <div class="calc-form">
+      <button id="calc-params-toggle" class="calc-summary" type="button" aria-expanded="false" aria-controls="calc-form">
+        <span id="calc-summary"></span><span class="calc-edit">Editar</span>
+      </button>
+      <div id="calc-form" class="calc-form" hidden>
         <label>Litros a repostar<input id="calc-litros" type="number" min="1" step="1" value="40" /></label>
         <label>Consumo (L/100 km)<input id="calc-consumo" type="number" min="0.1" step="0.1" value="6" /></label>
         <label>Precio mínimo en España (€/L)<input id="calc-pmin" type="number" min="0" step="0.001" placeholder="p. ej. 1.490" /></label>
@@ -1235,17 +1301,41 @@ window.__boot = (() => {
         <label>Velocidad máx. para la cota (km/h)<input id="calc-vmax" type="number" min="1" step="1" value="120" /></label>
         <label>Tope de radio (km)<input id="calc-tope" type="number" min="1" step="1" value="100" /></label>
       </div>
-      <div class="calc-row">
-        <span id="calc-origin-text" class="grow">Sin ubicación</span>
-        <button id="calc-pick" class="calc-btn" type="button" aria-pressed="false">Elegir en el mapa</button>
-        <button id="calc-center" class="calc-btn" type="button">Centro del mapa</button>
+      <div id="calc-origin-label" class="calc-field-label">Desde</div>
+      <div class="calc-origin-group" role="group" aria-labelledby="calc-origin-label">
+        <button id="calc-gps" class="calc-origin-btn" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+          </svg>
+          Mi ubicación
+        </button>
+        <button id="calc-pick" class="calc-origin-btn" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 21s-6-5.3-6-11a6 6 0 0 1 12 0c0 5.7-6 11-6 11z" /><circle cx="12" cy="10" r="2" />
+          </svg>
+          Elegir punto
+        </button>
       </div>
-      <div class="calc-row">
-        <label class="calc-check grow"><input type="checkbox" id="calc-draw" checked /> Dibujar las rutas calculadas</label>
-        <button id="calc-run" class="calc-btn primary" type="button">Calcular</button>
-      </div>
+      <div id="calc-origin-text" class="calc-origin-text">Sin ubicación</div>
+      <button id="calc-run" class="calc-btn primary calc-run-wide" type="button">Calcular</button>
       <div id="calc-status"></div>
-      <div id="calc-out" class="calc-out"></div>
+      <button id="calc-details-toggle" class="calc-link" type="button" aria-expanded="false" aria-controls="calc-out" hidden>Ver detalles del cálculo</button>
+      <div id="calc-out" class="calc-out" hidden></div>
+    </div>
+  </div>
+
+  <!-- Elegir el origen: cruz fija en el centro del mapa y, abajo, confirmar o cancelar -->
+  <div id="calc-pick-overlay" hidden>
+    <svg class="calc-cross" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true">
+      <circle cx="22" cy="22" r="9" stroke-width="2.5" /><circle cx="22" cy="22" r="1.8" fill="currentColor" stroke="none" />
+      <path d="M22 2v9M22 33v9M2 22h9M33 22h9" stroke-width="2.5" />
+    </svg>
+    <div class="calc-pick-bar" role="dialog" aria-label="Elegir el punto de origen">
+      <div>Mueve el mapa hasta dejar el punto bajo la cruz, o tócalo.</div>
+      <div class="calc-pick-actions">
+        <button id="calc-pick-cancel" class="calc-btn" type="button">Cancelar</button>
+        <button id="calc-pick-ok" class="calc-btn primary" type="button">Usar este punto</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1262,6 +1352,7 @@ window.__boot = (() => {
     <div class="cheap-head">
       <span id="cheap-title" class="cheap-title">Más baratas</span>
       <span id="cheap-count" class="cheap-count"></span>
+      <button id="cheap-details" class="cheap-action" type="button" hidden>Detalles</button>
       <button id="cheap-close" class="cheap-close" type="button" aria-label="Cerrar la lista">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
              stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
@@ -2361,10 +2452,17 @@ function updateCheapList(mostrados) {
   renderCheapList();
 }
 
+// Qué enseña la tira: 'precio' (las más baratas de lo visible) o 'calc' (el resultado de la
+// calculadora, ordenado por coste real; ver renderCalcList). Comparten la tira para no tener un
+// segundo panel compitiendo por el mismo hueco abajo del mapa.
+let cheapModo = 'precio';
+
 function renderCheapList() {
   if (cheapPanelEl.hidden) return;
+  if (cheapModo === 'calc') { renderCalcList(); return; }
 
   cheapTitleEl.textContent = 'Más baratas · ' + FUEL_LABELS[selectedFuel];
+  cheapDetailsBtn.hidden = true;
 
   if (cheapFeatures.length === 0) {
     cheapCountEl.textContent = '';
@@ -2422,6 +2520,7 @@ function marcarSeleccionEnLista(desplazar) {
 cheapListEl.addEventListener('click', (e) => {
   const fila = e.target.closest('.cheap-row');
   if (!fila) return;
+  if (cheapModo === 'calc') { seleccionarCalc(fila.dataset.key, { desdeLista: true }); return; }
   const f = cheapFeatures[Number(fila.dataset.i)];
   // El mapa NO se mueve: todas las de la lista ya están en pantalla, y moverlo cambiaría lo que la
   // lista contiene (y con menos de MIN_FOR_CLASSES gasolineras apagaría la leyenda de rangos).
@@ -2443,7 +2542,12 @@ function toggleCheapPanel(abrir) {
   renderCheapList(); // al abrir, pinta lo que se haya acumulado mientras estaba cerrada
 }
 
-cheapCloseBtn.addEventListener('click', () => toggleCheapPanel(false));
+// En "Compensa ir", el ✕ termina con el cálculo (borra lo dibujado) y la tira vuelve a ser la de
+// las más baratas; en la lista normal, la cierra.
+cheapCloseBtn.addEventListener('click', () => {
+  if (cheapModo === 'calc') limpiarCalc();
+  else toggleCheapPanel(false);
+});
 
 // Botón que abre la lista. Va como control de MapLibre y no suelto sobre el mapa para que caiga
 // en la misma columna que el zoom y la geolocalización, con su mismo aspecto, y para que MapLibre
@@ -2910,7 +3014,7 @@ const CALC_REF_K = 5;         // candidatas (las de mejor cota) con las que se f
 const CALC_FIRST_KM = 5;      // primer radio de búsqueda de la referencia; se dobla si no llega
 const CALC_BATCH = 25;        // destinos por petición /table
 const CALC_MAX_ITER = 8;      // vueltas de ajuste de p_min y d_max
-const CALC_ROUTE_CONC = 6;    // peticiones /route en paralelo para dibujar
+const CALC_FIX_MS = 120000;   // una posición GPS de hace menos de esto se reaprovecha
 const CALC_MAX_ROWS = 400;    // filas pintadas en la tabla (el JSON lleva todas)
 const CALC_COLORS = {
   mejor: '#15803d',
@@ -2939,24 +3043,68 @@ const calcIn = {
   tope: document.getElementById('calc-tope')
 };
 const calcOriginTextEl = document.getElementById('calc-origin-text');
+const calcGpsBtn = document.getElementById('calc-gps');
 const calcPickBtn = document.getElementById('calc-pick');
-const calcCenterBtn = document.getElementById('calc-center');
-const calcDrawEl = document.getElementById('calc-draw');
 const calcRunBtn = document.getElementById('calc-run');
 const calcStatusEl = document.getElementById('calc-status');
 const calcOutEl = document.getElementById('calc-out');
+const calcFormEl = document.getElementById('calc-form');
+const calcParamsBtn = document.getElementById('calc-params-toggle');
+const calcSummaryEl = document.getElementById('calc-summary');
+const calcDetailsBtn = document.getElementById('calc-details-toggle');
+const calcPickOverlayEl = document.getElementById('calc-pick-overlay');
+const cheapDetailsBtn = document.getElementById('cheap-details');
 let calcToggleBtn = null;
-let calcPicking = false;   // el próximo clic en el mapa fija el origen (y no abre popups)
+let calcPicking = false;   // eligiendo el origen con la cruz (y sin abrir popups)
 let calcOrigin = null;     // [lng, lat]
+let calcModo = null;       // de dónde salió el origen: 'gps' (mi ubicación) o 'punto' (elegido)
 let calcOriginMarker = null;
-let calcLast = null;       // último cálculo: lo leen la tabla, el mapa y "Copiar JSON"
+let calcLast = null;       // último cálculo: lo leen la tira, la tabla, el mapa y "Copiar JSON"
 let calcSelKey = null;
+// Última posición del GPS, venga del botón 📍 del mapa o de "Mi ubicación": { lngLat, t, precision }
+let calcUltimaPosicion = null;
 
 function saveCalcPrefs() {
   try {
     const valores = Object.fromEntries(Object.entries(calcIn).map(([k, el]) => [k, el.value]));
-    localStorage.setItem(CALC_PREFS_KEY, JSON.stringify({ ...valores, origin: calcOrigin }));
+    localStorage.setItem(CALC_PREFS_KEY, JSON.stringify({ ...valores, origin: calcOrigin, modo: calcModo }));
   } catch { /* sin persistencia: funciona igual, solo no se recuerda */ }
+}
+
+// La línea que resume los parámetros, para no tener el formulario abierto en cada cálculo
+function syncCalcSummary() {
+  const v = (el) => String(el.value).replace(',', '.');
+  const pmin = Number(v(calcIn.pmin));
+  const vt = Number(v(calcIn.vtiempo)) || 0;
+  calcSummaryEl.textContent = v(calcIn.litros) + ' L · ' + v(calcIn.consumo) + ' L/100 km · ' +
+    (pmin > 0 ? 'mín. ' + pmin.toFixed(3) + ' €' : 'falta el precio mínimo') + (vt > 0 ? ' · ' + vt + ' €/h' : '');
+}
+function setCalcParamsAbiertos(abrir) {
+  calcFormEl.hidden = !abrir;
+  calcParamsBtn.setAttribute('aria-expanded', String(abrir));
+  calcParamsBtn.querySelector('.calc-edit').textContent = abrir ? 'Ocultar' : 'Editar';
+}
+calcParamsBtn.addEventListener('click', () => setCalcParamsAbiertos(calcFormEl.hidden));
+
+// Qué se ve de la calculadora fuera del panel. El origen y la ruta se quedan aunque se cierre el
+// panel (lo que se ha calculado sigue siendo útil); el radio y los puntos de cada estado son de
+// depuración y solo salen con los detalles abiertos. Mientras se elige con la cruz, el marcador
+// se esconde: el punto lo marca la cruz.
+function calcDetallesVisibles() {
+  return !calcPanelEl.hidden && !calcOutEl.hidden;
+}
+function syncCalcVisibility() {
+  if (calcOriginMarker) {
+    calcOriginMarker.getElement().style.display =
+      calcPicking || (calcPanelEl.hidden && !calcLast) ? 'none' : '';
+  }
+  if (!map.getLayer('calc-puntos')) return;
+  const ver = (id, si) => map.setLayoutProperty(id, 'visibility', si ? 'visible' : 'none');
+  const debug = !!calcLast && calcDetallesVisibles();
+  ver('calc-rutas', !!calcLast);
+  ver('calc-puntos', debug);
+  ver('calc-radio-fill', debug);
+  ver('calc-radio-line', debug);
 }
 
 function setCalcStatus(texto, esError) {
@@ -2964,8 +3112,9 @@ function setCalcStatus(texto, esError) {
   calcStatusEl.classList.toggle('error', !!esError);
 }
 
-function setCalcOrigin(lngLat, guardar = true) {
+function setCalcOrigin(lngLat, guardar = true, modo = 'punto') {
   calcOrigin = [lngLat[0], lngLat[1]];
+  calcModo = modo;
   if (!calcOriginMarker) {
     calcOriginMarker = new maplibregl.Marker({ color: THEME_PRIMARY, draggable: true })
       .setLngLat(calcOrigin)
@@ -2977,35 +3126,114 @@ function setCalcOrigin(lngLat, guardar = true) {
   } else {
     calcOriginMarker.setLngLat(calcOrigin);
   }
-  calcOriginMarker.getElement().style.display = calcPanelEl.hidden ? 'none' : '';
-  calcOriginTextEl.textContent = 'Origen: ' + calcOrigin[1].toFixed(5) + ', ' + calcOrigin[0].toFixed(5);
+  syncCalcOriginUI();
+  syncCalcVisibility();
   if (guardar) saveCalcPrefs();
 }
 
+function syncCalcOriginUI() {
+  calcGpsBtn.setAttribute('aria-pressed', String(calcModo === 'gps'));
+  calcPickBtn.setAttribute('aria-pressed', String(calcModo === 'punto'));
+  if (!calcOrigin) { calcOriginTextEl.textContent = 'Elige desde dónde calcular.'; return; }
+  const coords = calcOrigin[1].toFixed(5) + ', ' + calcOrigin[0].toFixed(5);
+  if (calcModo === 'gps') {
+    const prec = calcUltimaPosicion?.precision;
+    calcOriginTextEl.textContent = 'Tu ubicación' + (prec ? ' (±' + Math.round(prec) + ' m)' : '') + ' · ' + coords;
+  } else {
+    calcOriginTextEl.textContent = 'Punto elegido · ' + coords + ' (puedes arrastrar el marcador)';
+  }
+}
+
+// --- Elegir el origen con la cruz ---
+// El panel se esconde para dejar el mapa libre; al confirmar o cancelar vuelve a abrirse.
 function setCalcPicking(on) {
   calcPicking = on;
-  calcPickBtn.setAttribute('aria-pressed', String(on));
-  calcPickBtn.textContent = on ? 'Toca el mapa…' : 'Elegir en el mapa';
-  map.getCanvas().style.cursor = on ? 'crosshair' : '';
+  calcPickOverlayEl.hidden = !on;
+  if (on) calcPanelEl.hidden = true;
+  syncCalcVisibility();
+}
+function empezarAElegir() {
+  popup?.remove(); // un popup abierto taparía la cruz
+  // Si ya había un punto elegido, la cruz arranca sobre él para poder retocarlo
+  if (calcOrigin && calcModo === 'punto') map.easeTo({ center: calcOrigin });
+  setCalcPicking(true);
+}
+function terminarDeElegir(usar) {
+  if (usar) {
+    const c = map.getCenter();
+    setCalcOrigin([c.lng, c.lat], true, 'punto');
+  }
+  setCalcPicking(false);
+  toggleCalcPanel(true);
+}
+
+// --- Mi ubicación ---
+// Se reaprovecha la posición del botón 📍 del mapa o la de un "Mi ubicación" anterior si es
+// reciente; si no, se pide al GPS. 'silencioso' es para el automático al abrir el panel: si
+// falla, no deja un error en pantalla (el usuario aún no ha pedido nada).
+geolocate.on('geolocate', (e) => {
+  calcUltimaPosicion = { lngLat: [e.coords.longitude, e.coords.latitude], t: Date.now(), precision: e.coords.accuracy };
+});
+function geoPermitida() {
+  try { return localStorage.getItem('geoConcedida') === '1'; } catch { return false; }
+}
+function usarMiUbicacion({ silencioso = false } = {}) {
+  return new Promise((resolve) => {
+    const fija = (pos) => {
+      if (!calcPicking) setCalcOrigin(pos.lngLat, true, 'gps');
+      resolve(true);
+    };
+    if (calcUltimaPosicion && Date.now() - calcUltimaPosicion.t < CALC_FIX_MS) { fija(calcUltimaPosicion); return; }
+    if (!navigator.geolocation) {
+      if (!silencioso) setCalcStatus('Este navegador no da la ubicación. Elige un punto en el mapa.', true);
+      resolve(false);
+      return;
+    }
+    calcOriginTextEl.textContent = 'Localizando…';
+    navigator.geolocation.getCurrentPosition((p) => {
+      calcUltimaPosicion = { lngLat: [p.coords.longitude, p.coords.latitude], t: Date.now(), precision: p.coords.accuracy };
+      boot.recordarPermiso();
+      if (calcStatusEl.classList.contains('error')) setCalcStatus('');
+      fija(calcUltimaPosicion);
+    }, () => {
+      syncCalcOriginUI();
+      if (!silencioso) setCalcStatus('No se pudo obtener tu ubicación. Elige un punto en el mapa.', true);
+      resolve(false);
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
+  });
 }
 
 try {
   const guardado = JSON.parse(localStorage.getItem(CALC_PREFS_KEY)) || {};
   for (const [k, el] of Object.entries(calcIn)) if (guardado[k] != null && guardado[k] !== '') el.value = guardado[k];
-  if (Array.isArray(guardado.origin)) setCalcOrigin(guardado.origin, false);
+  // Solo se recupera un punto elegido: la ubicación de otro día no vale, se vuelve a pedir
+  if (Array.isArray(guardado.origin) && guardado.modo !== 'gps') setCalcOrigin(guardado.origin, false, 'punto');
+  else if (guardado.modo === 'gps') calcModo = 'gps';
 } catch { /* preferencias corruptas o inaccesibles: valores por defecto */ }
-Object.values(calcIn).forEach((el) => el.addEventListener('change', saveCalcPrefs));
+syncCalcSummary();
+syncCalcOriginUI();
+// Sin precio mínimo no se puede calcular: el formulario sale abierto para rellenarlo
+if (!(Number(String(calcIn.pmin.value).replace(',', '.')) > 0)) setCalcParamsAbiertos(true);
+Object.values(calcIn).forEach((el) => el.addEventListener('change', () => { saveCalcPrefs(); syncCalcSummary(); }));
 
-calcPickBtn.addEventListener('click', () => setCalcPicking(!calcPicking));
-calcCenterBtn.addEventListener('click', () => {
-  const c = map.getCenter();
-  setCalcOrigin([c.lng, c.lat]);
-});
+calcGpsBtn.addEventListener('click', () => usarMiUbicacion());
+calcPickBtn.addEventListener('click', empezarAElegir);
+document.getElementById('calc-pick-ok').addEventListener('click', () => terminarDeElegir(true));
+document.getElementById('calc-pick-cancel').addEventListener('click', () => terminarDeElegir(false));
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && calcPicking) terminarDeElegir(false); });
+// Tocar el mapa mientras se elige lleva ese punto bajo la cruz (y no abre popups, ver calcPicking)
 map.on('click', (e) => {
-  if (!calcPicking) return;
-  setCalcOrigin([e.lngLat.lng, e.lngLat.lat]);
-  setCalcPicking(false);
+  if (calcPicking) map.easeTo({ center: e.lngLat });
 });
+calcDetailsBtn.addEventListener('click', () => setCalcDetalles(calcOutEl.hidden));
+cheapDetailsBtn.addEventListener('click', () => { toggleCalcPanel(true); setCalcDetalles(true); });
+
+function setCalcDetalles(abrir) {
+  calcOutEl.hidden = !abrir;
+  calcDetailsBtn.setAttribute('aria-expanded', String(abrir));
+  calcDetailsBtn.textContent = abrir ? 'Ocultar detalles del cálculo' : 'Ver detalles del cálculo';
+  syncCalcVisibility();
+}
 document.getElementById('calc-close').addEventListener('click', () => toggleCalcPanel(false));
 calcRunBtn.addEventListener('click', runCalc);
 
@@ -3035,14 +3263,16 @@ function calentarOsrm() {
     .catch(() => { calcWarmAt = -Infinity; }); // si falla, se reintenta en la próxima apertura
 }
 
-// Al cerrar el panel se esconde también lo que dibuja en el mapa, y vuelve al abrirlo
+// Cerrar el panel NO borra lo dibujado (origen y ruta): eso lo hace el ✕ de "Compensa ir" o un
+// cálculo nuevo. Al abrirlo, si el origen es "Mi ubicación", se refresca (sin molestar si falla).
 function toggleCalcPanel(abrir) {
+  if (abrir && calcPicking) setCalcPicking(false);
   calcPanelEl.hidden = !abrir;
   calcToggleBtn?.setAttribute('aria-pressed', String(abrir));
-  if (!abrir) setCalcPicking(false);
-  if (calcOriginMarker) calcOriginMarker.getElement().style.display = abrir ? '' : 'none';
-  setCalcLayersVisible(abrir);
-  if (abrir) calentarOsrm();
+  syncCalcVisibility();
+  if (!abrir) return;
+  calentarOsrm();
+  if (calcModo === 'gps' || (!calcOrigin && geoPermitida())) usarMiUbicacion({ silencioso: true });
 }
 
 class CalcControl {
@@ -3062,7 +3292,8 @@ class CalcControl {
       'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
       '<path d="M3 22h12" /><path d="M4 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17" /><path d="M4 10h10" />' +
       '<path d="M14 13h2a2 2 0 0 1 2 2v3a1.5 1.5 0 0 0 3 0V8l-3-3" /></svg>';
-    calcToggleBtn.addEventListener('click', () => toggleCalcPanel(calcPanelEl.hidden));
+    // Mientras se elige con la cruz, el botón cancela la elección (y vuelve a abrir el panel)
+    calcToggleBtn.addEventListener('click', () => (calcPicking ? terminarDeElegir(false) : toggleCalcPanel(calcPanelEl.hidden)));
     this._container.appendChild(calcToggleBtn);
     return this._container;
   }
@@ -3157,34 +3388,24 @@ async function osrmTable(ctx, destinos) {
   return ms;
 }
 
-// Geometría de la ruta de cada gasolinera evaluada, solo para dibujarla. Su distancia puede no
-// coincidir al metro con la de /table; la que cuenta para el coste es la de /table.
-async function calcRoutes(ctx) {
-  const evaluadas = ctx.stations.filter((s) => s.coste != null);
+// Geometría de la ruta a una gasolinera, solo para dibujarla: la de la ganadora al terminar y la
+// de las demás al tocar su tarjeta. Antes se pedían todas de golpe y la ráfaga se comía el
+// limit_req de nginx (los "N sin geometría"). Su distancia puede no coincidir al metro con la de
+// /table; la que cuenta para el coste es la de /table.
+async function calcRuta(ctx, s) {
+  if (s.geom) return true;
+  const url = ctx.osrm + '/route/v1/driving/' + fmtCoord(ctx.origin) + ';' + fmtCoord([s.lng, s.lat]) +
+    '?overview=full&geometries=geojson';
   const t0 = performance.now();
-  let i = 0;
-  let fallos = 0;
-  const worker = async () => {
-    while (i < evaluadas.length) {
-      const s = evaluadas[i++];
-      const url = ctx.osrm + '/route/v1/driving/' + fmtCoord(ctx.origin) + ';' + fmtCoord([s.lng, s.lat]) +
-        '?overview=full&geometries=geojson';
-      try {
-        const j = await fetch(url).then((r) => r.json());
-        if (j.code === 'Ok') s.geom = j.routes[0].geometry;
-        else fallos++;
-      } catch { fallos++; }
-    }
-  };
-  await Promise.all(Array.from({ length: CALC_ROUTE_CONC }, worker));
-  ctx.osrmCalls.push({
-    tipo: 'route',
-    destinos: evaluadas.length,
-    ms: Math.round(performance.now() - t0),
-    url: evaluadas.length ? ctx.osrm + '/route/v1/driving/' + fmtCoord(ctx.origin) + ';' +
-      fmtCoord([evaluadas[0].lng, evaluadas[0].lat]) + '?overview=full&geometries=geojson' : '',
-    nota: fallos ? fallos + ' sin geometría' : ''
-  });
+  let nota = '';
+  try {
+    const res = await fetch(url);
+    const j = res.ok ? await res.json() : null;
+    if (j?.code === 'Ok') s.geom = j.routes[0].geometry;
+    else nota = 'sin geometría (' + (j?.code || 'HTTP ' + res.status) + ')';
+  } catch { nota = 'sin geometría (sin conexión)'; }
+  ctx.osrmCalls.push({ tipo: 'route', destinos: 1, ms: Math.round(performance.now() - t0), url, nota });
+  return !!s.geom;
 }
 
 async function runCalc() {
@@ -3196,7 +3417,12 @@ async function runCalc() {
   const vmax = num(calcIn.vmax);
   const tope = num(calcIn.tope);
   const osrm = OSRM_URL;
-  if (!calcOrigin) return setCalcStatus('Elige primero la ubicación de origen.', true);
+  // "Mi ubicación" con una posición vieja (te has movido): se refresca antes de calcular
+  if (calcModo === 'gps' && !(calcUltimaPosicion && Date.now() - calcUltimaPosicion.t < CALC_FIX_MS)) {
+    setCalcStatus('Localizando…');
+    if (!(await usarMiUbicacion())) return;
+  }
+  if (!calcOrigin) return setCalcStatus('Elige primero desde dónde calcular.', true);
   if (!(pmin > 0)) return setCalcStatus('Falta el precio mínimo en España.', true);
   if (!(L > 0) || !(c > 0) || !(vmax > 0) || !(tope > 0) || v < 0) return setCalcStatus('Revisa los parámetros: tienen que ser positivos.', true);
   setCalcPicking(false);
@@ -3286,11 +3512,8 @@ async function runCalc() {
     ctx.log.push('Podadas por cota sin pedir ruta: ' + podadas.length + ' de ' +
       ctx.stations.filter((s) => s.recta <= ctx.dmax).length + ' dentro del radio');
 
-    // 4. Rutas para el mapa
-    if (calcDrawEl.checked) {
-      await calcRoutes(ctx);
-      ctx.log.push('Dibujadas las rutas de las ' + ctx.stations.filter((s) => s.geom).length + ' evaluadas con /route');
-    }
+    // 4. Ruta de la ganadora para el mapa (las demás, al tocar su tarjeta)
+    if (await calcRuta(ctx, best)) ctx.log.push('Ruta de la ganadora con /route');
     ctx.ms = Math.round(performance.now() - t0);
     setCalcStatus('Hecho en ' + ctx.ms + ' ms.');
   } catch (err) {
@@ -3305,13 +3528,101 @@ async function runCalc() {
   calcLast = ctx;
   calcSelKey = ctx.best?.key ?? null;
   renderCalc();
+  calcDetailsBtn.hidden = false;
   drawCalc();
   if (ctx.best) {
     console.log('Cálculo de repostaje', calcJSON(ctx));
-    const b = new maplibregl.LngLatBounds(ctx.origin, ctx.origin);
-    ctx.stations.filter((s) => s.estado).forEach((s) => b.extend([s.lng, s.lat]));
-    map.fitBounds(b, { padding: 60, maxZoom: 14 });
+    mostrarResultadosCalc(ctx);
+  } else {
+    syncCalcVisibility();
   }
+}
+
+// Con resultado: el panel se cierra y la tira de abajo pasa a "Compensa ir". El mapa encuadra el
+// origen y la ruta de la ganadora, que es lo que se va a recorrer.
+function mostrarResultadosCalc(ctx) {
+  cheapModo = 'calc';
+  cheapSelectedKey = ctx.best.key;
+  toggleCalcPanel(false);
+  toggleCheapPanel(true);
+  encuadrarCalc(ctx.best);
+}
+
+function encuadrarCalc(s) {
+  const b = new maplibregl.LngLatBounds(calcLast.origin, calcLast.origin);
+  b.extend([s.lng, s.lat]);
+  s.geom?.coordinates.forEach((c) => b.extend(c));
+  map.fitBounds(b, { padding: 60, maxZoom: 15 });
+}
+
+// Tarjeta de la tira o fila de la tabla de detalles: resalta esa gasolinera, pide su ruta si aún
+// no la tiene (una sola petición), encuadra el trayecto y abre su popup.
+async function seleccionarCalc(key, { desdeLista = false } = {}) {
+  const s = calcLast?.stations.find((x) => x.key === key);
+  if (!s) return;
+  calcSelKey = s.key;
+  drawCalc();
+  renderCalc();
+  await calcRuta(calcLast, s);
+  if (calcSelKey !== s.key) return; // mientras llegaba la ruta se tocó otra
+  drawCalc();
+  encuadrarCalc(s);
+  openStationPopup(s.feature, { desdeLista });
+}
+
+// ✕ de "Compensa ir": se olvida el cálculo, se borra lo dibujado y la tira vuelve a las más baratas
+function limpiarCalc() {
+  calcLast = null;
+  calcSelKey = null;
+  cheapModo = 'precio';
+  calcDetailsBtn.hidden = true;
+  setCalcDetalles(false);
+  renderCalc();
+  drawCalc();
+  popup?.remove();
+  syncCalcVisibility();
+  renderCheapList();
+}
+
+// La tira en modo "Compensa ir": solo las gasolineras con coste real (OSRM), por coste. Las podadas
+// no salen: solo tienen una cota optimista y mezclarlas con costes reales engañaría.
+function renderCalcList() {
+  const ctx = calcLast;
+  const calculadas = ctx ? ctx.stations.filter((s) => s.coste != null).sort((a, b) => a.coste - b.coste) : [];
+  const dentro = ctx ? ctx.stations.filter((s) => s.estado).length : 0;
+  cheapTitleEl.textContent = 'Compensa ir · ' + (calcModo === 'gps' ? 'desde tu ubicación' : 'desde el punto elegido');
+  cheapCountEl.textContent = calculadas.length ? calculadas.length + ' calculadas de ' + dentro : '';
+  cheapDetailsBtn.hidden = false;
+  if (!calculadas.length) {
+    cheapFirma = '';
+    cheapListEl.innerHTML = '<div class="cheap-empty">Sin resultados.</div>';
+    return;
+  }
+  // Se rehace en cada movimiento del mapa (applyLabels), y tocar una tarjeta mueve el mapa: con las
+  // mismas tarjetas se conserva el scroll horizontal, igual que en la lista normal.
+  const firma = 'calc|' + calculadas.map((s) => s.key).join('|');
+  const scroll = firma === cheapFirma ? cheapListEl.scrollLeft : 0;
+  cheapFirma = firma;
+  const cer = ctx.cercana?.coste != null ? ctx.cercana : null;
+  cheapListEl.innerHTML = calculadas.map((s) => {
+    const mejor = s === ctx.best;
+    const sel = s.key === cheapSelectedKey;
+    const ahorro = cer && s !== cer ? cer.coste - s.coste : null;
+    const ahorroTxt = s === cer ? ' · la más cercana'
+      : ahorro != null && ahorro > 0.005 ? ' · <span class="calc-ahorro">−' + ahorro.toFixed(2) + ' €</span>'
+      : ahorro != null && ahorro < -0.005 ? ' · +' + (-ahorro).toFixed(2) + ' €' : '';
+    return '<button type="button" class="cheap-row calc-card' + (mejor ? ' es-mejor' : '') + (sel ? ' is-selected' : '') + '"' +
+      ' data-key="' + esc(s.key) + '" aria-pressed="' + sel + '" style="--clase:' + (mejor ? 'var(--primary)' : 'var(--ring)') + '">' +
+      logoMarca(s.feature.properties.brand) +
+      '<span class="cheap-text">' +
+        '<span class="cheap-price">' + (mejor ? '★ ' : '') + s.precio.toFixed(3) + ' €</span>' +
+        '<span class="cheap-name">' + esc(s.rotulo) + '</span>' +
+        '<span class="calc-coste">' + s.coste.toFixed(2) + ' €' + ahorroTxt + '</span>' +
+        '<span class="cheap-meta">' + s.carretera.toFixed(1) + ' km · ' + Math.round(s.minutos) + ' min</span>' +
+      '</span>' +
+    '</button>';
+  }).join('');
+  cheapListEl.scrollLeft = scroll;
 }
 
 // Precio por debajo del cual una gasolinera a d km en línea recta podría ganar al mejor: es la
@@ -3437,28 +3748,8 @@ calcOutEl.addEventListener('click', async (e) => {
   }
   const fila = e.target.closest('tr[data-key]');
   if (!fila || !calcLast) return;
-  const s = calcLast.stations.find((x) => x.key === fila.dataset.key);
-  if (!s) return;
-  calcSelKey = s.key;
-  calcOutEl.querySelectorAll('tr.is-sel').forEach((tr) => tr.classList.remove('is-sel'));
-  fila.classList.add('is-sel');
-  drawCalc();
-  if (s.geom) {
-    const b = new maplibregl.LngLatBounds(calcLast.origin, calcLast.origin);
-    s.geom.coordinates.forEach((c) => b.extend(c));
-    map.fitBounds(b, { padding: 60, maxZoom: 15 });
-  } else {
-    map.easeTo({ center: [s.lng, s.lat] });
-  }
-  openStationPopup(s.feature);
+  seleccionarCalc(fila.dataset.key);
 });
-
-const CALC_LAYERS = ['calc-radio-fill', 'calc-radio-line', 'calc-rutas', 'calc-puntos'];
-
-function setCalcLayersVisible(visible) {
-  if (!map.getLayer('calc-puntos')) return;
-  CALC_LAYERS.forEach((id) => map.setLayoutProperty(id, 'visibility', visible ? 'visible' : 'none'));
-}
 
 function drawCalc() {
   if (!map.getSource('calc-puntos')) return;
@@ -3516,7 +3807,7 @@ mapReady.then(() => {
       'circle-stroke-color': '#ffffff',
       'circle-stroke-width': ['case', ['==', ['get', 'sel'], 1], 3, 1.5]
     } });
-  setCalcLayersVisible(!calcPanelEl.hidden);
+  syncCalcVisibility();
   drawCalc();
 });
 
