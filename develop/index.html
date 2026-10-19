@@ -3025,6 +3025,32 @@ map.on('click', (e) => {
 document.getElementById('calc-close').addEventListener('click', () => toggleCalcPanel(false));
 calcRunBtn.addEventListener('click', runCalc);
 
+// Calentar la conexión con OSRM al abrir el panel. La primera petición a un servidor paga DNS, TCP
+// y TLS (en el móvil ~200-250 ms), y sin esto la pagaba la primera /table al pulsar "Calcular".
+// /nearest es lo más barato de OSRM y su respuesta no se usa: solo sirve para dejar la conexión
+// abierta mientras se rellenan los datos (nginx la mantiene viva ~75 s sin uso). No se usa
+// <link rel="preconnect"> porque Chrome cierra esa conexión si no se usa en unos 10 s.
+// Como mucho una vez por minuto, para no repetirla al abrir y cerrar el panel seguido.
+const CALC_WARM_MS = 60000;
+// -Infinity y no 0: performance.now() cuenta desde que cargó la página, así que con 0 el primer
+// minuto de cada visita (justo cuando hace falta) se tomaría por "calentado hace nada".
+let calcWarmAt = -Infinity;
+function calentarOsrm() {
+  if (performance.now() - calcWarmAt < CALC_WARM_MS) return;
+  calcWarmAt = performance.now();
+  const t0 = performance.now();
+  fetch(OSRM_URL + '/nearest/v1/driving/-3.703800,40.416800', { cache: 'no-store' })
+    .then((r) => r.arrayBuffer())
+    .then(() => {
+      const ms = Math.round(performance.now() - t0);
+      console.log('Conexión con OSRM preparada en ' + ms + ' ms');
+      // Visible también en el panel, para poder comprobarlo en el móvil sin consola. Solo si no
+      // hay otro mensaje: no pisa un "Calculando…" ni un error.
+      if (!calcStatusEl.textContent) setCalcStatus('Conexión con el servidor de rutas preparada (' + ms + ' ms).');
+    })
+    .catch(() => { calcWarmAt = -Infinity; }); // si falla, se reintenta en la próxima apertura
+}
+
 // Al cerrar el panel se esconde también lo que dibuja en el mapa, y vuelve al abrirlo
 function toggleCalcPanel(abrir) {
   calcPanelEl.hidden = !abrir;
@@ -3032,6 +3058,7 @@ function toggleCalcPanel(abrir) {
   if (!abrir) setCalcPicking(false);
   if (calcOriginMarker) calcOriginMarker.getElement().style.display = abrir ? '' : 'none';
   setCalcLayersVisible(abrir);
+  if (abrir) calentarOsrm();
 }
 
 class CalcControl {
