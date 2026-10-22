@@ -1038,12 +1038,43 @@ window.__boot = (() => {
     }
     if (permiso === 'granted') return true;
     if (permiso !== 'denied' && geoRecordada()) return true;
+    mostrarPantalla();
+    return false;
+  })();
+
+  function mostrarPantalla() {
     overlayEl.hidden = false;
     // En el mismo tick el elemento acaba de dejar de estar oculto; el foco se pide en el siguiente
     // fotograma, cuando ya está pintado de verdad.
     requestAnimationFrame(() => inputEl.focus());
-    return false;
-  })();
+  }
+
+  // Promise<GeolocationPosition|null>: la ubicación del arranque automático. Se pide AQUÍ, en cuanto
+  // se sabe que toca autolocalizar, y no al terminar de cargar el mapa: el fix del GPS llega mientras
+  // aún se descargan el mapa y los logos, en vez de empezar cuando ya han acabado (antes se pedía a
+  // los ~1,6 s). Null si no toca autolocalizar o si ha fallado.
+  //
+  // Si falla, se saca la pantalla de arranque. Antes se cargaban las gasolineras de toda España sin
+  // decir nada, y es un caso que pasa: el permiso puede estar en 'prompt' aunque se recordara que se
+  // aceptó (Safari, o "Permitir esta vez" en Chrome), así que aquí el navegador PREGUNTA, y si el
+  // usuario rechaza o cierra el diálogo hay que darle la pantalla para que elija, no el país entero.
+  estado.ubicacionInicial = estado.yaTeniaPermiso.then((autolocalizar) => {
+    if (!autolocalizar) return null;
+    if (!navigator.geolocation) { mostrarPantalla(); return null; }
+    return new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => { estado.recordarPermiso(); resolve(pos); },
+        (err) => {
+          if (err.code === 1) estado.olvidarPermiso(); // rechazado: la próxima vez, pantalla directa
+          mostrarPantalla();
+          resolve(null);
+        },
+        // timeout: sin él, un GPS que no responde dejaría la página sin pantalla y sin gasolineras.
+        // maximumAge: un fix de hace un rato vale para centrar el mapa y ahorra esperar a uno nuevo.
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
+      );
+    });
+  });
 
   return estado;
 })();
@@ -1580,7 +1611,9 @@ async function flyToAddress(via, numero) {
     .setLngLat([lon, lat])
     .setPopup(new maplibregl.Popup().setHTML(esc(etiqueta) + '<br>' + esc(subtitulo)))
     .addTo(map);
-  map.flyTo({ center: [lon, lat], zoom: esMunicipio ? 12 : 15 });
+  const zoomDestino = esMunicipio ? 12 : 15;
+  precargarDestino({ lng: lon, lat }, zoomDestino); // sus gasolineras se piden ya, durante el vuelo
+  map.flyTo({ center: [lon, lat], zoom: zoomDestino });
   programarDesvanecidoMarcador(addressMarker);
   return etiqueta;
 }
@@ -1806,10 +1839,20 @@ function programarDesvanecidoPrecision() {
 // Éxito: cierra la pantalla de arranque igual con el disparo manual que con el automático de
 // map.on('load'). El error de la geolocalización pedida desde la pantalla lo pinta el propio
 // script inline, que es quien llamó a getCurrentPosition.
-geolocate.on('geolocate', () => {
+geolocate.on('geolocate', (pos) => {
   boot.recordarPermiso();
   hideStartOverlay();
   programarDesvanecidoPrecision();
+  // El control vuela a encajar el círculo de precisión con fitBoundsOptions (zoom máx. 13). Se
+  // calcula ese mismo destino, con la misma llamada que usa MapLibre por dentro, y se piden ya sus
+  // gasolineras mientras dura el vuelo. (LngLatBounds.fromLngLat es la de la v6: LngLat.toBounds
+  // ya no existe.)
+  const centro = new maplibregl.LngLat(pos.coords.longitude, pos.coords.latitude);
+  const destino = map.cameraForBounds(
+    maplibregl.LngLatBounds.fromLngLat(centro, pos.coords.accuracy),
+    { bearing: map.getBearing(), ...geolocate.options.fitBoundsOptions }
+  );
+  if (destino) precargarDestino(destino.center, destino.zoom);
 });
 
 // Con los menús cerrados no se ve ningún control, así que las etiquetas tienen que decir qué se
@@ -2554,6 +2597,11 @@ async function loadBrandLogos() {
   return logos;
 }
 
+// El icono genérico y los logos se piden YA, al evaluar el módulo, y no dentro de map.on('load'):
+// no dependen del mapa, y esperando a su 'load' (~1,5 s, con el estilo y las teselas ya bajados)
+// salían en serie detrás de él. Así van en paralelo y el 'load' solo espera a que hayan llegado.
+const recursosBocadillos = Promise.all([loadImage(GENERIC_FUEL_ICON_SRC), loadBrandLogos()]);
+
 map.on('load', async () => {
   map.addSource(SOURCE_ID, {
     type: 'geojson',
@@ -2565,12 +2613,8 @@ map.on('load', async () => {
   // reconocida o su marca no tiene logo (ver iconImageExpr más abajo).
   const ALL_BADGE_IDS = [...BADGE_IDS, NO_PRICE_BADGE_ID];
   const ALL_BADGE_COLORS = [...PRICE_COLORS, NO_PRICE_COLOR];
-  // En paralelo, no en serie: son dos fetches independientes (el icono genérico y el manifiesto +
-  // logos de marca) y encadenarlos retrasaría sin necesidad el primer pintado de las gasolineras.
-  const [genericFuelIcon, brandLogos] = await Promise.all([
-    loadImage(GENERIC_FUEL_ICON_SRC),
-    loadBrandLogos()
-  ]);
+  // Pedidos al arrancar el módulo (ver recursosBocadillos): aquí normalmente ya han llegado.
+  const [genericFuelIcon, brandLogos] = await recursosBocadillos;
   ALL_BADGE_IDS.forEach((id, i) => map.addImage(id, makeBadgeImage(ALL_BADGE_COLORS[i], genericFuelIcon), { pixelRatio: 2 }));
 
   // Además, una imagen por cada combinación (tramo de precio × marca con logo): 'icon-image' es
@@ -2686,17 +2730,31 @@ map.on('load', async () => {
   // ni se llegó a enseñar (lo decidió window.__boot, sin esperar al mapa) y se va directo a su
   // posición —el 'moveend' del vuelo dispara updateMarkers—, evitando la carga de todo el país en
   // zoom 6. Si no había permiso, la pantalla lleva un rato visible y manda ella.
+  // La ubicación ya la ha pedido el script de arranque (boot.ubicacionInicial), en paralelo con la
+  // carga del mapa. Si no llegó, ese mismo script ya ha sacado la pantalla de arranque y aquí no se
+  // hace nada: manda la pantalla, y lo que el usuario elija entra por resolverArranque.
   let autoLocating = false;
-  if (await boot.yaTeniaPermiso) {
+  geolocate.on('geolocate', () => { autoLocating = false; }); // arranque resuelto: lo que venga ya es del botón
+  const posInicial = await boot.ubicacionInicial;
+  if (posInicial && !arranqueResuelto) {
+    arranqueResuelto = true;
+    // trigger() vuelve a pedir la posición, pero con el maximumAge de positionOptions reaprovecha el
+    // fix recién obtenido: no despierta el GPS otra vez, solo vuela y pinta el punto azul.
     autoLocating = geolocate.trigger();
     // trigger() devuelve false si el control no estuviera listo; sin esto no se cargaría nada.
-    if (!autoLocating && !arranqueResuelto) { arranqueResuelto = true; updateMarkers(); }
+    if (!autoLocating) updateMarkers();
   }
-  // Si la geolocalización falla (GPS caído, etc.), no dejamos el mapa vacío: ni tras concederse de
-  // antemano, ni al venir de "Usar mi ubicación" con la pantalla ya cerrada.
   geolocate.on('error', (e) => {
     if (e.code === 1) boot.olvidarPermiso(); // PERMISSION_DENIED: la próxima vez vuelve a salir la pantalla
-    autoLocating = false;
+    if (autoLocating) {
+      // Falló el vuelo del arranque automático: mejor la pantalla para elegir que el país entero
+      // cargado sin explicación (mismo criterio que boot.ubicacionInicial).
+      autoLocating = false;
+      arranqueResuelto = false;
+      boot.overlayEl.hidden = false;
+      return;
+    }
+    // Fallo del botón 📍 con el mapa ya en uso: no se toca la vista, solo se refresca lo pintado.
     updateMarkers();
   });
 });
@@ -2734,6 +2792,46 @@ function padBbox(bbox, factor) {
     maxX: bbox.maxX + dx,
     maxY: bbox.maxY + dy
   };
+}
+
+// Recuadro que se verá con la cámara centrada en 'center' a 'zoom', sin moverla: proyección
+// Web Mercator a mano con teselas de 512 px, igual que MapLibre. Hace falta para pedir las
+// gasolineras de un destino antes de llegar a él (ver precargarDestino); a zoom de calle, el error
+// frente a getBounds() es despreciable, y de sobra lo absorbe el margen de padBbox.
+function bboxDeCamara(center, zoom) {
+  const { clientWidth: ancho, clientHeight: alto } = map.getContainer();
+  const mundo = 512 * 2 ** zoom; // ancho en px del mundo entero a ese zoom
+  const x = (center.lng + 180) / 360;
+  const seno = Math.sin(center.lat * Math.PI / 180);
+  const y = 0.5 - Math.log((1 + seno) / (1 - seno)) / (4 * Math.PI);
+  const dx = ancho / 2 / mundo, dy = alto / 2 / mundo;
+  const lng = (u) => u * 360 - 180;
+  const lat = (v) => Math.atan(Math.sinh(Math.PI - 2 * Math.PI * v)) * 180 / Math.PI;
+  return { minX: lng(x - dx), maxX: lng(x + dx), minY: lat(y + dy), maxY: lat(y - dy) };
+}
+
+// Lectura adelantada en curso: { id, src, bbox, promesa } o null. La lanza precargarDestino al
+// EMPEZAR un vuelo; updateMarkers, al terminar, la reutiliza en vez de pedir lo mismo otra vez.
+let precarga = null;
+let precargaId = 0;
+
+// Pide las gasolineras del sitio al que va a llegar el mapa mientras todavía vuela. Antes se pedían
+// en el 'moveend', o sea al aterrizar, y el vuelo (unos 3 s) era tiempo muerto: ahora la red trabaja
+// durante la animación y al llegar ya están, o casi. El vuelo se mantiene tal cual; esto solo
+// adelanta la petición. Escribe en la misma caché que updateMarkers (fgbCache).
+function precargarDestino(center, zoom) {
+  const src = zoom < LABEL_MIN_ZOOM ? FGB_LITE : FGB_FULL;
+  const bbox = bboxDeCamara(center, zoom);
+  if (fgbCache && fgbCache.src === src && bboxContains(fgbCache.bbox, bbox)) return; // ya está
+  const fetchBbox = padBbox(bbox, 0.5);
+  const id = ++precargaId;
+  const promesa = (async () => {
+    const features = [];
+    for await (const f of flatgeobuf.deserialize(src, fetchBbox)) features.push(f);
+    // Solo si sigue vigente: una lectura normal posterior (updateMarkers) la anula al escribir caché
+    if (precarga?.id === id) fgbCache = { src, bbox: fetchBbox, features };
+  })().catch((err) => console.error('Error precargando FlatGeobuf:', err));
+  precarga = { id, src, bbox: fetchBbox, promesa };
 }
 
 // Número de la última llamada a updateMarkers. Dos movimientos seguidos lanzan dos lecturas en
@@ -2774,6 +2872,19 @@ async function updateMarkers() {
     return;
   }
 
+  // Se aterriza de un vuelo cuya zona ya se está pidiendo (precargarDestino) pero aún no ha
+  // llegado: se espera a esa lectura en vez de lanzar otra igual.
+  if (precarga && precarga.src === src && bboxContains(precarga.bbox, bbox)) {
+    await precarga.promesa;
+    if (req !== markersReq) return;
+    if (fgbCache && fgbCache.src === src && bboxContains(fgbCache.bbox, bbox)) {
+      currentFeatures = fgbCache.features.filter((f) => featureInBbox(f, bbox));
+      applyLabels();
+      return;
+    }
+    // La precarga falló o quedó anulada: se sigue con la lectura normal
+  }
+
   const fetchBbox = padBbox(bbox, 0.5);
   const features = [];
   try {
@@ -2786,6 +2897,7 @@ async function updateMarkers() {
     }
     if (req !== markersReq) return;
     fgbCache = { src, bbox: fetchBbox, features };
+    precarga = null; // esta lectura es más reciente: una precarga pendiente ya no debe pisar la caché
     // Solo lo que cae en el bbox real, no en el margen: éste es puro caché, no debe colar
     // gasolineras fuera de pantalla en el cálculo de cuartiles de applyLabels().
     currentFeatures = features.filter((f) => featureInBbox(f, bbox));
