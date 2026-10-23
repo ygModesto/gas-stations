@@ -1398,6 +1398,13 @@ const map = new maplibregl.Map({
   attributionControl: false
 });
 
+// Sentry: errores de MapLibre (estilo, tiles, fuentes)
+map.on('error', (e) => {
+  const err = e.error;
+  if (err?.name === 'AbortError') return; // peticiones canceladas al mover el mapa: ruido
+  window.Sentry?.captureException(err || new Error('Error de MapLibre'));
+});
+
 // Lo que el usuario haya elegido en la pantalla de arranque, que vive y responde desde mucho antes
 // que este módulo (ver el <script> inline del HTML).
 const boot = window.__boot;
