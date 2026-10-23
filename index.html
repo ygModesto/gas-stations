@@ -26,7 +26,7 @@
 
 <!-- FlatGeobuf JS (Lector de archivos binarios espaciales). Sigue publicando bundle UMD,
      así que se carga como script clásico y expone el global `flatgeobuf`.
-     Con 'defer' porque solo se usa dentro de updateMarkers(), mucho después del primer pintado:
+     Con 'defer' porque solo se usa dentro de cargarGasolineras(), mucho después del primer pintado:
      sin él bloquea el parseo del HTML y el markup de la pantalla de arranque ni siquiera existe
      hasta que unpkg contesta. Los scripts diferidos corren en orden de documento y antes que el
      <script type="module"> de abajo, así que el global `flatgeobuf` llega a tiempo igual. -->
@@ -37,15 +37,21 @@
      librería en sí es de React y esto es un único HTML sin build, así que no se usa: solo su
      lenguaje visual, aplicado a mano a los controles flotantes y a la pantalla de arranque. */
   :root {
+    /* Tema de shadcn/studio (theme generator): base "neutral" de shadcn con el rosa como primario.
+       El rosa es el pink-700 de Tailwind v4 (#c6005c): con texto blanco encima da 5,9:1. */
     --background: #ffffff;
-    --foreground: #09090b;
-    --muted-foreground: #71717a;
-    --accent: #f4f4f5;
-    --border: #e4e4e7;
-    --input: #e4e4e7;
-    --ring: #a1a1aa;
-    --primary: #18181b;
-    --primary-foreground: #fafafa;
+    --foreground: #0a0a0a;
+    --muted-foreground: #737373;
+    --accent: #f5f5f5;
+    --border: #e5e5e5;
+    --input: #e5e5e5;
+    --ring: #c6005c;
+    --primary: #c6005c;
+    --primary-foreground: #ffffff;
+    /* Variante suave del primario, para lo que está activo sin ser la acción principal (el menú
+       abierto, el botón de la lista con el panel abierto): pink-50 de fondo y el rosa en el texto. */
+    --primary-soft: #fdf2f8;
+    --primary-soft-foreground: #c6005c;
     --destructive: #dc2626;
     --radius-sm: 4px;
     --radius-md: 8px;
@@ -53,34 +59,37 @@
     --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --focus-ring: 0 0 0 3px rgb(161 161 170 / 0.5);
-    /* Check blanco sobre el relleno oscuro de las casillas marcadas */
-    --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fafafa' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    --focus-ring: 0 0 0 3px rgb(198 0 92 / 0.25);
+    /* Check blanco sobre el relleno rosa de las casillas marcadas */
+    --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
     /* Los iconos de los controles de MapLibre (zoom, brújula, ubicación, "i") son imágenes oscuras:
        en modo oscuro se invierten para que se vean sobre el fondo oscuro. */
     --ctrl-icon-filter: none;
     color-scheme: light dark;
   }
-  /* Modo oscuro del sistema: el tema zinc oscuro de shadcn. El mapa base cambia a la vez (estilo
+  /* Modo oscuro del sistema: la base neutral oscura de shadcn con el rosa un punto más claro. El mapa base cambia a la vez (estilo
      'dark' de OpenFreeMap, ver MAP_STYLE en el script). Las sombras se refuerzan porque sobre un
      mapa oscuro las de opacidad 0.1 no despegan nada. */
   @media (prefers-color-scheme: dark) {
     :root {
-      --background: #09090b;
+      --background: #0a0a0a;
       --foreground: #fafafa;
-      --muted-foreground: #a1a1aa;
-      --accent: #27272a;
-      --border: #27272a;
-      --input: #3f3f46;
-      --ring: #71717a;
-      --primary: #fafafa;
-      --primary-foreground: #18181b;
+      --muted-foreground: #a3a3a3;
+      --accent: #262626;
+      --border: #262626;
+      --input: #404040;
+      /* pink-600 (#e60076): el 700 se hunde sobre el fondo casi negro; con blanco encima da 4,6:1 */
+      --ring: #e60076;
+      --primary: #e60076;
+      --primary-foreground: #ffffff;
+      --primary-soft: rgb(230 0 118 / 0.16);
+      --primary-soft-foreground: #ff7ab8;
       --destructive: #f87171;
       --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
       --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.45), 0 2px 4px -2px rgb(0 0 0 / 0.45);
       --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
-      --focus-ring: 0 0 0 3px rgb(113 113 122 / 0.5);
-      --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2318181b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+      --focus-ring: 0 0 0 3px rgb(230 0 118 / 0.4);
+      --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
       --ctrl-icon-filter: invert(1);
     }
   }
@@ -161,12 +170,14 @@
     transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
   }
   .btn > span:first-child { overflow: hidden; text-overflow: ellipsis; }
-  .btn:hover, .btn[aria-expanded="true"] { background: var(--accent); }
+  .btn:hover { background: var(--accent); }
+  /* Menú abierto: el estado activo del tema, rosa suave (como la pestaña activa de shadcn/studio) */
+  .btn[aria-expanded="true"] { background: var(--primary-soft); color: var(--primary-soft-foreground); border-color: var(--primary-soft); }
   .btn:focus-visible { outline: none; border-color: var(--ring); box-shadow: var(--shadow-md), var(--focus-ring); }
   /* Punto de "aquí hay algo cambiado". Se usa en lugar de alargar la etiqueta con el detalle: el
      texto hacía crecer el botón y, en 360 px, eso se come a los de al lado ("Marcas" -> "Marc..").
      El qué está cambiado se lee abriendo el menú, que son dos casillas; el punto solo avisa. */
-  .btn-dot { width: 6px; height: 6px; border-radius: 50%; background: #2563eb; flex: none; }
+  .btn-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); flex: none; }
   .btn-dot[hidden] { display: none; }
   .caret { flex: none; color: var(--muted-foreground); transition: transform 0.15s; }
   .btn[aria-expanded="true"] .caret { transform: rotate(180deg); }
@@ -560,7 +571,7 @@
   .cheap-empty { padding: 14px 10px; font-size: 0.78rem; color: var(--muted-foreground); text-align: center; }
   /* El botón que lo abre, dentro del grupo de controles del mapa (ver ListaControl) */
   .cheap-toggle { display: flex; align-items: center; justify-content: center; }
-  .cheap-toggle[aria-pressed="true"] { background: var(--accent); }
+  .cheap-toggle[aria-pressed="true"], .calc-toggle[aria-pressed="true"] { background: var(--primary-soft); color: var(--primary-soft-foreground); }
 
   /* Buscador y filtros caben en una sola fila hasta ~760 px. Por debajo, el buscador se queda en el
      icono (36 px) y al enfocarlo se ensancha hasta cubrir toda la barra, tapando los filtros mientras
@@ -863,6 +874,134 @@
   .popup-nav:hover { opacity: 0.9; }
   .popup-nav:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
+
+  /* --- Calculadora "¿dónde me compensa repostar?" (en pruebas, solo develop) ---
+     Panel de depuración: enseña los parámetros, cada paso del cálculo y la tabla de candidatas,
+     para poder revisar a mano por qué gana una gasolinera y no otra. Flota a la izquierda bajo la
+     barra; en móvil ocupa todo el ancho. */
+  #calc-panel {
+    position: absolute;
+    top: calc(var(--toolbar-bottom) + 10px);
+    left: 10px;
+    width: 420px;
+    max-width: calc(100% - 66px);
+    max-height: calc(100% - var(--toolbar-bottom) - 20px);
+    overflow-y: auto;
+    z-index: 1002;
+    background: var(--background);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    font-size: 0.8rem;
+  }
+  #calc-panel[hidden] { display: none; }
+  .calc-head { position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 8px 8px 12px; background: var(--background); border-bottom: 1px solid var(--border); z-index: 1; }
+  .calc-title { font-weight: 600; font-size: 0.875rem; }
+  .calc-body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 10px; }
+  .calc-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .calc-form label { display: flex; flex-direction: column; gap: 3px; color: var(--muted-foreground); font-size: 0.75rem; }
+  .calc-form label.wide { grid-column: 1 / -1; }
+  .calc-form input[type="number"], .calc-form input[type="url"] {
+    height: 30px; padding: 0 8px; border: 1px solid var(--input); border-radius: var(--radius-sm);
+    background: var(--background); color: var(--foreground); font: inherit; font-size: 0.8rem; }
+  .calc-form input:focus-visible { outline: none; border-color: var(--ring); box-shadow: var(--focus-ring); }
+  .calc-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .calc-row .grow { flex: 1; min-width: 0; color: var(--muted-foreground); }
+  .calc-btn { height: 30px; padding: 0 10px; border: 1px solid var(--input); border-radius: var(--radius-sm);
+    background: var(--background); color: var(--foreground); font: inherit; font-size: 0.8rem; cursor: pointer; }
+  .calc-btn:hover, .calc-btn[aria-pressed="true"] { background: var(--accent); }
+  .calc-btn.primary { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); font-weight: 600; }
+  .calc-btn.primary:hover { opacity: 0.9; background: var(--primary); }
+  .calc-btn:disabled { opacity: 0.5; cursor: default; }
+  .calc-check { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  #calc-status:empty { display: none; }
+  #calc-status.error { color: var(--destructive); }
+  .calc-out h4 { margin: 12px 0 4px; font-size: 0.8rem; }
+  .calc-out .best { padding: 8px 10px; border: 1px solid #15803d; border-radius: var(--radius-md); }
+  .calc-out ol { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+  .calc-out code, .calc-out .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.72rem; }
+  .calc-out a { color: inherit; word-break: break-all; }
+  .calc-out .muted { color: var(--muted-foreground); }
+  .calc-out .warn { color: var(--destructive); }
+  .calc-table-wrap { overflow-x: auto; }
+  .calc-out table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: 0.72rem; }
+  .calc-out th, .calc-out td { padding: 3px 5px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+  .calc-out th:nth-child(2), .calc-out td:nth-child(2), .calc-out td:last-child, .calc-out th:last-child { text-align: left; }
+  .calc-out td:nth-child(2) { max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+  .calc-out tbody tr { cursor: pointer; }
+  .calc-out tbody tr:hover { background: var(--accent); }
+  .calc-out tr.is-sel { outline: 2px solid var(--ring); outline-offset: -2px; }
+  .calc-st { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; background: var(--c); }
+  .calc-toggle svg { display: block; margin: auto; }
+  /* Hoja compacta: los parámetros casi nunca cambian entre un cálculo y otro, así que se resumen en
+     una línea que despliega el formulario. Lo que sí se toca cada vez es el origen y "Calcular". */
+  .calc-summary {
+    display: flex; align-items: center; gap: 8px; width: 100%; min-height: 34px; padding: 6px 10px;
+    border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background);
+    color: var(--foreground); font: inherit; font-size: 0.8rem; text-align: left; cursor: pointer;
+  }
+  .calc-summary > span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .calc-summary .calc-edit { flex: none; color: var(--primary-soft-foreground); font-weight: 600; }
+  .calc-form[hidden], .calc-out[hidden], .calc-link[hidden] { display: none; }
+  .calc-field-label { font-size: 0.75rem; color: var(--muted-foreground); margin-bottom: -4px; }
+  /* Origen: dos segmentos unidos, como el ToggleGroup del combustible de la pantalla de inicio */
+  .calc-origin-group { display: flex; border-radius: var(--radius-md); box-shadow: var(--shadow-xs); }
+  .calc-origin-btn {
+    flex: 1 1 0; min-width: 0; min-height: 40px; display: inline-flex; align-items: center; justify-content: center;
+    gap: 6px; padding: 6px 8px; border: 1px solid var(--input); background: var(--background);
+    color: var(--foreground); font: inherit; font-size: 0.8rem; font-weight: 500; cursor: pointer;
+  }
+  .calc-origin-btn + .calc-origin-btn { border-left: none; }
+  .calc-origin-btn:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+  .calc-origin-btn:last-child { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .calc-origin-btn[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+  @media (hover: hover) { .calc-origin-btn[aria-pressed="false"]:hover { background: var(--accent); } }
+  .calc-origin-btn:focus-visible { outline: none; position: relative; box-shadow: var(--focus-ring); }
+  .calc-origin-text { font-size: 0.75rem; color: var(--muted-foreground); }
+  .calc-run-wide { width: 100%; height: 40px; font-size: 0.875rem; }
+  .calc-link {
+    align-self: flex-start; padding: 0; border: none; background: none; color: var(--muted-foreground);
+    font: inherit; font-size: 0.75rem; text-decoration: underline; cursor: pointer;
+  }
+  /* Elegir el origen con una cruz fija en el centro del mapa (como Uber o Cabify): se mueve el mapa
+     debajo. En el móvil es más preciso que tocar el punto (el dedo lo tapa) y no abre popups. */
+  #calc-pick-overlay { position: absolute; inset: 0; z-index: 1003; pointer-events: none; }
+  #calc-pick-overlay[hidden] { display: none; }
+  .calc-cross {
+    position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%);
+    color: var(--primary); filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 1px 3px rgb(0 0 0 / 0.35));
+  }
+  .calc-pick-bar {
+    position: absolute; left: 10px; right: 10px; bottom: 10px; max-width: 420px; margin: 0 auto;
+    display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; pointer-events: auto;
+    background: var(--background); color: var(--foreground); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); font-size: 0.8rem;
+  }
+  .calc-pick-actions { display: flex; gap: 8px; }
+  .calc-pick-actions .calc-btn { flex: 1; height: 40px; font-size: 0.85rem; }
+  /* Tarjetas de "Compensa ir" en la tira de más baratas: una línea más (coste total y ahorro) */
+  .cheap-row.calc-card { width: 150px; }
+  .calc-card .cheap-price { color: var(--foreground); }
+  .calc-card.es-mejor .cheap-price { color: var(--primary-soft-foreground); }
+  .calc-card .calc-coste { display: block; font-size: 0.68rem; font-weight: 600; line-height: 1.25; color: var(--foreground); }
+  .calc-card .calc-ahorro { color: #15803d; }
+  @media (prefers-color-scheme: dark) { .calc-card .calc-ahorro { color: #4ade80; } }
+  /* Acción en la cabecera de la tira ("Detalles"), al lado del cierre */
+  .cheap-action {
+    flex: none; align-self: center; padding: 3px 6px; border: none; border-radius: 6px; background: none;
+    color: var(--primary-soft-foreground); font: inherit; font-size: 0.68rem; font-weight: 600; cursor: pointer;
+  }
+  .cheap-action:hover { background: var(--accent); }
+  .cheap-action[hidden] { display: none; }
+  /* En el móvil, hoja pegada abajo del mapa y solo tan alta como su contenido: el mapa se sigue
+     viendo por encima. Con los detalles desplegados crece hasta el 80 % y scrollea. */
+  @media (max-width: 600px) {
+    #calc-panel { left: 0; right: 0; top: auto; bottom: 0; width: auto; max-width: none; max-height: 80%;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    .calc-pick-bar { left: 8px; right: 8px; bottom: 8px; }
+  }
 </style>
 </head>
 <body>
@@ -946,8 +1085,19 @@ window.__boot = (() => {
     // Lo rellena el módulo del final para aplicar la elección al instante.
     onCombustible: null,
     // Lo rellena el módulo del final para enterarse de una elección posterior a su arranque.
-    onElegir: null
+    onElegir: null,
+    // Promise<ArrayBuffer> del .fgb completo, pedido YA, durante el parseo: así baja en paralelo
+    // con MapLibre y mientras se elige la ubicación, en vez de empezar cuando el mapa ya está
+    // listo. Lo consume cargarGasolineras() en el módulo (y la misma ruta va en FGB_FULL).
+    fgbDatos: null
   };
+  estado.fgbDatos = fetch('../public/gasolineras.fgb').then((r) => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.arrayBuffer();
+  });
+  // Si falla antes de que el módulo la recoja, que no salga como promesa rechazada sin capturar:
+  // el error lo trata cargarGasolineras(), que reintenta.
+  estado.fgbDatos.catch(() => {});
 
   function fallo(texto) {
     statusEl.textContent = texto;
@@ -1038,43 +1188,12 @@ window.__boot = (() => {
     }
     if (permiso === 'granted') return true;
     if (permiso !== 'denied' && geoRecordada()) return true;
-    mostrarPantalla();
-    return false;
-  })();
-
-  function mostrarPantalla() {
     overlayEl.hidden = false;
     // En el mismo tick el elemento acaba de dejar de estar oculto; el foco se pide en el siguiente
     // fotograma, cuando ya está pintado de verdad.
     requestAnimationFrame(() => inputEl.focus());
-  }
-
-  // Promise<GeolocationPosition|null>: la ubicación del arranque automático. Se pide AQUÍ, en cuanto
-  // se sabe que toca autolocalizar, y no al terminar de cargar el mapa: el fix del GPS llega mientras
-  // aún se descargan el mapa y los logos, en vez de empezar cuando ya han acabado (antes se pedía a
-  // los ~1,6 s). Null si no toca autolocalizar o si ha fallado.
-  //
-  // Si falla, se saca la pantalla de arranque. Antes se cargaban las gasolineras de toda España sin
-  // decir nada, y es un caso que pasa: el permiso puede estar en 'prompt' aunque se recordara que se
-  // aceptó (Safari, o "Permitir esta vez" en Chrome), así que aquí el navegador PREGUNTA, y si el
-  // usuario rechaza o cierra el diálogo hay que darle la pantalla para que elija, no el país entero.
-  estado.ubicacionInicial = estado.yaTeniaPermiso.then((autolocalizar) => {
-    if (!autolocalizar) return null;
-    if (!navigator.geolocation) { mostrarPantalla(); return null; }
-    return new Promise((resolve) => {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => { estado.recordarPermiso(); resolve(pos); },
-        (err) => {
-          if (err.code === 1) estado.olvidarPermiso(); // rechazado: la próxima vez, pantalla directa
-          mostrarPantalla();
-          resolve(null);
-        },
-        // timeout: sin él, un GPS que no responde dejaría la página sin pantalla y sin gasolineras.
-        // maximumAge: un fix de hace un rato vale para centrar el mapa y ahorra esperar a uno nuevo.
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
-      );
-    });
-  });
+    return false;
+  })();
 
   return estado;
 })();
@@ -1159,6 +1278,66 @@ window.__boot = (() => {
     </div>
   </div>
 
+  <!-- Calculadora de dónde compensa repostar (en pruebas). El botón que la abre es un control de
+       MapLibre (ver CalcControl), en la columna de la derecha como el de la lista. -->
+  <div id="calc-panel" role="region" aria-label="Dónde me compensa repostar" hidden>
+    <div class="calc-head">
+      <span class="calc-title">¿Dónde me compensa repostar?</span>
+      <button id="calc-close" class="cheap-close" type="button" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+          <line x1="5" y1="5" x2="19" y2="19" /><line x1="19" y1="5" x2="5" y2="19" />
+        </svg>
+      </button>
+    </div>
+    <div class="calc-body">
+      <button id="calc-params-toggle" class="calc-summary" type="button" aria-expanded="false" aria-controls="calc-form">
+        <span id="calc-summary"></span><span class="calc-edit">Editar</span>
+      </button>
+      <div id="calc-form" class="calc-form" hidden>
+        <label>Litros a repostar<input id="calc-litros" type="number" min="1" step="1" value="40" /></label>
+        <label>Consumo (L/100 km)<input id="calc-consumo" type="number" min="0.1" step="0.1" value="6" /></label>
+        <label>Precio mínimo en España (€/L)<input id="calc-pmin" type="number" min="0" step="0.001" placeholder="p. ej. 1.490" /></label>
+        <label>Valor del tiempo (€/h)<input id="calc-vtiempo" type="number" min="0" step="1" value="0" /></label>
+        <label>Velocidad máx. para la cota (km/h)<input id="calc-vmax" type="number" min="1" step="1" value="120" /></label>
+        <label>Tope de radio (km)<input id="calc-tope" type="number" min="1" step="1" value="100" /></label>
+      </div>
+      <div id="calc-origin-label" class="calc-field-label">Desde</div>
+      <div class="calc-origin-group" role="group" aria-labelledby="calc-origin-label">
+        <button id="calc-gps" class="calc-origin-btn" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+          </svg>
+          Mi ubicación
+        </button>
+        <button id="calc-pick" class="calc-origin-btn" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 21s-6-5.3-6-11a6 6 0 0 1 12 0c0 5.7-6 11-6 11z" /><circle cx="12" cy="10" r="2" />
+          </svg>
+          Elegir punto
+        </button>
+      </div>
+      <div id="calc-origin-text" class="calc-origin-text">Sin ubicación</div>
+      <button id="calc-run" class="calc-btn primary calc-run-wide" type="button">Calcular</button>
+      <div id="calc-status"></div>
+      <button id="calc-details-toggle" class="calc-link" type="button" aria-expanded="false" aria-controls="calc-out" hidden>Ver detalles del cálculo</button>
+      <div id="calc-out" class="calc-out" hidden></div>
+    </div>
+  </div>
+
+  <!-- Elegir el origen: cruz fija en el centro del mapa y, abajo, confirmar o cancelar -->
+  <div id="calc-pick-overlay" hidden>
+    <svg class="calc-cross" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true">
+      <circle cx="22" cy="22" r="9" stroke-width="2.5" /><circle cx="22" cy="22" r="1.8" fill="currentColor" stroke="none" />
+      <path d="M22 2v9M22 33v9M2 22h9M33 22h9" stroke-width="2.5" />
+    </svg>
+    <div class="calc-pick-bar" role="dialog" aria-label="Elegir el punto de origen">
+      <div>Mueve el mapa hasta dejar el punto bajo la cruz, o tócalo.</div>
+      <div class="calc-pick-actions">
+        <button id="calc-pick-cancel" class="calc-btn" type="button">Cancelar</button>
+        <button id="calc-pick-ok" class="calc-btn primary" type="button">Usar este punto</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Esquina inferior: la tira de más baratas y, debajo, la leyenda de rangos. Van juntas en una
@@ -1173,6 +1352,7 @@ window.__boot = (() => {
     <div class="cheap-head">
       <span id="cheap-title" class="cheap-title">Más baratas</span>
       <span id="cheap-count" class="cheap-count"></span>
+      <button id="cheap-details" class="cheap-action" type="button" hidden>Detalles</button>
       <button id="cheap-close" class="cheap-close" type="button" aria-label="Cerrar la lista">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
              stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
@@ -1217,6 +1397,10 @@ const map = new maplibregl.Map({
 // que este módulo (ver el <script> inline del HTML).
 const boot = window.__boot;
 
+// El rosa del tema (--primary) para lo que se pinta dentro del mapa: los marcadores y las capas no
+// leen variables CSS, así que se lee una vez aquí. Cambia con el modo oscuro, igual que el CSS.
+const THEME_PRIMARY = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#c6005c';
+
 // "El mapa ya puede obedecer": se resuelve al final de map.on('load'), con la fuente y las capas
 // ya creadas. Todo lo que dispara la pantalla de arranque se encola contra esto en vez de hacer
 // esperar al usuario delante de una pantalla muerta.
@@ -1254,7 +1438,7 @@ const legendRowsEl = document.getElementById('legend-rows');
 // 3. Cargar la fecha desde meta.json ligero. La atribución (mapa base y datos) ya no es el control
 // "i" de MapLibre sino una nota al final del menú Vista (#attribution); aquí solo se completa con
 // la fecha de actualización.
-fetch('./public/meta.json')
+fetch('../public/meta.json')
   .then(res => res.json())
   .then(meta => { document.getElementById('attribution-date').textContent = ' · Actualizado: ' + meta.fecha; })
   .catch(() => {});
@@ -1267,11 +1451,9 @@ const DOTS_LAYER_ID = 'gasolineras-dots';
 // encima como recuadros con el precio (capa LAYER_ID). El corte coincide con el zoom a partir del
 // cual la ventana es lo bastante pequeña como para que quepan las etiquetas sin saturar.
 const LABEL_MIN_ZOOM = 9;
-// Dos ficheros para la misma capa: el completo (con rótulo, dirección, horario…) para el zoom
-// cercano donde se ven recuadros y popups, y uno ligero (solo geometría + los 4 precios, ~55%
-// menos) para el zoom alejado, donde solo se pintan puntos de color y esos campos no se usan.
-const FGB_FULL = './public/gasolineras.fgb';
-const FGB_LITE = './public/gasolineras-lite.fgb';
+// Todas las gasolineras, con rótulo, dirección y horario. Se baja entero una sola vez (ver
+// cargarGasolineras); la misma ruta la usa el script inline del arranque para adelantar la descarga.
+const FGB_FULL = '../public/gasolineras.fgb';
 // Paleta de las 4 clases de precio, de más barata a más cara: semáforo con dos verdes (las dos
 // "baratas"), ámbar y rojo. Tailwind emerald/green-700/amber-600/rose-600. Sale de comparar varias
 // sobre el mapa real, claro y oscuro, y la deciden cuatro restricciones a la vez:
@@ -1329,7 +1511,7 @@ function legibleSobre(color, fondo) {
 }
 
 // El tema no cambia sin recargar, así que las variantes de texto se calculan una vez.
-const SURFACE = DARK_MODE ? '#09090b' : '#ffffff';
+const SURFACE = DARK_MODE ? '#0a0a0a' : '#ffffff';
 const PRICE_TEXT_COLORS = PRICE_COLORS.map((c) => legibleSobre(c, SURFACE));
 const NO_PRICE_TEXT_COLOR = legibleSobre(NO_PRICE_COLOR, SURFACE);
 const BADGE_IDS = PRICE_COLORS.map((_, i) => 'badge-' + i);
@@ -1497,7 +1679,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenus
 // el número de portal (si lo hay) y vuela directamente, sin paso intermedio.
 // La URL vive en config.yaml (servicios.direcciones); este valor es solo el de reserva si no carga.
 const ADDR_API_FALLBACK = 'https://cu44cd5pmg.execute-api.eu-south-2.amazonaws.com';
-const addrApiBase = fetch('./config.yaml')
+const addrApiBase = fetch('../config.yaml')
   .then((r) => (r.ok ? r.text() : ''))
   .then((txt) => (txt.match(/^[ \t]+direcciones:[ \t]*(\S+)/m) || [])[1] || ADDR_API_FALLBACK)
   .catch(() => ADDR_API_FALLBACK);
@@ -1603,17 +1785,15 @@ async function flyToAddress(via, numero) {
   // corra en paralelo con lo que quede de carga.
   await mapReady;
   quitarMarcadorDireccion();
-  // Pin claro sobre el mapa oscuro: el pizarra de siempre se perdería sobre él
+  // Pin del color del tema: se distingue de los bocadillos (verde a rojo) y del punto azul de la ubicación
   addressMarker = new maplibregl.Marker({
-    color: DARK_MODE ? '#e4e4e7' : '#1e293b',
+    color: THEME_PRIMARY,
     className: 'marcador-direccion'
   })
     .setLngLat([lon, lat])
     .setPopup(new maplibregl.Popup().setHTML(esc(etiqueta) + '<br>' + esc(subtitulo)))
     .addTo(map);
-  const zoomDestino = esMunicipio ? 12 : 15;
-  precargarDestino({ lng: lon, lat }, zoomDestino); // sus gasolineras se piden ya, durante el vuelo
-  map.flyTo({ center: [lon, lat], zoom: zoomDestino });
+  map.flyTo({ center: [lon, lat], zoom: esMunicipio ? 12 : 15 });
   programarDesvanecidoMarcador(addressMarker);
   return etiqueta;
 }
@@ -1839,20 +2019,10 @@ function programarDesvanecidoPrecision() {
 // Éxito: cierra la pantalla de arranque igual con el disparo manual que con el automático de
 // map.on('load'). El error de la geolocalización pedida desde la pantalla lo pinta el propio
 // script inline, que es quien llamó a getCurrentPosition.
-geolocate.on('geolocate', (pos) => {
+geolocate.on('geolocate', () => {
   boot.recordarPermiso();
   hideStartOverlay();
   programarDesvanecidoPrecision();
-  // El control vuela a encajar el círculo de precisión con fitBoundsOptions (zoom máx. 13). Se
-  // calcula ese mismo destino, con la misma llamada que usa MapLibre por dentro, y se piden ya sus
-  // gasolineras mientras dura el vuelo. (LngLatBounds.fromLngLat es la de la v6: LngLat.toBounds
-  // ya no existe.)
-  const centro = new maplibregl.LngLat(pos.coords.longitude, pos.coords.latitude);
-  const destino = map.cameraForBounds(
-    maplibregl.LngLatBounds.fromLngLat(centro, pos.coords.accuracy),
-    { bearing: map.getBearing(), ...geolocate.options.fitBoundsOptions }
-  );
-  if (destino) precargarDestino(destino.center, destino.zoom);
 });
 
 // Con los menús cerrados no se ve ningún control, así que las etiquetas tienen que decir qué se
@@ -2282,10 +2452,17 @@ function updateCheapList(mostrados) {
   renderCheapList();
 }
 
+// Qué enseña la tira: 'precio' (las más baratas de lo visible) o 'calc' (el resultado de la
+// calculadora, ordenado por coste real; ver renderCalcList). Comparten la tira para no tener un
+// segundo panel compitiendo por el mismo hueco abajo del mapa.
+let cheapModo = 'precio';
+
 function renderCheapList() {
   if (cheapPanelEl.hidden) return;
+  if (cheapModo === 'calc') { renderCalcList(); return; }
 
   cheapTitleEl.textContent = 'Más baratas · ' + FUEL_LABELS[selectedFuel];
+  cheapDetailsBtn.hidden = true;
 
   if (cheapFeatures.length === 0) {
     cheapCountEl.textContent = '';
@@ -2343,6 +2520,7 @@ function marcarSeleccionEnLista(desplazar) {
 cheapListEl.addEventListener('click', (e) => {
   const fila = e.target.closest('.cheap-row');
   if (!fila) return;
+  if (cheapModo === 'calc') { seleccionarCalc(fila.dataset.key, { desdeLista: true }); return; }
   const f = cheapFeatures[Number(fila.dataset.i)];
   // El mapa NO se mueve: todas las de la lista ya están en pantalla, y moverlo cambiaría lo que la
   // lista contiene (y con menos de MIN_FOR_CLASSES gasolineras apagaría la leyenda de rangos).
@@ -2364,7 +2542,12 @@ function toggleCheapPanel(abrir) {
   renderCheapList(); // al abrir, pinta lo que se haya acumulado mientras estaba cerrada
 }
 
-cheapCloseBtn.addEventListener('click', () => toggleCheapPanel(false));
+// En "Compensa ir", el ✕ termina con el cálculo (borra lo dibujado) y la tira vuelve a ser la de
+// las más baratas; en la lista normal, la cierra.
+cheapCloseBtn.addEventListener('click', () => {
+  if (cheapModo === 'calc') limpiarCalc();
+  else toggleCheapPanel(false);
+});
 
 // Botón que abre la lista. Va como control de MapLibre y no suelto sobre el mapa para que caiga
 // en la misma columna que el zoom y la geolocalización, con su mismo aspecto, y para que MapLibre
@@ -2543,7 +2726,7 @@ function loadImage(src) {
 // Icono de gasolinera para las que no tienen marca reconocida (o la tienen pero sin logo todavía,
 // ver iconImageExpr) -- mejor un surtidor genérico que el círculo liso de antes. De Maki
 // (github.com/mapbox/maki), el set de iconos de Mapbox para puntos de interés en mapas, CC0.
-const LOGOS_DIR = './public/logos/';
+const LOGOS_DIR = '../public/logos/';
 const GENERIC_FUEL_ICON_SRC = LOGOS_DIR + 'fuel-generic.svg';
 
 // URL del logo de cada marca que se cargó (la rellena loadBrandLogos), para el popup y la lista.
@@ -2597,11 +2780,6 @@ async function loadBrandLogos() {
   return logos;
 }
 
-// El icono genérico y los logos se piden YA, al evaluar el módulo, y no dentro de map.on('load'):
-// no dependen del mapa, y esperando a su 'load' (~1,5 s, con el estilo y las teselas ya bajados)
-// salían en serie detrás de él. Así van en paralelo y el 'load' solo espera a que hayan llegado.
-const recursosBocadillos = Promise.all([loadImage(GENERIC_FUEL_ICON_SRC), loadBrandLogos()]);
-
 map.on('load', async () => {
   map.addSource(SOURCE_ID, {
     type: 'geojson',
@@ -2613,8 +2791,12 @@ map.on('load', async () => {
   // reconocida o su marca no tiene logo (ver iconImageExpr más abajo).
   const ALL_BADGE_IDS = [...BADGE_IDS, NO_PRICE_BADGE_ID];
   const ALL_BADGE_COLORS = [...PRICE_COLORS, NO_PRICE_COLOR];
-  // Pedidos al arrancar el módulo (ver recursosBocadillos): aquí normalmente ya han llegado.
-  const [genericFuelIcon, brandLogos] = await recursosBocadillos;
+  // En paralelo, no en serie: son dos fetches independientes (el icono genérico y el manifiesto +
+  // logos de marca) y encadenarlos retrasaría sin necesidad el primer pintado de las gasolineras.
+  const [genericFuelIcon, brandLogos] = await Promise.all([
+    loadImage(GENERIC_FUEL_ICON_SRC),
+    loadBrandLogos()
+  ]);
   ALL_BADGE_IDS.forEach((id, i) => map.addImage(id, makeBadgeImage(ALL_BADGE_COLORS[i], genericFuelIcon), { pixelRatio: 2 }));
 
   // Además, una imagen por cada combinación (tramo de precio × marca con logo): 'icon-image' es
@@ -2707,8 +2889,9 @@ map.on('load', async () => {
 
   // Hover y clic sobre las DOS capas: un punto visible es una gasolinera que perdió el solape, y
   // sería absurdo verla y no poder consultarla (un símbolo oculto por colisión no se dibuja, así
-  // que su recuadro tampoco recibe clics). Por debajo de LABEL_MIN_ZOOM no son interactivos: ahí
-  // se carga el .fgb ligero, sin rótulo, dirección ni horario, y el popup saldría medio vacío.
+  // que su recuadro tampoco recibe clics). Por debajo de LABEL_MIN_ZOOM no son interactivos. Nació
+  // porque ahí se cargaba el .fgb ligero, sin rótulo, dirección ni horario; ahora los datos van
+  // completos a cualquier zoom, así que se mantiene solo como decisión de interfaz.
   const INTERACTIVE_LAYERS = [LAYER_ID, DOTS_LAYER_ID];
   const canPopup = () => map.getZoom() >= LABEL_MIN_ZOOM;
 
@@ -2718,7 +2901,7 @@ map.on('load', async () => {
   map.on('mouseleave', INTERACTIVE_LAYERS, () => { map.getCanvas().style.cursor = ''; });
 
   map.on('click', INTERACTIVE_LAYERS, (e) => {
-    if (!canPopup()) return;
+    if (!canPopup() || calcPicking) return;
     openStationPopup(e.features[0]);
   });
 
@@ -2730,45 +2913,20 @@ map.on('load', async () => {
   // ni se llegó a enseñar (lo decidió window.__boot, sin esperar al mapa) y se va directo a su
   // posición —el 'moveend' del vuelo dispara updateMarkers—, evitando la carga de todo el país en
   // zoom 6. Si no había permiso, la pantalla lleva un rato visible y manda ella.
-  // La ubicación ya la ha pedido el script de arranque (boot.ubicacionInicial), en paralelo con la
-  // carga del mapa. Si no llegó, ese mismo script ya ha sacado la pantalla de arranque y aquí no se
-  // hace nada: manda la pantalla, y lo que el usuario elija entra por resolverArranque.
   let autoLocating = false;
-  geolocate.on('geolocate', () => { autoLocating = false; }); // arranque resuelto: lo que venga ya es del botón
-  const posInicial = await boot.ubicacionInicial;
-  if (posInicial && !arranqueResuelto) {
-    arranqueResuelto = true;
-    // trigger() vuelve a pedir la posición, pero con el maximumAge de positionOptions reaprovecha el
-    // fix recién obtenido: no despierta el GPS otra vez, solo vuela y pinta el punto azul.
+  if (await boot.yaTeniaPermiso) {
     autoLocating = geolocate.trigger();
     // trigger() devuelve false si el control no estuviera listo; sin esto no se cargaría nada.
-    if (!autoLocating) updateMarkers();
+    if (!autoLocating && !arranqueResuelto) { arranqueResuelto = true; updateMarkers(); }
   }
+  // Si la geolocalización falla (GPS caído, etc.), no dejamos el mapa vacío: ni tras concederse de
+  // antemano, ni al venir de "Usar mi ubicación" con la pantalla ya cerrada.
   geolocate.on('error', (e) => {
     if (e.code === 1) boot.olvidarPermiso(); // PERMISSION_DENIED: la próxima vez vuelve a salir la pantalla
-    if (autoLocating) {
-      // Falló el vuelo del arranque automático: mejor la pantalla para elegir que el país entero
-      // cargado sin explicación (mismo criterio que boot.ubicacionInicial).
-      autoLocating = false;
-      arranqueResuelto = false;
-      boot.overlayEl.hidden = false;
-      return;
-    }
-    // Fallo del botón 📍 con el mapa ya en uso: no se toca la vista, solo se refresca lo pintado.
+    autoLocating = false;
     updateMarkers();
   });
 });
-
-// Caché del último tramo pedido al .fgb: si el bbox que hace falta ahora cae DENTRO del que ya se
-// pidió (mismo fichero), nos ahorramos la petición de red y filtramos lo que ya tenemos en memoria.
-// Guarda solo el último tramo, no un histórico: cada fetch real lo sustituye entero -- de ahí que
-// sea un único objeto (o null, "sin caché todavía") y no tres variables que mantener en sync.
-let fgbCache = null;
-
-function bboxContains(outer, inner) {
-  return inner.minX >= outer.minX && inner.maxX <= outer.maxX &&
-         inner.minY >= outer.minY && inner.maxY <= outer.maxY;
-}
 
 // geometry.coordinates de una Feature de FlatGeobuf viene en [lng, lat], como cualquier GeoJSON
 // (así lo construye fetch-data: Point(lng, lat), no al revés).
@@ -2777,69 +2935,39 @@ function featureInBbox(feature, bbox) {
   return lng >= bbox.minX && lng <= bbox.maxX && lat >= bbox.minY && lat <= bbox.maxY;
 }
 
-// Amplía el bbox un 50% de su ancho/alto a cada lado antes de pedirlo: así un paneo corto dentro
-// de ese margen no vuelve a tocar la red (sirve del caché de arriba) y solo hace falta un fetch
-// nuevo al salirse de la zona ya cubierta o al cruzar LABEL_MIN_ZOOM (cambia de fichero). Con toda
-// España en pantalla el margen no cuesta nada de verdad -- el bbox ya cubre el país entero, así
-// que ampliarlo no trae ni un punto más --; en zooms cercanos sí baja algo más de lo estrictamente
-// visible, a cambio de bastantes menos peticiones al mover el mapa dentro de la misma zona.
-function padBbox(bbox, factor) {
-  const dx = (bbox.maxX - bbox.minX) * factor;
-  const dy = (bbox.maxY - bbox.minY) * factor;
-  return {
-    minX: bbox.minX - dx,
-    minY: bbox.minY - dy,
-    maxX: bbox.maxX + dx,
-    maxY: bbox.maxY + dy
-  };
+// Todas las gasolineras de España en memoria (~11.400). El .fgb completo se baja ENTERO una sola vez
+// y cada movimiento del mapa solo filtra aquí lo visible: ~4 ms y ninguna petición.
+// Antes se leía por rangos (HTTP Range) lo visible en cada movimiento que saliera de la zona ya
+// cargada: 5 peticiones encadenadas (cabecera, niveles del índice, datos), unos 450 ms en el móvil
+// aunque fueran pocos datos. Y sin comprimir: con Range el navegador pide los bytes tal cual, cuando
+// el fichero entero viaja con gzip (2,6 MB -> ~800 KB). Por eso tampoco hace falta ya el .fgb
+// ligero, que solo existía para leer menos bytes por rangos en la vista alejada.
+// La descarga la empieza el script inline del arranque (boot.fgbDatos); aquí se recoge y se
+// procesa (~0,1-0,25 s según el móvil). Si falla, el siguiente movimiento lo vuelve a intentar.
+let gasolinerasPromise = null;
+function cargarGasolineras() {
+  if (!gasolinerasPromise) {
+    // La descarga temprana solo vale para el primer intento; si falló, los siguientes van a la red
+    const datos = boot.fgbDatos ?? fetch(FGB_FULL).then((r) => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.arrayBuffer();
+    });
+    boot.fgbDatos = null;
+    gasolinerasPromise = (async () => {
+      const features = [];
+      for await (const f of flatgeobuf.deserialize(new Uint8Array(await datos))) features.push(f);
+      return features;
+    })();
+    gasolinerasPromise.catch(() => { gasolinerasPromise = null; });
+  }
+  return gasolinerasPromise;
 }
 
-// Recuadro que se verá con la cámara centrada en 'center' a 'zoom', sin moverla: proyección
-// Web Mercator a mano con teselas de 512 px, igual que MapLibre. Hace falta para pedir las
-// gasolineras de un destino antes de llegar a él (ver precargarDestino); a zoom de calle, el error
-// frente a getBounds() es despreciable, y de sobra lo absorbe el margen de padBbox.
-function bboxDeCamara(center, zoom) {
-  const { clientWidth: ancho, clientHeight: alto } = map.getContainer();
-  const mundo = 512 * 2 ** zoom; // ancho en px del mundo entero a ese zoom
-  const x = (center.lng + 180) / 360;
-  const seno = Math.sin(center.lat * Math.PI / 180);
-  const y = 0.5 - Math.log((1 + seno) / (1 - seno)) / (4 * Math.PI);
-  const dx = ancho / 2 / mundo, dy = alto / 2 / mundo;
-  const lng = (u) => u * 360 - 180;
-  const lat = (v) => Math.atan(Math.sinh(Math.PI - 2 * Math.PI * v)) * 180 / Math.PI;
-  return { minX: lng(x - dx), maxX: lng(x + dx), minY: lat(y + dy), maxY: lat(y - dy) };
-}
-
-// Lectura adelantada en curso: { id, src, bbox, promesa } o null. La lanza precargarDestino al
-// EMPEZAR un vuelo; updateMarkers, al terminar, la reutiliza en vez de pedir lo mismo otra vez.
-let precarga = null;
-let precargaId = 0;
-
-// Pide las gasolineras del sitio al que va a llegar el mapa mientras todavía vuela. Antes se pedían
-// en el 'moveend', o sea al aterrizar, y el vuelo (unos 3 s) era tiempo muerto: ahora la red trabaja
-// durante la animación y al llegar ya están, o casi. El vuelo se mantiene tal cual; esto solo
-// adelanta la petición. Escribe en la misma caché que updateMarkers (fgbCache).
-function precargarDestino(center, zoom) {
-  const src = zoom < LABEL_MIN_ZOOM ? FGB_LITE : FGB_FULL;
-  const bbox = bboxDeCamara(center, zoom);
-  if (fgbCache && fgbCache.src === src && bboxContains(fgbCache.bbox, bbox)) return; // ya está
-  const fetchBbox = padBbox(bbox, 0.5);
-  const id = ++precargaId;
-  const promesa = (async () => {
-    const features = [];
-    for await (const f of flatgeobuf.deserialize(src, fetchBbox)) features.push(f);
-    // Solo si sigue vigente: una lectura normal posterior (updateMarkers) la anula al escribir caché
-    if (precarga?.id === id) fgbCache = { src, bbox: fetchBbox, features };
-  })().catch((err) => console.error('Error precargando FlatGeobuf:', err));
-  precarga = { id, src, bbox: fetchBbox, promesa };
-}
-
-// Número de la última llamada a updateMarkers. Dos movimientos seguidos lanzan dos lecturas en
-// paralelo, y la primera puede acabar después (p. ej. toda España con el .fgb ligero, y luego un
-// vuelo a una calle): sin esto, la lectura vieja pisaría a la nueva con otra zona y otro fichero.
+// Número de la última llamada a updateMarkers. Mientras se espera la descarga (solo la primera
+// vez) pueden llegar varios movimientos: cuando termina, solo pinta el último.
 let markersReq = 0;
 
-// 5. Cargar únicamente las gasolineras visibles con FlatGeobuf, vía HTTP Range Request
+// 5. Pintar las gasolineras visibles, filtradas de las que ya están en memoria
 async function updateMarkers() {
   // Red de seguridad: sin la fuente ni las capas creadas (map.on('load')) no hay dónde pintar, y
   // ahora la pantalla de arranque responde mucho antes de que eso ocurra. Los caminos conocidos ya
@@ -2847,8 +2975,15 @@ async function updateMarkers() {
   // temprano sin tener que acordarse de ello en cada sitio.
   await mapReady;
   const req = ++markersReq;
-  // Se carga a cualquier zoom: en vista alejada las estaciones se pintan como puntos (DOTS_LAYER_ID)
-  // y al acercarse pasan a recuadros con precio (LAYER_ID).
+  let todas;
+  try {
+    todas = await cargarGasolineras();
+  } catch (err) {
+    if (req === markersReq) console.error('Error descargando las gasolineras:', err);
+    return;
+  }
+  if (req !== markersReq) return;
+  // El bbox se lee después de esperar: el mapa pudo moverse mientras bajaba el fichero
   const bounds = map.getBounds();
   const bbox = {
     minX: bounds.getWest(),
@@ -2856,57 +2991,825 @@ async function updateMarkers() {
     maxX: bounds.getEast(),
     maxY: bounds.getNorth()
   };
+  // Se pinta a cualquier zoom: en vista alejada como puntos (DOTS_LAYER_ID) y al acercarse como
+  // recuadros con precio (LAYER_ID). Una sola actualización de la capa por movimiento.
+  currentFeatures = todas.filter((f) => featureInBbox(f, bbox));
+  applyLabels();
+}
 
-  // En zoom alejado (solo puntos) basta el fichero ligero; al acercarse, con recuadros y popups,
-  // se necesita el completo. El corte coincide con el de las capas (LABEL_MIN_ZOOM).
-  // El ligero incluye la columna 'brand', así que el filtro de marcas funciona también aquí sin
-  // tener que bajar el completo: son 1,73 MB frente a 2,90 MB para el país entero.
-  const src = map.getZoom() < LABEL_MIN_ZOOM ? FGB_LITE : FGB_FULL;
+// --- ¿Dónde me compensa repostar? (en pruebas, solo develop) ---
+// Coste de ir a repostar a la gasolinera s desde el origen, ida y vuelta:
+//   coste(s) = L·p_s + 2·d_s·(c/100)·p_s + 2·t_s·v
+// L litros a echar, c consumo en L/100 km, p_s su precio, v el valor del tiempo en €/h, y d_s y t_s
+// la distancia y la duración por carretera que da OSRM (solo ida: la vuelta se supone igual).
+// La distancia en línea recta h_s nunca supera a la de carretera, ni h_s/v_max a la duración, así
+// que con ellas sale una cota optimista LB(s) <= coste(s). Si LB(s) ya es peor que el mejor coste
+// real encontrado, s se descarta sin pedir ruta. Y como ninguna gasolinera baja de p_min, más allá
+// de este radio (en línea recta) ninguna puede ganar:
+//   d_max = (mejor − L·p_min) / (2·((c/100)·p_min + v/v_max))
+// Todo se calcula alrededor del origen elegido, no de lo que se ve en pantalla.
 
-  // El bbox visible ya está cubierto por el último tramo pedido a este mismo fichero: no hace
-  // falta red, solo filtrar lo que ya tenemos. El caso más habitual es hacer zoom in (el bbox se
-  // encoge) o moverse poco dentro de una zona ya cargada (gracias al margen de padBbox).
-  if (fgbCache && fgbCache.src === src && bboxContains(fgbCache.bbox, bbox)) {
-    currentFeatures = fgbCache.features.filter((f) => featureInBbox(f, bbox));
-    applyLabels();
-    return;
-  }
+const CALC_PREFS_KEY = 'gasolineras:calc';
+const CALC_REF_K = 5;         // candidatas (las de mejor cota) con las que se fija la referencia
+const CALC_FIRST_KM = 5;      // primer radio de búsqueda de la referencia; se dobla si no llega
+const CALC_BATCH = 25;        // destinos por petición /table
+const CALC_MAX_ITER = 8;      // vueltas de ajuste de p_min y d_max
+const CALC_FIX_MS = 120000;   // una posición GPS de hace menos de esto se reaprovecha
+const CALC_MAX_ROWS = 400;    // filas pintadas en la tabla (el JSON lleva todas)
+const CALC_COLORS = {
+  mejor: '#15803d',
+  evaluada: '#2563eb',
+  podada: '#94a3b8',
+  inalcanzable: '#b91c1c'
+};
+const CALC_STATUS_LABEL = {
+  mejor: 'mejor',
+  evaluada: 'ruta calculada',
+  podada: 'podada por cota',
+  inalcanzable: 'sin ruta'
+};
+const CALC_EMPTY = { type: 'FeatureCollection', features: [] };
 
-  // Se aterriza de un vuelo cuya zona ya se está pidiendo (precargarDestino) pero aún no ha
-  // llegado: se espera a esa lectura en vez de lanzar otra igual.
-  if (precarga && precarga.src === src && bboxContains(precarga.bbox, bbox)) {
-    await precarga.promesa;
-    if (req !== markersReq) return;
-    if (fgbCache && fgbCache.src === src && bboxContains(fgbCache.bbox, bbox)) {
-      currentFeatures = fgbCache.features.filter((f) => featureInBbox(f, bbox));
-      applyLabels();
-      return;
-    }
-    // La precarga falló o quedó anulada: se sigue con la lectura normal
-  }
+// Servidor OSRM propio. Fijo: no se elige en el formulario ni se lee de config.yaml.
+const OSRM_URL = 'https://routes.ygmodesto.com';
 
-  const fetchBbox = padBbox(bbox, 0.5);
-  const features = [];
+const calcPanelEl = document.getElementById('calc-panel');
+const calcIn = {
+  litros: document.getElementById('calc-litros'),
+  consumo: document.getElementById('calc-consumo'),
+  pmin: document.getElementById('calc-pmin'),
+  vtiempo: document.getElementById('calc-vtiempo'),
+  vmax: document.getElementById('calc-vmax'),
+  tope: document.getElementById('calc-tope')
+};
+const calcOriginTextEl = document.getElementById('calc-origin-text');
+const calcGpsBtn = document.getElementById('calc-gps');
+const calcPickBtn = document.getElementById('calc-pick');
+const calcRunBtn = document.getElementById('calc-run');
+const calcStatusEl = document.getElementById('calc-status');
+const calcOutEl = document.getElementById('calc-out');
+const calcFormEl = document.getElementById('calc-form');
+const calcParamsBtn = document.getElementById('calc-params-toggle');
+const calcSummaryEl = document.getElementById('calc-summary');
+const calcDetailsBtn = document.getElementById('calc-details-toggle');
+const calcPickOverlayEl = document.getElementById('calc-pick-overlay');
+const cheapDetailsBtn = document.getElementById('cheap-details');
+let calcToggleBtn = null;
+let calcPicking = false;   // eligiendo el origen con la cruz (y sin abrir popups)
+let calcOrigin = null;     // [lng, lat]
+let calcModo = null;       // de dónde salió el origen: 'gps' (mi ubicación) o 'punto' (elegido)
+let calcOriginMarker = null;
+let calcLast = null;       // último cálculo: lo leen la tira, la tabla, el mapa y "Copiar JSON"
+let calcSelKey = null;
+// Última posición del GPS, venga del botón 📍 del mapa o de "Mi ubicación": { lngLat, t, precision }
+let calcUltimaPosicion = null;
+
+function saveCalcPrefs() {
   try {
-    const iter = flatgeobuf.deserialize(src, fetchBbox);
-    for await (const feature of iter) {
-      // Ya hay una lectura más nueva: se abandona esta (salir del bucle cierra el iterador, que
-      // deja de pedir rangos) y no se toca ni la caché ni lo pintado.
-      if (req !== markersReq) return;
-      features.push(feature);
-    }
-    if (req !== markersReq) return;
-    fgbCache = { src, bbox: fetchBbox, features };
-    precarga = null; // esta lectura es más reciente: una precarga pendiente ya no debe pisar la caché
-    // Solo lo que cae en el bbox real, no en el margen: éste es puro caché, no debe colar
-    // gasolineras fuera de pantalla en el cálculo de cuartiles de applyLabels().
-    currentFeatures = features.filter((f) => featureInBbox(f, bbox));
-    // Una sola actualización de la capa por movimiento, con el precio ya calculado
-    applyLabels();
-  } catch (err) {
-    if (req === markersReq) console.error('Error leyendo FlatGeobuf:', err);
+    const valores = Object.fromEntries(Object.entries(calcIn).map(([k, el]) => [k, el.value]));
+    localStorage.setItem(CALC_PREFS_KEY, JSON.stringify({ ...valores, origin: calcOrigin, modo: calcModo }));
+  } catch { /* sin persistencia: funciona igual, solo no se recuerda */ }
+}
+
+// La línea que resume los parámetros, para no tener el formulario abierto en cada cálculo
+function syncCalcSummary() {
+  const v = (el) => String(el.value).replace(',', '.');
+  const pmin = Number(v(calcIn.pmin));
+  const vt = Number(v(calcIn.vtiempo)) || 0;
+  calcSummaryEl.textContent = v(calcIn.litros) + ' L · ' + v(calcIn.consumo) + ' L/100 km · ' +
+    (pmin > 0 ? 'mín. ' + pmin.toFixed(3) + ' €' : 'falta el precio mínimo') + (vt > 0 ? ' · ' + vt + ' €/h' : '');
+}
+function setCalcParamsAbiertos(abrir) {
+  calcFormEl.hidden = !abrir;
+  calcParamsBtn.setAttribute('aria-expanded', String(abrir));
+  calcParamsBtn.querySelector('.calc-edit').textContent = abrir ? 'Ocultar' : 'Editar';
+}
+calcParamsBtn.addEventListener('click', () => setCalcParamsAbiertos(calcFormEl.hidden));
+
+// Qué se ve de la calculadora fuera del panel. El origen y la ruta se quedan aunque se cierre el
+// panel (lo que se ha calculado sigue siendo útil); el radio y los puntos de cada estado son de
+// depuración y solo salen con los detalles abiertos. Mientras se elige con la cruz, el marcador
+// se esconde: el punto lo marca la cruz.
+function calcDetallesVisibles() {
+  return !calcPanelEl.hidden && !calcOutEl.hidden;
+}
+function syncCalcVisibility() {
+  if (calcOriginMarker) {
+    calcOriginMarker.getElement().style.display =
+      calcPicking || (calcPanelEl.hidden && !calcLast) ? 'none' : '';
+  }
+  if (!map.getLayer('calc-puntos')) return;
+  const ver = (id, si) => map.setLayoutProperty(id, 'visibility', si ? 'visible' : 'none');
+  const debug = !!calcLast && calcDetallesVisibles();
+  ver('calc-rutas', !!calcLast);
+  ver('calc-puntos', debug);
+  ver('calc-radio-fill', debug);
+  ver('calc-radio-line', debug);
+}
+
+function setCalcStatus(texto, esError) {
+  calcStatusEl.textContent = texto;
+  calcStatusEl.classList.toggle('error', !!esError);
+}
+
+function setCalcOrigin(lngLat, guardar = true, modo = 'punto') {
+  calcOrigin = [lngLat[0], lngLat[1]];
+  calcModo = modo;
+  if (!calcOriginMarker) {
+    calcOriginMarker = new maplibregl.Marker({ color: THEME_PRIMARY, draggable: true })
+      .setLngLat(calcOrigin)
+      .addTo(map);
+    calcOriginMarker.on('dragend', () => {
+      const ll = calcOriginMarker.getLngLat();
+      setCalcOrigin([ll.lng, ll.lat]);
+    });
+  } else {
+    calcOriginMarker.setLngLat(calcOrigin);
+  }
+  syncCalcOriginUI();
+  syncCalcVisibility();
+  if (guardar) saveCalcPrefs();
+}
+
+function syncCalcOriginUI() {
+  calcGpsBtn.setAttribute('aria-pressed', String(calcModo === 'gps'));
+  calcPickBtn.setAttribute('aria-pressed', String(calcModo === 'punto'));
+  if (!calcOrigin) { calcOriginTextEl.textContent = 'Elige desde dónde calcular.'; return; }
+  const coords = calcOrigin[1].toFixed(5) + ', ' + calcOrigin[0].toFixed(5);
+  if (calcModo === 'gps') {
+    const prec = calcUltimaPosicion?.precision;
+    calcOriginTextEl.textContent = 'Tu ubicación' + (prec ? ' (±' + Math.round(prec) + ' m)' : '') + ' · ' + coords;
+  } else {
+    calcOriginTextEl.textContent = 'Punto elegido · ' + coords + ' (puedes arrastrar el marcador)';
   }
 }
+
+// --- Elegir el origen con la cruz ---
+// El panel se esconde para dejar el mapa libre; al confirmar o cancelar vuelve a abrirse.
+function setCalcPicking(on) {
+  calcPicking = on;
+  calcPickOverlayEl.hidden = !on;
+  if (on) calcPanelEl.hidden = true;
+  syncCalcVisibility();
+}
+function empezarAElegir() {
+  popup?.remove(); // un popup abierto taparía la cruz
+  // Si ya había un punto elegido, la cruz arranca sobre él para poder retocarlo
+  if (calcOrigin && calcModo === 'punto') map.easeTo({ center: calcOrigin });
+  setCalcPicking(true);
+}
+function terminarDeElegir(usar) {
+  if (usar) {
+    const c = map.getCenter();
+    setCalcOrigin([c.lng, c.lat], true, 'punto');
+  }
+  setCalcPicking(false);
+  toggleCalcPanel(true);
+}
+
+// --- Mi ubicación ---
+// Se reaprovecha la posición del botón 📍 del mapa o la de un "Mi ubicación" anterior si es
+// reciente; si no, se pide al GPS. 'silencioso' es para el automático al abrir el panel: si
+// falla, no deja un error en pantalla (el usuario aún no ha pedido nada).
+geolocate.on('geolocate', (e) => {
+  calcUltimaPosicion = { lngLat: [e.coords.longitude, e.coords.latitude], t: Date.now(), precision: e.coords.accuracy };
+});
+function geoPermitida() {
+  try { return localStorage.getItem('geoConcedida') === '1'; } catch { return false; }
+}
+function usarMiUbicacion({ silencioso = false } = {}) {
+  return new Promise((resolve) => {
+    const fija = (pos) => {
+      if (!calcPicking) setCalcOrigin(pos.lngLat, true, 'gps');
+      resolve(true);
+    };
+    if (calcUltimaPosicion && Date.now() - calcUltimaPosicion.t < CALC_FIX_MS) { fija(calcUltimaPosicion); return; }
+    if (!navigator.geolocation) {
+      if (!silencioso) setCalcStatus('Este navegador no da la ubicación. Elige un punto en el mapa.', true);
+      resolve(false);
+      return;
+    }
+    calcOriginTextEl.textContent = 'Localizando…';
+    navigator.geolocation.getCurrentPosition((p) => {
+      calcUltimaPosicion = { lngLat: [p.coords.longitude, p.coords.latitude], t: Date.now(), precision: p.coords.accuracy };
+      boot.recordarPermiso();
+      if (calcStatusEl.classList.contains('error')) setCalcStatus('');
+      fija(calcUltimaPosicion);
+    }, () => {
+      syncCalcOriginUI();
+      if (!silencioso) setCalcStatus('No se pudo obtener tu ubicación. Elige un punto en el mapa.', true);
+      resolve(false);
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
+  });
+}
+
+try {
+  const guardado = JSON.parse(localStorage.getItem(CALC_PREFS_KEY)) || {};
+  for (const [k, el] of Object.entries(calcIn)) if (guardado[k] != null && guardado[k] !== '') el.value = guardado[k];
+  // Solo se recupera un punto elegido: la ubicación de otro día no vale, se vuelve a pedir
+  if (Array.isArray(guardado.origin) && guardado.modo !== 'gps') setCalcOrigin(guardado.origin, false, 'punto');
+  else if (guardado.modo === 'gps') calcModo = 'gps';
+} catch { /* preferencias corruptas o inaccesibles: valores por defecto */ }
+syncCalcSummary();
+syncCalcOriginUI();
+// Sin precio mínimo no se puede calcular: el formulario sale abierto para rellenarlo
+if (!(Number(String(calcIn.pmin.value).replace(',', '.')) > 0)) setCalcParamsAbiertos(true);
+Object.values(calcIn).forEach((el) => el.addEventListener('change', () => { saveCalcPrefs(); syncCalcSummary(); }));
+
+calcGpsBtn.addEventListener('click', () => usarMiUbicacion());
+calcPickBtn.addEventListener('click', empezarAElegir);
+document.getElementById('calc-pick-ok').addEventListener('click', () => terminarDeElegir(true));
+document.getElementById('calc-pick-cancel').addEventListener('click', () => terminarDeElegir(false));
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && calcPicking) terminarDeElegir(false); });
+// Tocar el mapa mientras se elige lleva ese punto bajo la cruz (y no abre popups, ver calcPicking)
+map.on('click', (e) => {
+  if (calcPicking) map.easeTo({ center: e.lngLat });
+});
+calcDetailsBtn.addEventListener('click', () => setCalcDetalles(calcOutEl.hidden));
+cheapDetailsBtn.addEventListener('click', () => { toggleCalcPanel(true); setCalcDetalles(true); });
+
+function setCalcDetalles(abrir) {
+  calcOutEl.hidden = !abrir;
+  calcDetailsBtn.setAttribute('aria-expanded', String(abrir));
+  calcDetailsBtn.textContent = abrir ? 'Ocultar detalles del cálculo' : 'Ver detalles del cálculo';
+  syncCalcVisibility();
+}
+document.getElementById('calc-close').addEventListener('click', () => toggleCalcPanel(false));
+calcRunBtn.addEventListener('click', runCalc);
+
+// Calentar la conexión con OSRM al abrir el panel. La primera petición a un servidor paga DNS, TCP
+// y TLS (en el móvil ~200-250 ms), y sin esto la pagaba la primera /table al pulsar "Calcular".
+// /nearest es lo más barato de OSRM y su respuesta no se usa: solo sirve para dejar la conexión
+// abierta mientras se rellenan los datos (nginx la mantiene viva ~75 s sin uso). No se usa
+// <link rel="preconnect"> porque Chrome cierra esa conexión si no se usa en unos 10 s.
+// Como mucho una vez por minuto, para no repetirla al abrir y cerrar el panel seguido.
+const CALC_WARM_MS = 60000;
+// -Infinity y no 0: performance.now() cuenta desde que cargó la página, así que con 0 el primer
+// minuto de cada visita (justo cuando hace falta) se tomaría por "calentado hace nada".
+let calcWarmAt = -Infinity;
+function calentarOsrm() {
+  if (performance.now() - calcWarmAt < CALC_WARM_MS) return;
+  calcWarmAt = performance.now();
+  const t0 = performance.now();
+  fetch(OSRM_URL + '/nearest/v1/driving/-3.703800,40.416800', { cache: 'no-store' })
+    .then((r) => r.arrayBuffer())
+    .then(() => {
+      const ms = Math.round(performance.now() - t0);
+      console.log('Conexión con OSRM preparada en ' + ms + ' ms');
+      // Visible también en el panel, para poder comprobarlo en el móvil sin consola. Solo si no
+      // hay otro mensaje: no pisa un "Calculando…" ni un error.
+      if (!calcStatusEl.textContent) setCalcStatus('Conexión con el servidor de rutas preparada (' + ms + ' ms).');
+    })
+    .catch(() => { calcWarmAt = -Infinity; }); // si falla, se reintenta en la próxima apertura
+}
+
+// Cerrar el panel NO borra lo dibujado (origen y ruta): eso lo hace el ✕ de "Compensa ir" o un
+// cálculo nuevo. Al abrirlo, si el origen es "Mi ubicación", se refresca (sin molestar si falla).
+function toggleCalcPanel(abrir) {
+  if (abrir && calcPicking) setCalcPicking(false);
+  calcPanelEl.hidden = !abrir;
+  calcToggleBtn?.setAttribute('aria-pressed', String(abrir));
+  syncCalcVisibility();
+  if (!abrir) return;
+  calentarOsrm();
+  if (calcModo === 'gps' || (!calcOrigin && geoPermitida())) usarMiUbicacion({ silencioso: true });
+}
+
+class CalcControl {
+  onAdd() {
+    this._container = document.createElement('div');
+    this._container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
+    calcToggleBtn = document.createElement('button');
+    calcToggleBtn.type = 'button';
+    calcToggleBtn.className = 'calc-toggle';
+    calcToggleBtn.setAttribute('aria-label', 'Dónde me compensa repostar');
+    calcToggleBtn.setAttribute('aria-pressed', 'false');
+    calcToggleBtn.setAttribute('aria-controls', 'calc-panel');
+    calcToggleBtn.title = 'Dónde me compensa repostar (en pruebas)';
+    // Surtidor
+    calcToggleBtn.innerHTML =
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" ' +
+      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M3 22h12" /><path d="M4 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17" /><path d="M4 10h10" />' +
+      '<path d="M14 13h2a2 2 0 0 1 2 2v3a1.5 1.5 0 0 0 3 0V8l-3-3" /></svg>';
+    // Mientras se elige con la cruz, el botón cancela la elección (y vuelve a abrir el panel)
+    calcToggleBtn.addEventListener('click', () => (calcPicking ? terminarDeElegir(false) : toggleCalcPanel(calcPanelEl.hidden)));
+    this._container.appendChild(calcToggleBtn);
+    return this._container;
+  }
+  onRemove() { this._container.remove(); }
+}
+map.addControl(new CalcControl(), 'top-right');
+
+// Recuadro que contiene el círculo de 'km' alrededor de un punto (aproximación esférica, de sobra
+// para radios de decenas de km)
+function bboxAround([lng, lat], km) {
+  const dLat = km / 111.32;
+  const dLng = km / (111.32 * Math.cos(lat * Math.PI / 180));
+  return { minX: lng - dLng, minY: lat - dLat, maxX: lng + dLng, maxY: lat + dLat };
+}
+
+function circlePolygon([lng, lat], km) {
+  const dLat = km / 111.32;
+  const dLng = km / (111.32 * Math.cos(lat * Math.PI / 180));
+  const anillo = [];
+  for (let i = 0; i <= 64; i++) {
+    const a = (i / 64) * 2 * Math.PI;
+    anillo.push([lng + dLng * Math.sin(a), lat + dLat * Math.cos(a)]);
+  }
+  return { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [anillo] } };
+}
+
+// Saca de las gasolineras en memoria (ver cargarGasolineras) las que tienen el combustible pedido
+// en un recuadro de ±km alrededor del origen. Solo amplía: si ya se sacó un recuadro mayor, no
+// repite. Las que repiten conservan lo ya calculado.
+async function calcLoadStations(ctx, km) {
+  if (km <= ctx.loadedKm) return;
+  const t0 = performance.now();
+  const lista = [];
+  const recuadro = bboxAround(ctx.origin, km);
+  for (const f of await cargarGasolineras()) {
+    if (!featureInBbox(f, recuadro)) continue;
+    const precio = Number(f.properties[ctx.fuel]);
+    if (!precio) continue;
+    const [lng, lat] = f.geometry.coordinates;
+    lista.push({
+      key: claveEstacion(f),
+      feature: f,
+      lng,
+      lat,
+      precio,
+      rotulo: f.properties.rotulo || 'Gasolinera',
+      direccion: String(f.properties.direccion ?? '').replace(/[\s,]+$/, ''),
+      recta: distanciaKm(ctx.origin[0], ctx.origin[1], lng, lat)
+    });
+  }
+  const previas = new Map(ctx.stations.map((s) => [s.key, s]));
+  ctx.stations = lista.map((s) => previas.get(s.key) || s);
+  ctx.loadedKm = km;
+  ctx.log.push('Leídas ' + lista.length + ' gasolineras con ' + FUEL_LABELS[ctx.fuel] +
+    ' en un recuadro de ±' + km.toFixed(1) + ' km (' + Math.round(performance.now() - t0) + ' ms, en memoria)');
+}
+
+function calcLB(ctx, s) {
+  s.lb = ctx.L * s.precio + 2 * s.recta * (ctx.k * s.precio + ctx.v / ctx.vmax);
+}
+
+function calcBest(ctx) {
+  let best = null;
+  for (const s of ctx.stations) if (s.coste != null && (!best || s.coste < best.coste)) best = s;
+  return best;
+}
+
+const fmtCoord = ([lng, lat]) => lng.toFixed(6) + ',' + lat.toFixed(6);
+
+// Una petición /table: del origen a todos los destinos del lote, con distancia y duración. Es lo
+// que da el coste real; /route solo se usa luego para dibujar.
+async function osrmTable(ctx, destinos) {
+  const coords = [ctx.origin, ...destinos.map((s) => [s.lng, s.lat])].map(fmtCoord).join(';');
+  const url = ctx.osrm + '/table/v1/driving/' + coords + '?sources=0&annotations=distance,duration';
+  const t0 = performance.now();
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('OSRM /table respondió ' + res.status);
+  const j = await res.json();
+  if (j.code !== 'Ok') throw new Error('OSRM /table: ' + j.code + (j.message ? ' – ' + j.message : ''));
+  destinos.forEach((s, i) => {
+    const d = j.distances?.[0]?.[i + 1];
+    const t = j.durations?.[0]?.[i + 1];
+    if (d == null || t == null) { s.estado = 'inalcanzable'; return; }
+    s.carretera = d / 1000;
+    s.minutos = t / 60;
+    s.costeViaje = 2 * s.carretera * ctx.k * s.precio + 2 * (s.minutos / 60) * ctx.v;
+    s.coste = ctx.L * s.precio + s.costeViaje;
+    s.estado = 'evaluada';
+  });
+  const ms = Math.round(performance.now() - t0);
+  ctx.osrmCalls.push({ tipo: 'table', destinos: destinos.length, ms, url });
+  return ms;
+}
+
+// Geometría de la ruta a una gasolinera, solo para dibujarla: la de la ganadora al terminar y la
+// de las demás al tocar su tarjeta. Antes se pedían todas de golpe y la ráfaga se comía el
+// limit_req de nginx (los "N sin geometría"). Su distancia puede no coincidir al metro con la de
+// /table; la que cuenta para el coste es la de /table.
+async function calcRuta(ctx, s) {
+  if (s.geom) return true;
+  const url = ctx.osrm + '/route/v1/driving/' + fmtCoord(ctx.origin) + ';' + fmtCoord([s.lng, s.lat]) +
+    '?overview=full&geometries=geojson';
+  const t0 = performance.now();
+  let nota = '';
+  try {
+    const res = await fetch(url);
+    const j = res.ok ? await res.json() : null;
+    if (j?.code === 'Ok') s.geom = j.routes[0].geometry;
+    else nota = 'sin geometría (' + (j?.code || 'HTTP ' + res.status) + ')';
+  } catch { nota = 'sin geometría (sin conexión)'; }
+  ctx.osrmCalls.push({ tipo: 'route', destinos: 1, ms: Math.round(performance.now() - t0), url, nota });
+  return !!s.geom;
+}
+
+async function runCalc() {
+  const num = (el) => Number(String(el.value).replace(',', '.'));
+  const L = num(calcIn.litros);
+  const c = num(calcIn.consumo);
+  const pmin = num(calcIn.pmin);
+  const v = num(calcIn.vtiempo) || 0;
+  const vmax = num(calcIn.vmax);
+  const tope = num(calcIn.tope);
+  const osrm = OSRM_URL;
+  // "Mi ubicación" con una posición vieja (te has movido): se refresca antes de calcular
+  if (calcModo === 'gps' && !(calcUltimaPosicion && Date.now() - calcUltimaPosicion.t < CALC_FIX_MS)) {
+    setCalcStatus('Localizando…');
+    if (!(await usarMiUbicacion())) return;
+  }
+  if (!calcOrigin) return setCalcStatus('Elige primero desde dónde calcular.', true);
+  if (!(pmin > 0)) return setCalcStatus('Falta el precio mínimo en España.', true);
+  if (!(L > 0) || !(c > 0) || !(vmax > 0) || !(tope > 0) || v < 0) return setCalcStatus('Revisa los parámetros: tienen que ser positivos.', true);
+  setCalcPicking(false);
+  saveCalcPrefs();
+
+  const ctx = {
+    origin: calcOrigin.slice(), fuel: selectedFuel, L, c, k: c / 100, pmin, v, vmax, tope, osrm,
+    stations: [], loadedKm: 0, log: [], avisos: [], osrmCalls: [], iteraciones: [], lotes: 0
+  };
+  const t0 = performance.now();
+  calcRunBtn.disabled = true;
+  setCalcStatus('Calculando…');
+  try {
+    // 1. Referencia: las CALC_REF_K de mejor cota más la más cercana en línea recta, con su coste
+    // real. La mejor de ellas es el primer "mejor coste", con el que sale el radio.
+    let r = Math.min(CALC_FIRST_KM, tope);
+    await calcLoadStations(ctx, r);
+    while (ctx.stations.length < CALC_REF_K && r < tope) {
+      r = Math.min(r * 2, tope);
+      await calcLoadStations(ctx, r);
+    }
+    if (!ctx.stations.length) throw new Error('No hay gasolineras con ' + FUEL_LABELS[ctx.fuel] + ' a menos de ' + tope + ' km.');
+    ctx.stations.forEach((s) => calcLB(ctx, s));
+    const porCota = [...ctx.stations].sort((a, b) => a.lb - b.lb);
+    ctx.cercana = ctx.stations.reduce((a, b) => (b.recta < a.recta ? b : a));
+    const referencia = [...new Set([ctx.cercana, ...porCota.slice(0, CALC_REF_K)])];
+    const msRef = await osrmTable(ctx, referencia);
+    let best = calcBest(ctx);
+    if (!best) throw new Error('OSRM no encontró ruta a ninguna de las gasolineras de referencia.');
+    ctx.referenciaInicial = { key: best.key, rotulo: best.rotulo, coste: best.coste };
+    ctx.log.push('Referencia: ' + referencia.length + ' gasolineras (las ' + CALC_REF_K +
+      ' de mejor cota + la más cercana) con OSRM /table (' + msRef + ' ms). Mejor coste: ' +
+      best.coste.toFixed(2) + ' € en ' + best.rotulo);
+
+    // 2. Radio: d_max con p_min, y se repite con el precio mínimo real dentro de ese radio
+    // mientras cambie. Nunca descarta de más: lo de fuera ya no podía ganar, y lo de dentro no
+    // baja de ese mínimo.
+    let p = pmin;
+    for (let i = 0; i < CALC_MAX_ITER; i++) {
+      const dmaxBruto = (best.coste - L * p) / (2 * (ctx.k * p + v / vmax));
+      const dmax = Math.max(0, Math.min(dmaxBruto, tope));
+      await calcLoadStations(ctx, dmax);
+      ctx.stations.forEach((s) => { if (s.lb == null) calcLB(ctx, s); });
+      const dentro = ctx.stations.filter((s) => s.recta <= dmax);
+      const pR = dentro.length ? Math.min(...dentro.map((s) => s.precio)) : p;
+      ctx.iteraciones.push({ p, dmaxBruto, dmax, dentro: dentro.length, pR });
+      ctx.dmax = dmax;
+      if (pR < p - 1e-9) {
+        ctx.avisos.push('El precio mínimo usado (' + p.toFixed(3) + ' €) no es el mínimo real: dentro del radio hay una a ' +
+          pR.toFixed(3) + ' €. Se repite con ese precio, porque con uno más alto el radio se quedaría corto.');
+      }
+      if (Math.abs(pR - p) < 1e-9) break;
+      p = pR;
+    }
+    const ultima = ctx.iteraciones[ctx.iteraciones.length - 1];
+    if (ultima.dmaxBruto > tope) {
+      ctx.avisos.push('El radio teórico (' + ultima.dmaxBruto.toFixed(1) + ' km) supera el tope de ' + tope +
+        ' km: se ha recortado, así que más allá del tope podría haber alguna mejor.');
+    }
+    ctx.log.push('Radio de búsqueda: ' + ctx.dmax.toFixed(2) + ' km tras ' + ctx.iteraciones.length +
+      ' vuelta(s) de ajuste del precio mínimo');
+
+    // 3. Poda: en orden de cota, lotes de /table hasta que la siguiente cota ya no mejora al mejor
+    for (;;) {
+      const pendientes = ctx.stations
+        .filter((s) => s.recta <= ctx.dmax && !s.estado)
+        .sort((a, b) => a.lb - b.lb);
+      const lote = [];
+      for (const s of pendientes) {
+        if (s.lb >= best.coste) break;
+        lote.push(s);
+        if (lote.length === CALC_BATCH) break;
+      }
+      if (!lote.length) break;
+      const ms = await osrmTable(ctx, lote);
+      ctx.lotes++;
+      const antes = best;
+      best = calcBest(ctx);
+      ctx.log.push('Lote ' + ctx.lotes + ': ' + lote.length + ' rutas con /table (' + ms + ' ms), cotas de ' +
+        lote[0].lb.toFixed(2) + ' a ' + lote[lote.length - 1].lb.toFixed(2) + ' €. ' +
+        (best !== antes ? 'Nuevo mejor: ' + best.coste.toFixed(2) + ' € en ' + best.rotulo : 'Sin cambio de mejor'));
+    }
+    const podadas = ctx.stations.filter((s) => s.recta <= ctx.dmax && !s.estado);
+    podadas.forEach((s) => { s.estado = 'podada'; });
+    best.estado = 'mejor';
+    ctx.best = best;
+    ctx.log.push('Podadas por cota sin pedir ruta: ' + podadas.length + ' de ' +
+      ctx.stations.filter((s) => s.recta <= ctx.dmax).length + ' dentro del radio');
+
+    // 4. Ruta de la ganadora para el mapa (las demás, al tocar su tarjeta)
+    if (await calcRuta(ctx, best)) ctx.log.push('Ruta de la ganadora con /route');
+    ctx.ms = Math.round(performance.now() - t0);
+    setCalcStatus('Hecho en ' + ctx.ms + ' ms.');
+  } catch (err) {
+    console.error('Cálculo de repostaje:', err);
+    const cors = err instanceof TypeError
+      ? ' (no se pudo conectar con el servidor de rutas ' + osrm + ')' : '';
+    setCalcStatus('Error: ' + err.message + cors, true);
+    ctx.error = err.message;
+  } finally {
+    calcRunBtn.disabled = false;
+  }
+  calcLast = ctx;
+  calcSelKey = ctx.best?.key ?? null;
+  renderCalc();
+  calcDetailsBtn.hidden = false;
+  drawCalc();
+  if (ctx.best) {
+    console.log('Cálculo de repostaje', calcJSON(ctx));
+    mostrarResultadosCalc(ctx);
+  } else {
+    syncCalcVisibility();
+  }
+}
+
+// Con resultado: el panel se cierra y la tira de abajo pasa a "Compensa ir". El mapa encuadra el
+// origen y la ruta de la ganadora, que es lo que se va a recorrer.
+function mostrarResultadosCalc(ctx) {
+  cheapModo = 'calc';
+  cheapSelectedKey = ctx.best.key;
+  toggleCalcPanel(false);
+  toggleCheapPanel(true);
+  encuadrarCalc(ctx.best);
+}
+
+function encuadrarCalc(s) {
+  const b = new maplibregl.LngLatBounds(calcLast.origin, calcLast.origin);
+  b.extend([s.lng, s.lat]);
+  s.geom?.coordinates.forEach((c) => b.extend(c));
+  map.fitBounds(b, { padding: 60, maxZoom: 15 });
+}
+
+// Tarjeta de la tira o fila de la tabla de detalles: resalta esa gasolinera, pide su ruta si aún
+// no la tiene (una sola petición), encuadra el trayecto y abre su popup.
+async function seleccionarCalc(key, { desdeLista = false } = {}) {
+  const s = calcLast?.stations.find((x) => x.key === key);
+  if (!s) return;
+  calcSelKey = s.key;
+  drawCalc();
+  renderCalc();
+  await calcRuta(calcLast, s);
+  if (calcSelKey !== s.key) return; // mientras llegaba la ruta se tocó otra
+  drawCalc();
+  encuadrarCalc(s);
+  openStationPopup(s.feature, { desdeLista });
+}
+
+// ✕ de "Compensa ir": se olvida el cálculo, se borra lo dibujado y la tira vuelve a las más baratas
+function limpiarCalc() {
+  calcLast = null;
+  calcSelKey = null;
+  cheapModo = 'precio';
+  calcDetailsBtn.hidden = true;
+  setCalcDetalles(false);
+  renderCalc();
+  drawCalc();
+  popup?.remove();
+  syncCalcVisibility();
+  renderCheapList();
+}
+
+// La tira en modo "Compensa ir": solo las gasolineras con coste real (OSRM), por coste. Las podadas
+// no salen: solo tienen una cota optimista y mezclarlas con costes reales engañaría.
+function renderCalcList() {
+  const ctx = calcLast;
+  const calculadas = ctx ? ctx.stations.filter((s) => s.coste != null).sort((a, b) => a.coste - b.coste) : [];
+  const dentro = ctx ? ctx.stations.filter((s) => s.estado).length : 0;
+  cheapTitleEl.textContent = 'Compensa ir · ' + (calcModo === 'gps' ? 'desde tu ubicación' : 'desde el punto elegido');
+  cheapCountEl.textContent = calculadas.length ? calculadas.length + ' calculadas de ' + dentro : '';
+  cheapDetailsBtn.hidden = false;
+  if (!calculadas.length) {
+    cheapFirma = '';
+    cheapListEl.innerHTML = '<div class="cheap-empty">Sin resultados.</div>';
+    return;
+  }
+  // Se rehace en cada movimiento del mapa (applyLabels), y tocar una tarjeta mueve el mapa: con las
+  // mismas tarjetas se conserva el scroll horizontal, igual que en la lista normal.
+  const firma = 'calc|' + calculadas.map((s) => s.key).join('|');
+  const scroll = firma === cheapFirma ? cheapListEl.scrollLeft : 0;
+  cheapFirma = firma;
+  const cer = ctx.cercana?.coste != null ? ctx.cercana : null;
+  cheapListEl.innerHTML = calculadas.map((s) => {
+    const mejor = s === ctx.best;
+    const sel = s.key === cheapSelectedKey;
+    const ahorro = cer && s !== cer ? cer.coste - s.coste : null;
+    const ahorroTxt = s === cer ? ' · la más cercana'
+      : ahorro != null && ahorro > 0.005 ? ' · <span class="calc-ahorro">−' + ahorro.toFixed(2) + ' €</span>'
+      : ahorro != null && ahorro < -0.005 ? ' · +' + (-ahorro).toFixed(2) + ' €' : '';
+    return '<button type="button" class="cheap-row calc-card' + (mejor ? ' es-mejor' : '') + (sel ? ' is-selected' : '') + '"' +
+      ' data-key="' + esc(s.key) + '" aria-pressed="' + sel + '" style="--clase:' + (mejor ? 'var(--primary)' : 'var(--ring)') + '">' +
+      logoMarca(s.feature.properties.brand) +
+      '<span class="cheap-text">' +
+        '<span class="cheap-price">' + (mejor ? '★ ' : '') + s.precio.toFixed(3) + ' €</span>' +
+        '<span class="cheap-name">' + esc(s.rotulo) + '</span>' +
+        '<span class="calc-coste">' + s.coste.toFixed(2) + ' €' + ahorroTxt + '</span>' +
+        '<span class="cheap-meta">' + s.carretera.toFixed(1) + ' km · ' + Math.round(s.minutos) + ' min</span>' +
+      '</span>' +
+    '</button>';
+  }).join('');
+  cheapListEl.scrollLeft = scroll;
+}
+
+// Precio por debajo del cual una gasolinera a d km en línea recta podría ganar al mejor: es la
+// cota igualada al mejor coste, despejando p. Son los "círculos" de la idea original.
+function calcPrecioMax(ctx, d) {
+  return (ctx.best.coste - 2 * d * ctx.v / ctx.vmax) / (ctx.L + 2 * d * ctx.k);
+}
+
+function calcJSON(ctx) {
+  const limpia = (s) => s && {
+    key: s.key, rotulo: s.rotulo, direccion: s.direccion, lng: s.lng, lat: s.lat, precio: s.precio,
+    recta_km: s.recta, cota: s.lb, carretera_km: s.carretera ?? null, minutos: s.minutos ?? null,
+    coste_viaje: s.costeViaje ?? null, coste: s.coste ?? null, estado: s.estado || 'fuera de radio'
+  };
+  return {
+    parametros: {
+      origen: ctx.origin, combustible: ctx.fuel, litros: ctx.L, consumo_l100: ctx.c, p_min: ctx.pmin,
+      valor_tiempo_eur_h: ctx.v, v_max_kmh: ctx.vmax, tope_km: ctx.tope, osrm: ctx.osrm
+    },
+    resultado: { mejor: limpia(ctx.best), cercana: limpia(ctx.cercana), d_max_km: ctx.dmax, ms: ctx.ms, error: ctx.error },
+    pasos: ctx.log,
+    avisos: ctx.avisos,
+    iteraciones_radio: ctx.iteraciones,
+    osrm: ctx.osrmCalls,
+    gasolineras: ctx.stations.map(limpia).sort((a, b) => a.cota - b.cota)
+  };
+}
+
+function renderCalc() {
+  const ctx = calcLast;
+  if (!ctx) { calcOutEl.innerHTML = ''; return; }
+  const eur = (x) => (x == null ? '—' : x.toFixed(2) + ' €');
+  const lit = (x) => x.toFixed(3) + ' €/L';
+  const km = (x) => (x == null ? '—' : x.toFixed(2));
+  let h = '';
+
+  if (ctx.best) {
+    const b = ctx.best;
+    const cer = ctx.cercana;
+    const ahorro = cer?.coste != null && cer !== b ? cer.coste - b.coste : null;
+    h += '<div class="best"><strong>' + esc(b.rotulo) + '</strong> · ' + lit(b.precio) +
+      '<div class="muted">' + esc(b.direccion) + '</div>' +
+      '<div>' + b.carretera.toFixed(2) + ' km y ' + b.minutos.toFixed(1) + ' min por carretera (solo ida)</div>' +
+      '<div>Coste total ' + eur(b.coste) + ' = ' + eur(ctx.L * b.precio) + ' de combustible + ' + eur(b.costeViaje) + ' de viaje</div>' +
+      (cer === b ? '<div class="muted">Es también la más cercana.</div>'
+        : ahorro != null ? '<div>Frente a la más cercana (' + esc(cer.rotulo) + ', ' + lit(cer.precio) + ', ' +
+          eur(cer.coste) + '): ahorras <strong>' + eur(ahorro) + '</strong></div>' : '') +
+      '</div>';
+  }
+
+  if (ctx.avisos.length) h += '<h4>Avisos</h4><ol>' + ctx.avisos.map((a) => '<li class="warn">' + esc(a) + '</li>').join('') + '</ol>';
+
+  h += '<h4>Parámetros</h4><div class="mono">' +
+    'origen = ' + ctx.origin[1].toFixed(5) + ', ' + ctx.origin[0].toFixed(5) + '<br>' +
+    'combustible = ' + esc(FUEL_LABELS[ctx.fuel]) + ' · L = ' + ctx.L + ' · c = ' + ctx.c + ' L/100 km<br>' +
+    'p_min = ' + ctx.pmin + ' · v = ' + ctx.v + ' €/h · v_max = ' + ctx.vmax + ' km/h · tope = ' + ctx.tope + ' km<br>' +
+    'coste = L·p + 2·d·(c/100)·p + 2·t·v<br>' +
+    'cota  = L·p + 2·h·((c/100)·p + v/v_max)</div>' +
+    '<div class="muted">d y t por carretera (OSRM, solo ida, la vuelta se supone igual); h en línea recta. ' +
+    'No se aplica el filtro de marcas.</div>';
+
+  h += '<h4>Pasos</h4><ol>' + ctx.log.map((l) => '<li>' + esc(l) + '</li>').join('') +
+    (ctx.error ? '<li class="warn">' + esc(ctx.error) + '</li>' : '') + '</ol>';
+
+  if (ctx.iteraciones.length) {
+    h += '<h4>Radio de búsqueda</h4><div class="calc-table-wrap"><table><thead><tr>' +
+      '<th>#</th><th>p usado</th><th>d_max teórico</th><th>d_max</th><th>dentro</th><th>p mín. dentro</th></tr></thead><tbody>' +
+      ctx.iteraciones.map((it, i) => '<tr><td>' + (i + 1) + '</td><td style="text-align:right">' + it.p.toFixed(3) +
+        '</td><td>' + it.dmaxBruto.toFixed(2) + ' km</td><td>' + it.dmax.toFixed(2) + ' km</td><td>' + it.dentro +
+        '</td><td style="text-align:right">' + it.pR.toFixed(3) + '</td></tr>').join('') +
+      '</tbody></table></div>';
+  }
+
+  if (ctx.best && ctx.dmax > 0) {
+    const ds = [0.5, 1, 2, 3, 5, 7.5, 10, 15, 20, 30, 50, 75, 100].filter((d) => d <= ctx.dmax);
+    if (!ds.length || ds[ds.length - 1] < ctx.dmax) ds.push(ctx.dmax);
+    h += '<h4>Precio máximo según distancia en línea recta</h4>' +
+      '<div class="muted">Para ganar a la mejor (' + eur(ctx.best.coste) + '), una gasolinera a esa distancia tiene que costar menos de:</div>' +
+      '<div class="mono">' + ds.map((d) => d.toFixed(1) + ' km → ' + calcPrecioMax(ctx, d).toFixed(3) + ' €/L').join('<br>') + '</div>';
+  }
+
+  if (ctx.osrmCalls.length) {
+    h += '<h4>Llamadas a OSRM</h4><ol>' + ctx.osrmCalls.map((o) =>
+      '<li>' + o.tipo + ' · ' + o.destinos + ' destinos · ' + o.ms + ' ms' + (o.nota ? ' · ' + esc(o.nota) : '') +
+      (o.url ? '<br><a class="mono" href="' + esc(o.url) + '" target="_blank" rel="noopener">' +
+        esc(o.url.length > 160 ? o.url.slice(0, 160) + '…' : o.url) + '</a>' : '') + '</li>').join('') + '</ol>';
+  }
+
+  const filas = ctx.stations.filter((s) => s.estado).sort((a, b) => a.lb - b.lb);
+  const fuera = ctx.stations.length - filas.length;
+  if (filas.length) {
+    h += '<h4>Gasolineras (' + filas.length + ', por cota)</h4>' +
+      (fuera ? '<div class="muted">Otras ' + fuera + ' leídas quedan fuera del radio y no se listan (sí en el JSON).</div>' : '') +
+      '<div class="calc-table-wrap"><table><thead><tr><th>#</th><th>Rótulo</th><th>€/L</th><th>recta km</th>' +
+      '<th>cota €</th><th>carr. km</th><th>min</th><th>coste €</th><th>estado</th></tr></thead><tbody>' +
+      filas.slice(0, CALC_MAX_ROWS).map((s, i) =>
+        '<tr data-key="' + esc(s.key) + '"' + (s.key === calcSelKey ? ' class="is-sel"' : '') + '><td>' + (i + 1) +
+        '</td><td title="' + esc(s.rotulo + ' · ' + s.direccion) + '">' + esc(s.rotulo) + '</td><td>' + s.precio.toFixed(3) +
+        '</td><td>' + km(s.recta) + '</td><td>' + s.lb.toFixed(2) + '</td><td>' + km(s.carretera) + '</td><td>' +
+        (s.minutos == null ? '—' : s.minutos.toFixed(1)) + '</td><td>' + (s.coste == null ? '—' : s.coste.toFixed(2)) +
+        '</td><td><span class="calc-st" style="--c:' + CALC_COLORS[s.estado] + '"></span>' + CALC_STATUS_LABEL[s.estado] +
+        '</td></tr>').join('') +
+      '</tbody></table></div>' +
+      (filas.length > CALC_MAX_ROWS ? '<div class="muted">Se muestran las ' + CALC_MAX_ROWS + ' primeras.</div>' : '');
+  }
+
+  h += '<div class="calc-row" style="margin-top:10px"><button id="calc-copy" class="calc-btn" type="button">Copiar JSON</button>' +
+    '<span class="muted">También va a la consola.</span></div>';
+  calcOutEl.innerHTML = h;
+}
+
+// Clic en una fila: resalta su ruta y abre su popup
+calcOutEl.addEventListener('click', async (e) => {
+  if (e.target.closest('#calc-copy')) {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(calcJSON(calcLast), null, 2));
+      setCalcStatus('JSON copiado al portapapeles.');
+    } catch {
+      setCalcStatus('No se pudo copiar; está en la consola.', true);
+      console.log(calcJSON(calcLast));
+    }
+    return;
+  }
+  const fila = e.target.closest('tr[data-key]');
+  if (!fila || !calcLast) return;
+  seleccionarCalc(fila.dataset.key);
+});
+
+function drawCalc() {
+  if (!map.getSource('calc-puntos')) return;
+  const ctx = calcLast;
+  if (!ctx) {
+    ['calc-radio', 'calc-rutas', 'calc-puntos'].forEach((id) => map.getSource(id).setData(CALC_EMPTY));
+    return;
+  }
+  const conEstado = ctx.stations.filter((s) => s.estado);
+  map.getSource('calc-radio').setData({
+    type: 'FeatureCollection',
+    features: ctx.dmax > 0 ? [circlePolygon(ctx.origin, ctx.dmax)] : []
+  });
+  map.getSource('calc-rutas').setData({
+    type: 'FeatureCollection',
+    features: conEstado.filter((s) => s.geom).map((s) => ({
+      type: 'Feature',
+      geometry: s.geom,
+      properties: { estado: s.estado, sel: s.key === calcSelKey ? 1 : 0, orden: s.estado === 'mejor' ? 2 : s.key === calcSelKey ? 3 : 1 }
+    }))
+  });
+  map.getSource('calc-puntos').setData({
+    type: 'FeatureCollection',
+    features: conEstado.map((s) => ({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
+      properties: { estado: s.estado, sel: s.key === calcSelKey ? 1 : 0 }
+    }))
+  });
+}
+
+const CALC_COLOR_MATCH = ['match', ['get', 'estado'], ...Object.entries(CALC_COLORS).flat(), '#94a3b8'];
+
+// Las capas se crean cuando el mapa ya tiene las suyas: el radio y las rutas quedan por debajo de
+// los bocadillos, y los puntos de estado por encima de todo.
+mapReady.then(() => {
+  ['calc-radio', 'calc-rutas', 'calc-puntos'].forEach((id) => map.addSource(id, { type: 'geojson', data: CALC_EMPTY }));
+  const capas = map.getStyle().layers.map((l) => l.id);
+  const debajo = capas.find((id) => id === DOTS_LAYER_ID || id === LAYER_ID);
+  map.addLayer({ id: 'calc-radio-fill', type: 'fill', source: 'calc-radio',
+    paint: { 'fill-color': THEME_PRIMARY, 'fill-opacity': 0.05 } }, debajo);
+  map.addLayer({ id: 'calc-radio-line', type: 'line', source: 'calc-radio',
+    paint: { 'line-color': THEME_PRIMARY, 'line-width': 1.5, 'line-dasharray': [3, 2] } }, debajo);
+  map.addLayer({ id: 'calc-rutas', type: 'line', source: 'calc-rutas',
+    layout: { 'line-cap': 'round', 'line-join': 'round', 'line-sort-key': ['get', 'orden'] },
+    paint: {
+      'line-color': ['case', ['==', ['get', 'sel'], 1], THEME_PRIMARY, CALC_COLOR_MATCH],
+      'line-width': ['case', ['==', ['get', 'sel'], 1], 6, ['==', ['get', 'estado'], 'mejor'], 5, 2.5],
+      'line-opacity': ['case', ['any', ['==', ['get', 'sel'], 1], ['==', ['get', 'estado'], 'mejor']], 0.95, 0.55]
+    } }, debajo);
+  map.addLayer({ id: 'calc-puntos', type: 'circle', source: 'calc-puntos',
+    paint: {
+      'circle-radius': ['case', ['==', ['get', 'sel'], 1], 8, 5],
+      'circle-color': CALC_COLOR_MATCH,
+      'circle-stroke-color': '#ffffff',
+      'circle-stroke-width': ['case', ['==', ['get', 'sel'], 1], 3, 1.5]
+    } });
+  syncCalcVisibility();
+  drawCalc();
+});
 
 // Escuchar el evento cuando el usuario termina de mover o hacer zoom en el mapa
 map.on('moveend', updateMarkers);
