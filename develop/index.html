@@ -387,6 +387,9 @@
     line-height: 1.5;
   }
   #legend-block[hidden] { display: none; }
+  /* Con la lista de las más baratas abierta, la leyenda se quita y la tira ocupa su sitio: filtrar
+     por rango no aporta nada cuando la lista ya ordena por precio lo que hay en pantalla. */
+  #cheap-panel:not([hidden]) ~ #legend-block { display: none; }
   /* Atribución dentro del menú Vista: enlaces discretos pero reconocibles */
   .menu-attrib a { color: inherit; text-decoration: underline; }
   .menu-attrib a:hover { color: var(--foreground); }
@@ -642,17 +645,24 @@
     /* En móvil la columna sale del overlay y pasa al flujo normal: la tira y la leyenda quedan
        como franjas del marco bajo el mapa, igual que ya estaba la leyenda. Así no tapan el mapa ni
        el popup, que es lo que la lista a pantalla completa hacía mal. */
+    /* El hueco de la franja (40px del toggle + 1px de borde + área segura) se reserva desde el
+       principio. Antes la leyenda aparecía al llegar los datos y el mapa daba un salto al
+       encogerse. Solo se libera si el usuario apaga los rangos en Vista (.sin-leyenda). */
     #bottom-stack {
       position: static;
       gap: 0;
       align-items: stretch;
+      min-height: calc(41px + env(safe-area-inset-bottom, 0px));
     }
+    #bottom-stack.sin-leyenda { min-height: 0; }
     /* De tarjeta a franja: sin radio ni sombra, y solo la línea de arriba que la separa del mapa */
     #cheap-panel {
       max-width: none;
       border-width: 1px 0 0;
       border-radius: 0;
       box-shadow: none;
+      /* Ocupa el sitio de la leyenda, que es la que llevaba el área segura del iPhone */
+      padding-bottom: env(safe-area-inset-bottom, 0px);
     }
   }
 
@@ -1431,6 +1441,7 @@ const geolocate = new maplibregl.GeolocateControl({
 });
 map.addControl(geolocate, 'top-right');
 
+const bottomStackEl = document.getElementById('bottom-stack');
 const legendBlockEl = document.getElementById('legend-block');
 const legendTitleEl = document.getElementById('legend-title');
 const legendRowsEl = document.getElementById('legend-rows');
@@ -2049,6 +2060,7 @@ function syncBar() {
 
   // Las casillas del menú son el reflejo del estado, no su dueño: así da igual quién lo cambie.
   viewRangesEl.checked = showRanges;
+  bottomStackEl.classList.toggle('sin-leyenda', !showRanges);
   viewAllMarkersEl.checked = showAllMarkers;
 }
 
