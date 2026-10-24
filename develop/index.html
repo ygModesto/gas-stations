@@ -645,18 +645,25 @@
     /* En móvil la columna sale del overlay y pasa al flujo normal: la tira y la leyenda quedan
        como franjas del marco bajo el mapa, igual que ya estaba la leyenda. Así no tapan el mapa ni
        el popup, que es lo que la lista a pantalla completa hacía mal. */
-    /* El hueco de la franja (40px del toggle + 1px de borde + área segura) se reserva desde el
-       principio. Antes la leyenda aparecía al llegar los datos y el mapa daba un salto al
-       encogerse. Solo se libera si el usuario apaga los rangos en Vista (.sin-leyenda). */
+    /* El alto de la franja es fijo: el de la leyenda (40px del toggle + 1px de borde + área
+       segura), o nada si el usuario apaga los rangos en Vista (.sin-leyenda). Así el mapa no
+       cambia de tamaño cuando aparece la leyenda ni cuando se abre la lista. */
     #bottom-stack {
-      position: static;
+      position: relative;
+      inset: auto; /* sin los desplazamientos del overlay de escritorio, que relative sí aplica */
       gap: 0;
       align-items: stretch;
-      min-height: calc(41px + env(safe-area-inset-bottom, 0px));
+      height: calc(41px + env(safe-area-inset-bottom, 0px));
     }
-    #bottom-stack.sin-leyenda { min-height: 0; }
+    #bottom-stack.sin-leyenda { height: 0; }
     /* De tarjeta a franja: sin radio ni sombra, y solo la línea de arriba que la separa del mapa */
+    /* La lista es más alta que la franja: se ancla abajo y crece hacia arriba tapando el borde
+       inferior del mapa. Si lo encogiera, MapLibre conservaría el centro y el mapa entero subiría. */
     #cheap-panel {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
       max-width: none;
       border-width: 1px 0 0;
       border-radius: 0;
@@ -1375,11 +1382,19 @@ window.__boot = (() => {
 
   <!-- Leyenda: en móvil, franja a todo el ancho y opaca, como parte del marco, para que no se vea
        mapa detrás. -->
-  <div id="legend-block" hidden>
+  <div id="legend-block">
     <!-- Sin título visible: el combustible ya lo dice su botón. Se queda para lectores de pantalla,
          que es quien da nombre al grupo de toggles. -->
-    <div id="legend-title" class="sr-only"></div>
-    <div id="legend-rows" class="toggle-group" role="group" aria-labelledby="legend-title"></div>
+    <div id="legend-title" class="sr-only">Precio en la zona</div>
+    <!-- Los cuatro tramos van ya en el HTML, sin cifras, para que la franja salga con sus casillas
+         desde el primer pintado y no vacía mientras se descargan MapLibre y los datos. Los colores
+         son los de PRICE_COLORS; updateLegend los reescribe en cuanto arranca el JS. -->
+    <div id="legend-rows" class="toggle-group" role="group" aria-labelledby="legend-title">
+      <button type="button" class="toggle" data-value="badge-0" aria-pressed="true"><span class="legend-check" style="--c:#00a975" aria-hidden="true"></span><span><span class="range"><span>–</span></span></span></button>
+      <button type="button" class="toggle" data-value="badge-1" aria-pressed="true"><span class="legend-check" style="--c:#15803d" aria-hidden="true"></span><span><span class="range"><span>–</span></span></span></button>
+      <button type="button" class="toggle" data-value="badge-2" aria-pressed="true"><span class="legend-check" style="--c:#d97706" aria-hidden="true"></span><span><span class="range"><span>–</span></span></span></button>
+      <button type="button" class="toggle" data-value="badge-3" aria-pressed="true"><span class="legend-check" style="--c:#e11d48" aria-hidden="true"></span><span><span class="range"><span>–</span></span></span></button>
+    </div>
   </div>
 </div>
 
@@ -2187,6 +2202,9 @@ viewAllMarkersEl.addEventListener('change', () => {
 });
 
 syncBar();
+// La leyenda sin cifras, ya con los tramos que el usuario dejó apagados (o oculta si quitó los
+// rangos), hasta que lleguen los precios.
+updateLegend(null, []);
 
 // Precio centinela de las gasolineras que no sirven el combustible seleccionado. Al ser mayor que
 // cualquier precio real, son las últimas en la prioridad de colisión: si compiten por el sitio con
