@@ -1458,7 +1458,9 @@ const mapReady = new Promise((resolve) => { marcarMapaListo = resolve; });
 // El maxZoom por defecto del control es 15, y a ese nivel la ventana es de ~1,4 x 2,3 km: sobre los
 // datos de MITECO, más de la mitad de las posiciones se quedan con menos de 3 gasolineras a la
 // vista, y por debajo de 4 con precio ni siquiera hay escala de color (ver MIN_FOR_CLASSES).
-// Con 13 la ventana pasa a ~5,7 x 9,3 km y la mediana sube a 8 gasolineras.
+// Con 13 la ventana pasa a ~5,7 x 9,3 km y la mediana sube a 8 gasolineras. Ese vuelo solo dura
+// un instante: al recibir la posición se sustituye por el de zoomParaVerGasolineras, que ajusta el
+// zoom a las gasolineras que haya alrededor.
 const geolocate = new maplibregl.GeolocateControl({
   // maximumAge: cuando el arranque fue por "Usar mi ubicación", el fix ya se pidió al pulsar el
   // botón (ver window.__boot) y aquí solo hace falta volver a leerlo para volar y pintar el punto
@@ -1809,6 +1811,43 @@ async function filtrarPorPortalExistente(vias, numero) {
   return resultados.filter(Boolean);
 }
 
+// --- Encuadre al llegar a un sitio ---
+// Al ir a una dirección o a la ubicación del usuario, el zoom se ajusta para que se vean al menos
+// MIN_FOR_CLASSES gasolineras de las que pinta el mapa: con precio del combustible elegido y de
+// las marcas marcadas (los rangos no cuentan: dependen de lo que haya a la vista). Con menos no
+// hay escala de color y la vista no sirve para comparar. El zoom fijo de antes (15 en una calle,
+// 13 con la ubicación) dejaba a menudo una o ninguna. Recorrer las ~12.000 en memoria cuesta en
+// torno a 1 ms.
+const ENCUADRE_ZOOM_MIN = 10; // en una zona vacía, no alejarse más allá de media provincia
+const ENCUADRE_PADDING = 60;  // que no queden pegadas al borde ni bajo la barra y los botones
+
+// zoomMax es el de antes de esto: si ya se ven bastantes, no se acerca más.
+async function zoomParaVerGasolineras(lng, lat, zoomMax) {
+  let todas;
+  try { todas = await cargarGasolineras(); } catch { return zoomMax; }
+  // Las distancias de las MIN_FOR_CLASSES más cercanas, de menor a mayor
+  const cercanas = [];
+  for (const f of todas) {
+    const p = f.properties;
+    if (!p[selectedFuel] || !selectedBrands.has(brandOf(p))) continue;
+    const [fLng, fLat] = f.geometry.coordinates;
+    const d = distanciaKm(lng, lat, fLng, fLat);
+    if (cercanas.length === MIN_FOR_CLASSES && d >= cercanas[MIN_FOR_CLASSES - 1]) continue;
+    cercanas.push(d);
+    cercanas.sort((a, b) => a - b);
+    if (cercanas.length > MIN_FOR_CLASSES) cercanas.pop();
+  }
+  if (!cercanas.length) return zoomMax; // ninguna con precio (p.ej. sin marcas marcadas)
+  // Un cuadrado centrado en el punto que llega hasta la más lejana de ellas: así el punto sigue en
+  // el centro y caben todas sea cual sea su dirección.
+  const radio = cercanas[cercanas.length - 1];
+  const dLat = radio / 111.32;
+  const dLng = radio / (111.32 * Math.cos(lat * Math.PI / 180));
+  const camara = map.cameraForBounds([[lng - dLng, lat - dLat], [lng + dLng, lat + dLat]], { padding: ENCUADRE_PADDING });
+  if (!camara) return zoomMax; // el mapa es más pequeño que el margen
+  return Math.max(ENCUADRE_ZOOM_MIN, Math.min(zoomMax, camara.zoom));
+}
+
 // Vuela al punto elegido: al portal exacto si se detectó un número y la vía lo tiene, o si no al
 // centroide de la vía (ya viene en el resultado de /buscar). El 'moveend' del vuelo ya dispara
 // updateMarkers(), así que no hace falta llamarlo aquí. Devuelve la etiqueta ya formada: cada
@@ -1840,7 +1879,7 @@ async function flyToAddress(via, numero) {
     .setLngLat([lon, lat])
     .setPopup(new maplibregl.Popup().setHTML(esc(etiqueta) + '<br>' + esc(subtitulo)))
     .addTo(map);
-  map.flyTo({ center: [lon, lat], zoom: esMunicipio ? 12 : 15 });
+  map.flyTo({ center: [lon, lat], zoom: await zoomParaVerGasolineras(lon, lat, esMunicipio ? 12 : 15) });
   programarDesvanecidoMarcador(addressMarker);
   return etiqueta;
 }
@@ -2066,10 +2105,17 @@ function programarDesvanecidoPrecision() {
 // Éxito: cierra la pantalla de arranque igual con el disparo manual que con el automático de
 // map.on('load'). El error de la geolocalización pedida desde la pantalla lo pinta el propio
 // script inline, que es quien llamó a getCurrentPosition.
-geolocate.on('geolocate', () => {
+geolocate.on('geolocate', async (e) => {
   boot.recordarPermiso();
   hideStartOverlay();
   programarDesvanecidoPrecision();
+  // El control ya ha empezado a volar con su zoom fijo (fitBoundsOptions) justo antes de avisar.
+  // Este vuelo lo sustituye por el que deja ver gasolineras (ver zoomParaVerGasolineras). Con los
+  // datos ya en memoria, que es lo normal, llega antes del siguiente fotograma y no se nota el
+  // primero; si aún se están descargando, corrige el zoom al terminar.
+  const { longitude, latitude } = e.coords;
+  const zoom = await zoomParaVerGasolineras(longitude, latitude, 15);
+  map.flyTo({ center: [longitude, latitude], zoom });
 });
 
 // Con los menús cerrados no se ve ningún control, así que las etiquetas tienen que decir qué se
