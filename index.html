@@ -1893,7 +1893,7 @@ async function flyToAddress(via, numero) {
     .setLngLat([lon, lat])
     .setPopup(new maplibregl.Popup().setHTML(esc(etiqueta) + '<br>' + esc(subtitulo)))
     .addTo(map);
-  map.flyTo({ center: [lon, lat], zoom: await zoomParaVerGasolineras(lon, lat, esMunicipio ? 12 : 15) });
+  irA({ center: [lon, lat], zoom: await zoomParaVerGasolineras(lon, lat, esMunicipio ? 12 : 15) });
   programarDesvanecidoMarcador(addressMarker);
   return etiqueta;
 }
@@ -2084,6 +2084,23 @@ createAddressSearch({
 // vez contra mapReady y además cada vez que el usuario elige (boot.onElegir). El flag evita que
 // una segunda llamada deshaga lo que ya se puso en marcha.
 let arranqueResuelto = false;
+
+// ¿Se sabe ya qué enseñar? Hasta entonces updateMarkers no pinta nada (ver allí). Lo ponen a true
+// los desenlaces del arranque: el vuelo a una dirección o a la ubicación (irA), "Ver todo el
+// país" y el fallo de la geolocalización.
+let destinoDecidido = false;
+
+// Vuelo al sitio elegido. El indicador se pone DESPUÉS de flyTo a propósito: si había otro vuelo en
+// marcha (el del control de ubicación, que el nuestro sustituye), flyTo lo corta y eso emite un
+// 'moveend' en la vista de partida -- a zoom 6, toda España -- que así se ignora. El 'moveend' del
+// final del vuelo es el que pinta. Si flyTo no llega a moverse (ya estaba ahí, o con movimiento
+// reducido salta sin animar), no habrá 'moveend' que valga y se pinta aquí.
+function irA(opciones) {
+  map.flyTo(opciones);
+  destinoDecidido = true;
+  if (!map.isMoving()) updateMarkers();
+}
+
 function resolverArranque() {
   if (arranqueResuelto) return;
   if (boot.posicion) {
@@ -2094,6 +2111,7 @@ function resolverArranque() {
     geolocate.trigger();
   } else if (boot.verPais) {
     arranqueResuelto = true;
+    destinoDecidido = true;
     updateMarkers(); // sin flyTo de por medio no hay 'moveend' que lo dispare solo
   }
 }
@@ -2129,7 +2147,7 @@ geolocate.on('geolocate', async (e) => {
   // primero; si aún se están descargando, corrige el zoom al terminar.
   const { longitude, latitude } = e.coords;
   const zoom = await zoomParaVerGasolineras(longitude, latitude, 15);
-  map.flyTo({ center: [longitude, latitude], zoom });
+  irA({ center: [longitude, latitude], zoom });
 });
 
 // Con los menús cerrados no se ve ningún control, así que las etiquetas tienen que decir qué se
@@ -3060,13 +3078,14 @@ map.on('load', async () => {
   if (await boot.yaTeniaPermiso) {
     autoLocating = geolocate.trigger();
     // trigger() devuelve false si el control no estuviera listo; sin esto no se cargaría nada.
-    if (!autoLocating && !arranqueResuelto) { arranqueResuelto = true; updateMarkers(); }
+    if (!autoLocating && !arranqueResuelto) { arranqueResuelto = true; destinoDecidido = true; updateMarkers(); }
   }
   // Si la geolocalización falla (GPS caído, etc.), no dejamos el mapa vacío: ni tras concederse de
   // antemano, ni al venir de "Usar mi ubicación" con la pantalla ya cerrada.
   geolocate.on('error', (e) => {
     if (e.code === 1) boot.olvidarPermiso(); // PERMISSION_DENIED: la próxima vez vuelve a salir la pantalla
     autoLocating = false;
+    destinoDecidido = true;
     updateMarkers();
   });
 });
@@ -3112,19 +3131,18 @@ let markersReq = 0;
 
 // 5. Pintar las gasolineras visibles, filtradas de las que ya están en memoria
 async function updateMarkers() {
+  // Hasta saber adónde ir (ver destinoDecidido) no se pinta nada: ni con la pantalla de arranque
+  // abierta ni mientras se espera la ubicación. Sin esto, cualquier 'moveend' de fondo cargaba la
+  // vista inicial de toda España antes de elegir o de volar: MapLibre lo emite al redimensionarse
+  // (el teclado del buscador, la barra de Firefox Focus) y al cortar un vuelo con otro. Se mira lo
+  // primero, antes de cualquier await: lo que cuenta es si estaba decidido cuando llegó el
+  // 'moveend', no después (irA lo pone a true justo tras cortar el vuelo anterior).
+  if (!destinoDecidido) return;
   // Red de seguridad: sin la fuente ni las capas creadas (map.on('load')) no hay dónde pintar, y
   // ahora la pantalla de arranque responde mucho antes de que eso ocurra. Los caminos conocidos ya
   // esperan por su cuenta (resolverArranque, flyToAddress), pero esto cubre cualquier 'moveend'
   // temprano sin tener que acordarse de ello en cada sitio.
   await mapReady;
-  // Con la pantalla de arranque abierta no se carga nada: manda ella. Sin esto, cualquier 'moveend'
-  // de fondo la adelantaba y salía toda España antes de elegir: MapLibre lo emite también al
-  // redimensionarse, y la ventana cambia de alto cuando el teclado se abre para el buscador o
-  // cuando el navegador (Firefox Focus) muestra u oculta su barra. Cerrarla ya pone en marcha la
-  // carga por su lado (resolverArranque, flyToAddress). Se espera a yaTeniaPermiso porque es quien
-  // decide si la pantalla llega a salir.
-  await boot.yaTeniaPermiso;
-  if (!boot.overlayEl.hidden) return;
   const req = ++markersReq;
   let todas;
   try {
