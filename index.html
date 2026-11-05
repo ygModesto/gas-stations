@@ -9,7 +9,6 @@
 ></script>
 <script data-goatcounter="https://ygmodesto.goatcounter.com/count"
         async src="https://gc.zgo.at/count.js"></script>
-<script>setTimeout(() => { throw new Error("Prueba Sentry"); }, 2000);</script>
 
 <title>Buscador de Gasolineras en España</title>
 
@@ -375,7 +374,9 @@
     position: absolute;
     bottom: calc(10px + env(safe-area-inset-bottom, 0px));
     left: 10px;
-    right: 42px;
+    /* Deja libre la columna de controles de la derecha, con el botón de ubicación abajo (36 px más
+       los 10 px de margen del mapa, y un poco de aire) */
+    right: 56px;
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -664,6 +665,9 @@
       height: calc(41px + env(safe-area-inset-bottom, 0px));
     }
     #bottom-stack.sin-leyenda { height: 0; }
+    /* El botón de ubicación (abajo a la derecha) sube lo que la tira de la lista sobresale de la
+       franja: sin esto, abrir la lista lo dejaba tapado. --panel-solape lo fija syncPanelSolape. */
+    #map .maplibregl-ctrl-bottom-right { bottom: var(--panel-solape, 0px); transition: bottom 0.15s; }
     /* De tarjeta a franja: sin radio ni sombra, y solo la línea de arriba que la separa del mapa */
     /* La lista es más alta que la franja: se ancla abajo y crece hacia arriba tapando el borde
        inferior del mapa. Si lo encogiera, MapLibre conservaría el centro y el mapa entero subiría. */
@@ -1321,7 +1325,6 @@ window.__boot = (() => {
       <div id="calc-form" class="calc-form" hidden>
         <label>Litros a repostar<input id="calc-litros" type="number" min="1" step="1" value="40" /></label>
         <label>Consumo (L/100 km)<input id="calc-consumo" type="number" min="0.1" step="0.1" value="6" /></label>
-        <label>Precio mínimo en España (€/L)<input id="calc-pmin" type="number" min="0" step="0.001" placeholder="p. ej. 1.490" /></label>
         <label>Valor del tiempo (€/h)<input id="calc-vtiempo" type="number" min="0" step="1" value="0" /></label>
         <label>Velocidad máx. para la cota (km/h)<input id="calc-vmax" type="number" min="1" step="1" value="120" /></label>
         <label>Tope de radio (km)<input id="calc-tope" type="number" min="1" step="1" value="100" /></label>
@@ -1469,7 +1472,9 @@ const geolocate = new maplibregl.GeolocateControl({
   trackUserLocation: false,
   showUserLocation: true
 });
-map.addControl(geolocate, 'top-right');
+// Abajo a la derecha, como en Google Maps: es el botón que se usa con el pulgar. En la columna de
+// arriba quedan la lista y la calculadora.
+map.addControl(geolocate, 'bottom-right');
 
 const bottomStackEl = document.getElementById('bottom-stack');
 const legendBlockEl = document.getElementById('legend-block');
@@ -2589,6 +2594,16 @@ function toggleCheapPanel(abrir) {
 
 // En "Compensa ir", el ✕ termina con el cálculo (borra lo dibujado) y la tira vuelve a ser la de
 // las más baratas; en la lista normal, la cierra.
+// Cuánto sobresale la tira de la lista por encima de la franja del marco (solo en móvil, donde la
+// tira es absoluta y tapa el borde del mapa; en escritorio va dentro de la columna y da 0).
+// Se recalcula al cambiar su alto: al abrirla, al cerrarla y al pasar de una lista a otra.
+function syncPanelSolape() {
+  const solape = Math.max(0, cheapPanelEl.offsetHeight - bottomStackEl.offsetHeight);
+  document.getElementById('map').style.setProperty('--panel-solape', solape + 'px');
+}
+new ResizeObserver(syncPanelSolape).observe(cheapPanelEl);
+new ResizeObserver(syncPanelSolape).observe(bottomStackEl);
+
 cheapCloseBtn.addEventListener('click', () => {
   if (cheapModo === 'calc') limpiarCalc();
   else toggleCheapPanel(false);
@@ -3052,11 +3067,15 @@ async function updateMarkers() {
 // real encontrado, s se descarta sin pedir ruta. Y como ninguna gasolinera baja de p_min, más allá
 // de este radio (en línea recta) ninguna puede ganar:
 //   d_max = (mejor − L·p_min) / (2·((c/100)·p_min + v/v_max))
+// p_min sale de los datos: el precio más bajo entre las gasolineras dentro del tope de radio, que
+// es todo lo que se considera, así que la cota sigue siendo exacta (más allá del tope no se busca).
 // Todo se calcula alrededor del origen elegido, no de lo que se ve en pantalla.
 
 const CALC_PREFS_KEY = 'gasolineras:calc';
 const CALC_REF_K = 5;         // candidatas (las de mejor cota) con las que se fija la referencia
-const CALC_FIRST_KM = 5;      // primer radio de búsqueda de la referencia; se dobla si no llega
+// Por debajo de esto un precio se toma por error de MITECO (un 0,999 tecleado de más, p. ej.) y la
+// gasolinera se ignora: hundiría p_min y el radio saldría enorme. Ningún combustible baja de aquí.
+const CALC_PRECIO_SUELO = 0.8;
 const CALC_BATCH = 25;        // destinos por petición /table
 const CALC_MAX_ITER = 8;      // vueltas de ajuste de p_min y d_max
 const CALC_FIX_MS = 120000;   // una posición GPS de hace menos de esto se reaprovecha
@@ -3082,7 +3101,6 @@ const calcPanelEl = document.getElementById('calc-panel');
 const calcIn = {
   litros: document.getElementById('calc-litros'),
   consumo: document.getElementById('calc-consumo'),
-  pmin: document.getElementById('calc-pmin'),
   vtiempo: document.getElementById('calc-vtiempo'),
   vmax: document.getElementById('calc-vmax'),
   tope: document.getElementById('calc-tope')
@@ -3119,10 +3137,9 @@ function saveCalcPrefs() {
 // La línea que resume los parámetros, para no tener el formulario abierto en cada cálculo
 function syncCalcSummary() {
   const v = (el) => String(el.value).replace(',', '.');
-  const pmin = Number(v(calcIn.pmin));
   const vt = Number(v(calcIn.vtiempo)) || 0;
-  calcSummaryEl.textContent = v(calcIn.litros) + ' L · ' + v(calcIn.consumo) + ' L/100 km · ' +
-    (pmin > 0 ? 'mín. ' + pmin.toFixed(3) + ' €' : 'falta el precio mínimo') + (vt > 0 ? ' · ' + vt + ' €/h' : '');
+  calcSummaryEl.textContent = v(calcIn.litros) + ' L · ' + v(calcIn.consumo) + ' L/100 km' +
+    (vt > 0 ? ' · ' + vt + ' €/h' : '');
 }
 function setCalcParamsAbiertos(abrir) {
   calcFormEl.hidden = !abrir;
@@ -3257,8 +3274,6 @@ try {
 } catch { /* preferencias corruptas o inaccesibles: valores por defecto */ }
 syncCalcSummary();
 syncCalcOriginUI();
-// Sin precio mínimo no se puede calcular: el formulario sale abierto para rellenarlo
-if (!(Number(String(calcIn.pmin.value).replace(',', '.')) > 0)) setCalcParamsAbiertos(true);
 Object.values(calcIn).forEach((el) => el.addEventListener('change', () => { saveCalcPrefs(); syncCalcSummary(); }));
 
 calcGpsBtn.addEventListener('click', () => usarMiUbicacion());
@@ -3365,20 +3380,25 @@ function circlePolygon([lng, lat], km) {
   return { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [anillo] } };
 }
 
-// Saca de las gasolineras en memoria (ver cargarGasolineras) las que tienen el combustible pedido
-// en un recuadro de ±km alrededor del origen. Solo amplía: si ya se sacó un recuadro mayor, no
-// repite. Las que repiten conservan lo ya calculado.
-async function calcLoadStations(ctx, km) {
-  if (km <= ctx.loadedKm) return;
+// El ÚNICO recorrido por las ~11.400 gasolineras en memoria (ver cargarGasolineras): se quedan las
+// que tienen el combustible dentro del tope de radio, ya con su distancia en línea recta y su cota,
+// y de paso sale p_min (la más barata de ellas). Todo lo demás trabaja sobre esta lista, ~1.000
+// con el tope de 100 km.
+async function calcCandidatas(ctx) {
   const t0 = performance.now();
+  const recuadro = bboxAround(ctx.origin, ctx.tope); // filtro barato antes del haversine
   const lista = [];
-  const recuadro = bboxAround(ctx.origin, km);
+  let minima = null;
+  let sospechosas = 0;
   for (const f of await cargarGasolineras()) {
     if (!featureInBbox(f, recuadro)) continue;
     const precio = Number(f.properties[ctx.fuel]);
     if (!precio) continue;
+    if (precio < CALC_PRECIO_SUELO) { sospechosas++; continue; }
     const [lng, lat] = f.geometry.coordinates;
-    lista.push({
+    const recta = distanciaKm(ctx.origin[0], ctx.origin[1], lng, lat);
+    if (recta > ctx.tope) continue; // el recuadro es un cuadrado; el tope, un círculo
+    const s = {
       key: claveEstacion(f),
       feature: f,
       lng,
@@ -3386,24 +3406,22 @@ async function calcLoadStations(ctx, km) {
       precio,
       rotulo: f.properties.rotulo || 'Gasolinera',
       direccion: String(f.properties.direccion ?? '').replace(/[\s,]+$/, ''),
-      recta: distanciaKm(ctx.origin[0], ctx.origin[1], lng, lat)
-    });
+      recta,
+      lb: ctx.L * precio + 2 * recta * (ctx.k * precio + ctx.v / ctx.vmax)
+    };
+    lista.push(s);
+    if (!minima || precio < minima.precio) minima = s;
   }
-  const previas = new Map(ctx.stations.map((s) => [s.key, s]));
-  ctx.stations = lista.map((s) => previas.get(s.key) || s);
-  ctx.loadedKm = km;
-  ctx.log.push('Leídas ' + lista.length + ' gasolineras con ' + FUEL_LABELS[ctx.fuel] +
-    ' en un recuadro de ±' + km.toFixed(1) + ' km (' + Math.round(performance.now() - t0) + ' ms, en memoria)');
-}
-
-function calcLB(ctx, s) {
-  s.lb = ctx.L * s.precio + 2 * s.recta * (ctx.k * s.precio + ctx.v / ctx.vmax);
-}
-
-function calcBest(ctx) {
-  let best = null;
-  for (const s of ctx.stations) if (s.coste != null && (!best || s.coste < best.coste)) best = s;
-  return best;
+  ctx.stations = lista;
+  ctx.pmin = minima?.precio ?? null;
+  ctx.pminDe = minima;
+  ctx.log.push('Leídas ' + lista.length + ' gasolineras con ' + FUEL_LABELS[ctx.fuel] + ' a menos de ' + ctx.tope +
+    ' km (' + Math.round(performance.now() - t0) + ' ms, en memoria)' +
+    (minima ? '. p_min = ' + minima.precio.toFixed(3) + ' €, en ' + minima.rotulo + ' a ' + minima.recta.toFixed(1) + ' km' : ''));
+  if (sospechosas) {
+    ctx.avisos.push(sospechosas + ' gasolinera(s) con un precio por debajo de ' + CALC_PRECIO_SUELO.toFixed(2) +
+      ' €/L se han ignorado: casi seguro es un error en los datos de MITECO.');
+  }
 }
 
 const fmtCoord = ([lng, lat]) => lng.toFixed(6) + ',' + lat.toFixed(6);
@@ -3457,7 +3475,6 @@ async function runCalc() {
   const num = (el) => Number(String(el.value).replace(',', '.'));
   const L = num(calcIn.litros);
   const c = num(calcIn.consumo);
-  const pmin = num(calcIn.pmin);
   const v = num(calcIn.vtiempo) || 0;
   const vmax = num(calcIn.vmax);
   const tope = num(calcIn.tope);
@@ -3468,34 +3485,42 @@ async function runCalc() {
     if (!(await usarMiUbicacion())) return;
   }
   if (!calcOrigin) return setCalcStatus('Elige primero desde dónde calcular.', true);
-  if (!(pmin > 0)) return setCalcStatus('Falta el precio mínimo en España.', true);
   if (!(L > 0) || !(c > 0) || !(vmax > 0) || !(tope > 0) || v < 0) return setCalcStatus('Revisa los parámetros: tienen que ser positivos.', true);
   setCalcPicking(false);
   saveCalcPrefs();
 
   const ctx = {
-    origin: calcOrigin.slice(), fuel: selectedFuel, L, c, k: c / 100, pmin, v, vmax, tope, osrm,
-    stations: [], loadedKm: 0, log: [], avisos: [], osrmCalls: [], iteraciones: [], lotes: 0
+    origin: calcOrigin.slice(), fuel: selectedFuel, L, c, k: c / 100, pmin: null, pminDe: null, v, vmax, tope, osrm,
+    stations: [], log: [], avisos: [], osrmCalls: [], iteraciones: [], lotes: 0
   };
   const t0 = performance.now();
   calcRunBtn.disabled = true;
   setCalcStatus('Calculando…');
   try {
+    // 0. Candidatas y p_min, en un solo recorrido. Se ordenan dos veces y ya no se vuelven a
+    // recorrer enteras: por distancia (con el precio mínimo acumulado, para el radio) y por cota
+    // (para la poda).
+    await calcCandidatas(ctx);
+    if (!ctx.stations.length) throw new Error('No hay gasolineras con ' + FUEL_LABELS[ctx.fuel] + ' a menos de ' + tope + ' km.');
+    const porDistancia = [...ctx.stations].sort((a, b) => a.recta - b.recta);
+    const minimoHasta = new Float64Array(porDistancia.length); // el más barato entre las i+1 más cercanas
+    porDistancia.forEach((s, i) => { minimoHasta[i] = i ? Math.min(minimoHasta[i - 1], s.precio) : s.precio; });
+    // Cuántas hay a menos de d km y el precio más barato entre ellas: búsqueda binaria, sin recorrer
+    const dentroDe = (d) => {
+      let lo = 0;
+      let hi = porDistancia.length;
+      while (lo < hi) { const m = (lo + hi) >> 1; if (porDistancia[m].recta <= d) lo = m + 1; else hi = m; }
+      return { n: lo, precio: lo ? minimoHasta[lo - 1] : null };
+    };
+    const porCota = [...ctx.stations].sort((a, b) => a.lb - b.lb);
+    const mejorDe = (lista, actual) => lista.reduce((m, x) => (x.coste != null && (!m || x.coste < m.coste) ? x : m), actual);
+
     // 1. Referencia: las CALC_REF_K de mejor cota más la más cercana en línea recta, con su coste
     // real. La mejor de ellas es el primer "mejor coste", con el que sale el radio.
-    let r = Math.min(CALC_FIRST_KM, tope);
-    await calcLoadStations(ctx, r);
-    while (ctx.stations.length < CALC_REF_K && r < tope) {
-      r = Math.min(r * 2, tope);
-      await calcLoadStations(ctx, r);
-    }
-    if (!ctx.stations.length) throw new Error('No hay gasolineras con ' + FUEL_LABELS[ctx.fuel] + ' a menos de ' + tope + ' km.');
-    ctx.stations.forEach((s) => calcLB(ctx, s));
-    const porCota = [...ctx.stations].sort((a, b) => a.lb - b.lb);
-    ctx.cercana = ctx.stations.reduce((a, b) => (b.recta < a.recta ? b : a));
+    ctx.cercana = porDistancia[0];
     const referencia = [...new Set([ctx.cercana, ...porCota.slice(0, CALC_REF_K)])];
     const msRef = await osrmTable(ctx, referencia);
-    let best = calcBest(ctx);
+    let best = mejorDe(referencia, null);
     if (!best) throw new Error('OSRM no encontró ruta a ninguna de las gasolineras de referencia.');
     ctx.referenciaInicial = { key: best.key, rotulo: best.rotulo, coste: best.coste };
     ctx.log.push('Referencia: ' + referencia.length + ' gasolineras (las ' + CALC_REF_K +
@@ -3504,21 +3529,16 @@ async function runCalc() {
 
     // 2. Radio: d_max con p_min, y se repite con el precio mínimo real dentro de ese radio
     // mientras cambie. Nunca descarta de más: lo de fuera ya no podía ganar, y lo de dentro no
-    // baja de ese mínimo.
-    let p = pmin;
+    // baja de ese mínimo. p_min es el mínimo de todas las candidatas, así que el precio de cada
+    // vuelta solo puede subir (y el radio, encoger).
+    let p = ctx.pmin;
     for (let i = 0; i < CALC_MAX_ITER; i++) {
       const dmaxBruto = (best.coste - L * p) / (2 * (ctx.k * p + v / vmax));
       const dmax = Math.max(0, Math.min(dmaxBruto, tope));
-      await calcLoadStations(ctx, dmax);
-      ctx.stations.forEach((s) => { if (s.lb == null) calcLB(ctx, s); });
-      const dentro = ctx.stations.filter((s) => s.recta <= dmax);
-      const pR = dentro.length ? Math.min(...dentro.map((s) => s.precio)) : p;
-      ctx.iteraciones.push({ p, dmaxBruto, dmax, dentro: dentro.length, pR });
+      const dentro = dentroDe(dmax);
+      const pR = dentro.precio ?? p;
+      ctx.iteraciones.push({ p, dmaxBruto, dmax, dentro: dentro.n, pR });
       ctx.dmax = dmax;
-      if (pR < p - 1e-9) {
-        ctx.avisos.push('El precio mínimo usado (' + p.toFixed(3) + ' €) no es el mínimo real: dentro del radio hay una a ' +
-          pR.toFixed(3) + ' €. Se repite con ese precio, porque con uno más alto el radio se quedaría corto.');
-      }
       if (Math.abs(pR - p) < 1e-9) break;
       p = pR;
     }
@@ -3530,32 +3550,36 @@ async function runCalc() {
     ctx.log.push('Radio de búsqueda: ' + ctx.dmax.toFixed(2) + ' km tras ' + ctx.iteraciones.length +
       ' vuelta(s) de ajuste del precio mínimo');
 
-    // 3. Poda: en orden de cota, lotes de /table hasta que la siguiente cota ya no mejora al mejor
+    // 3. Poda: en orden de cota (porCota ya está ordenada, se avanza con un puntero), lotes de
+    // /table hasta que la siguiente cota ya no mejora al mejor. Como el mejor solo puede bajar, en
+    // cuanto una cota lo alcanza, todas las que vienen detrás también.
+    let i = 0;
     for (;;) {
-      const pendientes = ctx.stations
-        .filter((s) => s.recta <= ctx.dmax && !s.estado)
-        .sort((a, b) => a.lb - b.lb);
       const lote = [];
-      for (const s of pendientes) {
-        if (s.lb >= best.coste) break;
-        lote.push(s);
-        if (lote.length === CALC_BATCH) break;
+      while (i < porCota.length && lote.length < CALC_BATCH) {
+        const s = porCota[i];
+        if (s.lb >= best.coste) { i = porCota.length; break; }
+        i++;
+        if (!s.estado && s.recta <= ctx.dmax) lote.push(s);
       }
       if (!lote.length) break;
       const ms = await osrmTable(ctx, lote);
       ctx.lotes++;
       const antes = best;
-      best = calcBest(ctx);
+      best = mejorDe(lote, best);
       ctx.log.push('Lote ' + ctx.lotes + ': ' + lote.length + ' rutas con /table (' + ms + ' ms), cotas de ' +
         lote[0].lb.toFixed(2) + ' a ' + lote[lote.length - 1].lb.toFixed(2) + ' €. ' +
         (best !== antes ? 'Nuevo mejor: ' + best.coste.toFixed(2) + ' € en ' + best.rotulo : 'Sin cambio de mejor'));
     }
-    const podadas = ctx.stations.filter((s) => s.recta <= ctx.dmax && !s.estado);
-    podadas.forEach((s) => { s.estado = 'podada'; });
+    // Las de dentro del radio son las primeras de porDistancia: sin recorrer el resto
+    const nDentro = dentroDe(ctx.dmax).n;
+    let podadas = 0;
+    for (let j = 0; j < nDentro; j++) {
+      if (!porDistancia[j].estado) { porDistancia[j].estado = 'podada'; podadas++; }
+    }
     best.estado = 'mejor';
     ctx.best = best;
-    ctx.log.push('Podadas por cota sin pedir ruta: ' + podadas.length + ' de ' +
-      ctx.stations.filter((s) => s.recta <= ctx.dmax).length + ' dentro del radio');
+    ctx.log.push('Podadas por cota sin pedir ruta: ' + podadas + ' de ' + nDentro + ' dentro del radio');
 
     // 4. Ruta de la ganadora para el mapa (las demás, al tocar su tarjeta)
     if (await calcRuta(ctx, best)) ctx.log.push('Ruta de la ganadora con /route');
@@ -3685,6 +3709,7 @@ function calcJSON(ctx) {
   return {
     parametros: {
       origen: ctx.origin, combustible: ctx.fuel, litros: ctx.L, consumo_l100: ctx.c, p_min: ctx.pmin,
+      p_min_de: ctx.pminDe && { rotulo: ctx.pminDe.rotulo, key: ctx.pminDe.key, recta_km: ctx.pminDe.recta },
       valor_tiempo_eur_h: ctx.v, v_max_kmh: ctx.vmax, tope_km: ctx.tope, osrm: ctx.osrm
     },
     resultado: { mejor: limpia(ctx.best), cercana: limpia(ctx.cercana), d_max_km: ctx.dmax, ms: ctx.ms, error: ctx.error },
@@ -3723,7 +3748,9 @@ function renderCalc() {
   h += '<h4>Parámetros</h4><div class="mono">' +
     'origen = ' + ctx.origin[1].toFixed(5) + ', ' + ctx.origin[0].toFixed(5) + '<br>' +
     'combustible = ' + esc(FUEL_LABELS[ctx.fuel]) + ' · L = ' + ctx.L + ' · c = ' + ctx.c + ' L/100 km<br>' +
-    'p_min = ' + ctx.pmin + ' · v = ' + ctx.v + ' €/h · v_max = ' + ctx.vmax + ' km/h · tope = ' + ctx.tope + ' km<br>' +
+    'p_min = ' + (ctx.pmin != null ? ctx.pmin.toFixed(3) + (ctx.pminDe ? ' (' + esc(ctx.pminDe.rotulo) + ', a ' +
+      ctx.pminDe.recta.toFixed(1) + ' km)' : '') : '—') + '<br>' +
+    'v = ' + ctx.v + ' €/h · v_max = ' + ctx.vmax + ' km/h · tope = ' + ctx.tope + ' km<br>' +
     'coste = L·p + 2·d·(c/100)·p + 2·t·v<br>' +
     'cota  = L·p + 2·h·((c/100)·p + v/v_max)</div>' +
     '<div class="muted">d y t por carretera (OSRM, solo ida, la vuelta se supone igual); h en línea recta. ' +
