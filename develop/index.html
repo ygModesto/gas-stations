@@ -1034,6 +1034,15 @@
       border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
     .calc-pick-bar { left: 8px; right: 8px; bottom: 8px; }
   }
+
+  /* Safari de iPhone hace zoom al enfocar un campo con letra de menos de 16px, y al salir no lo
+     deshace: la página se quedaba ampliada y desplazada, con el buscador y los menús fuera de la
+     pantalla y la leyenda cortada por los lados. En pantallas táctiles todos los campos de texto
+     van a 16px. El !important es para ganar a las reglas por id (#address-input...), que fijan
+     tamaños menores para el escritorio. */
+  @media (pointer: coarse) {
+    input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 16px !important; }
+  }
 </style>
 </head>
 <body>
