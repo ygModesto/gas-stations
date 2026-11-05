@@ -865,33 +865,30 @@
   }
   .popup-meta svg { flex: none; margin-top: 2px; }
 
-  .popup-prices {
+  /* Solo el precio del combustible elegido, en grande: es lo único que se viene a mirar. Los
+     otros tres sobraban (para verlos basta cambiar de combustible) y alargaban la ventana hasta
+     tapar las gasolineras de alrededor. El precio va del color de su tramo, el mismo del marcador
+     y de la leyenda, así que la ventana dice a qué clase pertenece sin explicarlo. */
+  .popup-precio {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid var(--border);
-    font-size: 0.8rem;
   }
-  /* Nombre a la izquierda y precio a la derecha: alineados en columna se comparan de un vistazo,
-     que es justo lo que no permitia el "Diesel: 1.789 EUR" corrido de antes. */
-  .popup-price-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 5px 8px;
-    border-radius: var(--radius-sm);
-    color: var(--muted-foreground);
+  .popup-precio .fuel { font-size: 0.8rem; color: var(--muted-foreground); }
+  .popup-precio .price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--clase, var(--foreground));
   }
-  .popup-price-row .fuel { flex: 1; }
-  .popup-price-row .price { font-variant-numeric: tabular-nums; color: var(--foreground); }
-  /* El combustible activo se marca con el color de su tramo de precio: el mismo del marcador y
-     el de la leyenda, asi que la ventana dice a que clase pertenece sin explicarlo. */
-  .popup-price-row .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: transparent; }
-  .popup-price-row.is-selected { background: var(--accent); color: var(--foreground); font-weight: 600; }
-  .popup-price-row.is-selected .dot { background: var(--clase); }
-  .popup-price-row .sin-dato { color: var(--muted-foreground); font-weight: 400; }
+  .popup-precio .moneda { margin-left: 2px; font-size: 0.9rem; font-weight: 600; }
+  .popup-precio .sin-dato { font-size: 0.85rem; color: var(--muted-foreground); }
 
   /* Botón "default" de shadcn, a todo el ancho */
   .popup-nav {
@@ -1893,7 +1890,7 @@ async function flyToAddress(via, numero) {
     .setLngLat([lon, lat])
     .setPopup(new maplibregl.Popup().setHTML(esc(etiqueta) + '<br>' + esc(subtitulo)))
     .addTo(map);
-  map.flyTo({ center: [lon, lat], zoom: await zoomParaVerGasolineras(lon, lat, esMunicipio ? 12 : 15) });
+  irA({ center: [lon, lat], zoom: await zoomParaVerGasolineras(lon, lat, esMunicipio ? 12 : 15) });
   programarDesvanecidoMarcador(addressMarker);
   return etiqueta;
 }
@@ -2084,6 +2081,23 @@ createAddressSearch({
 // vez contra mapReady y además cada vez que el usuario elige (boot.onElegir). El flag evita que
 // una segunda llamada deshaga lo que ya se puso en marcha.
 let arranqueResuelto = false;
+
+// ¿Se sabe ya qué enseñar? Hasta entonces updateMarkers no pinta nada (ver allí). Lo ponen a true
+// los desenlaces del arranque: el vuelo a una dirección o a la ubicación (irA), "Ver todo el
+// país" y el fallo de la geolocalización.
+let destinoDecidido = false;
+
+// Vuelo al sitio elegido. El indicador se pone DESPUÉS de flyTo a propósito: si había otro vuelo en
+// marcha (el del control de ubicación, que el nuestro sustituye), flyTo lo corta y eso emite un
+// 'moveend' en la vista de partida -- a zoom 6, toda España -- que así se ignora. El 'moveend' del
+// final del vuelo es el que pinta. Si flyTo no llega a moverse (ya estaba ahí, o con movimiento
+// reducido salta sin animar), no habrá 'moveend' que valga y se pinta aquí.
+function irA(opciones) {
+  map.flyTo(opciones);
+  destinoDecidido = true;
+  if (!map.isMoving()) updateMarkers();
+}
+
 function resolverArranque() {
   if (arranqueResuelto) return;
   if (boot.posicion) {
@@ -2094,6 +2108,7 @@ function resolverArranque() {
     geolocate.trigger();
   } else if (boot.verPais) {
     arranqueResuelto = true;
+    destinoDecidido = true;
     updateMarkers(); // sin flyTo de por medio no hay 'moveend' que lo dispare solo
   }
 }
@@ -2129,7 +2144,7 @@ geolocate.on('geolocate', async (e) => {
   // primero; si aún se están descargando, corrige el zoom al terminar.
   const { longitude, latitude } = e.coords;
   const zoom = await zoomParaVerGasolineras(longitude, latitude, 15);
-  map.flyTo({ center: [longitude, latitude], zoom });
+  irA({ center: [longitude, latitude], zoom });
 });
 
 // Con los menús cerrados no se ve ningún control, así que las etiquetas tienen que decir qué se
@@ -2180,6 +2195,7 @@ fuelListEl.querySelectorAll('input').forEach((radio) => {
     syncBar();
     savePrefs();
     closeMenus(); // es una elección única: no hay motivo para dejar el menú abierto
+    popup?.remove(); // enseña el precio del combustible de antes
     applyLabels(); // recalcula las etiquetas sin volver a leer el .fgb
   });
 });
@@ -2375,19 +2391,12 @@ function openStationPopup(feature, { desdeLista = false } = {}) {
   const [lng, lat] = coords;
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat.toFixed(6)},${lng.toFixed(6)}&travelmode=driving`;
 
-  // Filas generadas desde FUEL_LABELS, no escritas a mano: antes el popup repetía los cuatro
-  // nombres por su cuenta, que es exactamente lo que dejó "Diésel A" descolgado del resto.
-  // El combustible activo va resaltado con el color de su tramo, el mismo del marcador.
-  const filasPrecio = Object.entries(FUEL_LABELS).map(([clave, nombre]) => {
-    const activo = clave === selectedFuel;
-    const valor = p[clave]
-      ? Number(p[clave]).toFixed(3) + ' €'
-      : '<span class="sin-dato">—</span>';
-    return '<div class="popup-price-row' + (activo ? ' is-selected' : '') + '"' +
-      (activo ? ' style="--clase:' + colorForBadge(p.badge) + '"' : '') + '>' +
-      '<span class="dot" aria-hidden="true"></span>' +
-      '<span class="fuel">' + nombre + '</span><span class="price">' + valor + '</span></div>';
-  }).join('');
+  // Solo el combustible elegido. El color es la variante de texto del tramo (colorTextoForBadge),
+  // legible sobre el fondo de la ventana.
+  const precio = p[selectedFuel]
+    ? '<span class="price" style="--clase:' + colorTextoForBadge(p.badge) + '">' +
+      Number(p[selectedFuel]).toFixed(3) + '<span class="moneda">€</span></span>'
+    : '<span class="sin-dato">Sin precio</span>';
 
   // Algunas direcciones de MITECO ya traen una coma al final ("CALLE JOSE PAULETE,"): se quita.
   const lugar = esc(String(p.direccion ?? '').replace(/[\s,]+$/, ''));
@@ -2405,7 +2414,7 @@ function openStationPopup(feature, { desdeLista = false } = {}) {
       <div class="popup-desc">${lugar}</div>
       ${horario}
     </div>
-    <div class="popup-prices">${filasPrecio}</div>
+    <div class="popup-precio"><span class="fuel">${FUEL_LABELS[selectedFuel]}</span>${precio}</div>
     <a class="popup-nav" href="${directionsUrl}" target="_blank" rel="noopener noreferrer">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M3 11 22 2l-9 19-2-8-8-2z" />
@@ -3060,13 +3069,14 @@ map.on('load', async () => {
   if (await boot.yaTeniaPermiso) {
     autoLocating = geolocate.trigger();
     // trigger() devuelve false si el control no estuviera listo; sin esto no se cargaría nada.
-    if (!autoLocating && !arranqueResuelto) { arranqueResuelto = true; updateMarkers(); }
+    if (!autoLocating && !arranqueResuelto) { arranqueResuelto = true; destinoDecidido = true; updateMarkers(); }
   }
   // Si la geolocalización falla (GPS caído, etc.), no dejamos el mapa vacío: ni tras concederse de
   // antemano, ni al venir de "Usar mi ubicación" con la pantalla ya cerrada.
   geolocate.on('error', (e) => {
     if (e.code === 1) boot.olvidarPermiso(); // PERMISSION_DENIED: la próxima vez vuelve a salir la pantalla
     autoLocating = false;
+    destinoDecidido = true;
     updateMarkers();
   });
 });
@@ -3112,19 +3122,18 @@ let markersReq = 0;
 
 // 5. Pintar las gasolineras visibles, filtradas de las que ya están en memoria
 async function updateMarkers() {
+  // Hasta saber adónde ir (ver destinoDecidido) no se pinta nada: ni con la pantalla de arranque
+  // abierta ni mientras se espera la ubicación. Sin esto, cualquier 'moveend' de fondo cargaba la
+  // vista inicial de toda España antes de elegir o de volar: MapLibre lo emite al redimensionarse
+  // (el teclado del buscador, la barra de Firefox Focus) y al cortar un vuelo con otro. Se mira lo
+  // primero, antes de cualquier await: lo que cuenta es si estaba decidido cuando llegó el
+  // 'moveend', no después (irA lo pone a true justo tras cortar el vuelo anterior).
+  if (!destinoDecidido) return;
   // Red de seguridad: sin la fuente ni las capas creadas (map.on('load')) no hay dónde pintar, y
   // ahora la pantalla de arranque responde mucho antes de que eso ocurra. Los caminos conocidos ya
   // esperan por su cuenta (resolverArranque, flyToAddress), pero esto cubre cualquier 'moveend'
   // temprano sin tener que acordarse de ello en cada sitio.
   await mapReady;
-  // Con la pantalla de arranque abierta no se carga nada: manda ella. Sin esto, cualquier 'moveend'
-  // de fondo la adelantaba y salía toda España antes de elegir: MapLibre lo emite también al
-  // redimensionarse, y la ventana cambia de alto cuando el teclado se abre para el buscador o
-  // cuando el navegador (Firefox Focus) muestra u oculta su barra. Cerrarla ya pone en marcha la
-  // carga por su lado (resolverArranque, flyToAddress). Se espera a yaTeniaPermiso porque es quien
-  // decide si la pantalla llega a salir.
-  await boot.yaTeniaPermiso;
-  if (!boot.overlayEl.hidden) return;
   const req = ++markersReq;
   let todas;
   try {
