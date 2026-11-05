@@ -3057,6 +3057,14 @@ async function updateMarkers() {
   // esperan por su cuenta (resolverArranque, flyToAddress), pero esto cubre cualquier 'moveend'
   // temprano sin tener que acordarse de ello en cada sitio.
   await mapReady;
+  // Con la pantalla de arranque abierta no se carga nada: manda ella. Sin esto, cualquier 'moveend'
+  // de fondo la adelantaba y salía toda España antes de elegir: MapLibre lo emite también al
+  // redimensionarse, y la ventana cambia de alto cuando el teclado se abre para el buscador o
+  // cuando el navegador (Firefox Focus) muestra u oculta su barra. Cerrarla ya pone en marcha la
+  // carga por su lado (resolverArranque, flyToAddress). Se espera a yaTeniaPermiso porque es quien
+  // decide si la pantalla llega a salir.
+  await boot.yaTeniaPermiso;
+  if (!boot.overlayEl.hidden) return;
   const req = ++markersReq;
   let todas;
   try {
