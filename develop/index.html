@@ -367,9 +367,9 @@
     position: absolute;
     bottom: calc(10px + env(safe-area-inset-bottom, 0px));
     left: 10px;
-    /* Deja libre la columna de controles de la derecha, con el botón de ubicación abajo (36 px más
-       los 10 px de margen del mapa, y un poco de aire) */
-    right: 56px;
+    /* Deja libre la fila de controles de abajo a la derecha: los tres modos y la ubicación (unos
+       112 + 38 px de botones y 3 × 10 px de margen), y un poco de aire */
+    right: 190px;
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -474,7 +474,7 @@
     display: flex;
     align-items: baseline;
     gap: 6px;
-    padding: 6px 4px 2px 8px;
+    padding: 6px 8px 2px 8px;
     flex: none;
   }
   .cheap-title { font-weight: 600; font-size: 0.72rem; color: var(--foreground); }
@@ -574,10 +574,17 @@
   }
   .cheap-meta { display: block; font-size: 0.65rem; line-height: 1.25; color: var(--muted-foreground); }
   .cheap-empty { padding: 14px 10px; font-size: 0.78rem; color: var(--muted-foreground); text-align: center; }
-  /* Los botones de lista y calculadora, en una caja de la columna de controles (ver ModoControl).
-     Encendido con relleno pleno, como los botones de origen de la calculadora, para que se vea de
-     un vistazo cuál de los dos está activo; también con el ratón encima, que si no lo aclararía. */
-  .cheap-toggle { display: flex; align-items: center; justify-content: center; }
+  /* Esquina de abajo a la derecha en fila, no en columna: los modos a la izquierda y la ubicación
+     a la derecha, alineados por abajo. MapLibre los apila con float + clear; aquí manda el flex y
+     cada control conserva su margen de 10 px, que hace de hueco entre ellos. */
+  .maplibregl-ctrl-bottom-right { display: flex; align-items: flex-end; }
+  .maplibregl-ctrl-bottom-right .maplibregl-ctrl { float: none; clear: none; }
+  /* Rangos, lista y calculadora en una caja horizontal (ver ModoControl). Encendido con relleno
+     pleno, como los botones de origen de la calculadora, para que se vea de un vistazo cuál está
+     activo; también con el ratón encima, que si no lo aclararía. */
+  .modo-group { display: flex; }
+  .modo-group button { display: flex; align-items: center; justify-content: center; }
+  .modo-group button + button { border-top: none; border-left: 1px solid var(--border); }
   .modo-group button[aria-pressed="true"],
   .modo-group button[aria-pressed="true"]:not(:disabled):hover { background: var(--primary); color: var(--primary-foreground); }
 
@@ -1378,12 +1385,7 @@ window.__boot = (() => {
       <span id="cheap-count" class="cheap-count"></span>
       <button id="cheap-edit" class="cheap-action" type="button" hidden>Editar</button>
       <button id="cheap-details" class="cheap-action" type="button" hidden>Detalles</button>
-      <button id="cheap-close" class="cheap-close" type="button" aria-label="Cerrar la lista">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
-             stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-          <line x1="5" y1="5" x2="19" y2="19" /><line x1="19" y1="5" x2="5" y2="19" />
-        </svg>
-      </button>
+      <!-- Sin ✕: se sale de la tira con los botones de modo (rangos, lista, compensa), ver setModo -->
     </div>
     <div id="cheap-list"></div>
   </div>
@@ -2452,7 +2454,6 @@ const cheapPanelEl = document.getElementById('cheap-panel');
 const cheapTitleEl = document.getElementById('cheap-title');
 const cheapCountEl = document.getElementById('cheap-count');
 const cheapListEl = document.getElementById('cheap-list');
-const cheapCloseBtn = document.getElementById('cheap-close');
 
 // Las features de la lista, ya ordenadas. Se guardan aparte de lo que hay pintado para que al
 // pulsar una fila se pueda abrir su popup con el mismo objeto que vio el mapa.
@@ -2497,10 +2498,11 @@ function updateCheapList(mostrados) {
 // segundo panel compitiendo por el mismo hueco abajo del mapa.
 let cheapModo = 'precio';
 
-// Qué está encendido: nada, 'lista' (las más baratas) o 'compensa' (la calculadora: su panel y/o
-// sus resultados en la tira). Son excluyentes porque compiten por la tira de abajo, y los dos
-// botones de la columna de arriba son su grupo de toggles (ver ModoControl). Lo pinta setModo.
-let modo = null;
+// Qué ocupa la tira de abajo: 'rangos' (la leyenda, que es también el filtro por tramos),
+// 'lista' (las más baratas) o 'compensa' (la calculadora: su panel y/o sus resultados). Siempre
+// hay uno: son los tres botones del grupo de abajo a la derecha (ver ModoControl), que funcionan
+// como radios. Por eso la tira no tiene ✕: se sale de ella eligiendo otro modo. Lo pinta setModo.
+let modo = 'rangos';
 
 function renderCheapList() {
   if (cheapPanelEl.hidden) return;
@@ -2582,13 +2584,15 @@ cheapListEl.addEventListener('wheel', (e) => {
   e.preventDefault();
 }, { passive: false });
 
-// Enciende un modo y apaga el otro. La tira se ve con la lista o con los resultados de un cálculo;
-// el panel de la calculadora solo sigue abierto dentro de 'compensa' (lo abre toggleCalcPanel).
-// Apagar 'compensa' no olvida el cálculo: solo lo esconde, y vuelve al encenderlo otra vez.
+// Cambia de modo. La tira se ve con la lista o con los resultados de un cálculo; si no, queda la
+// leyenda (el CSS la quita en cuanto la tira se abre). El panel de la calculadora solo sigue
+// abierto dentro de 'compensa' (lo abre toggleCalcPanel). Salir de 'compensa' no olvida el
+// cálculo: solo lo esconde, y vuelve al entrar otra vez.
 function setModo(nuevo) {
   if (calcPicking && nuevo !== 'compensa') setCalcPicking(false);
   modo = nuevo;
   cheapModo = modo === 'compensa' ? 'calc' : 'precio';
+  rangosToggleBtn?.setAttribute('aria-pressed', String(modo === 'rangos'));
   cheapToggleBtn?.setAttribute('aria-pressed', String(modo === 'lista'));
   calcToggleBtn?.setAttribute('aria-pressed', String(modo === 'compensa'));
   cheapPanelEl.hidden = !(modo === 'lista' || (modo === 'compensa' && !!calcLast?.best));
@@ -2607,14 +2611,28 @@ function syncPanelSolape() {
 new ResizeObserver(syncPanelSolape).observe(cheapPanelEl);
 new ResizeObserver(syncPanelSolape).observe(bottomStackEl);
 
-// En "Compensa ir", el ✕ termina con el cálculo (borra lo dibujado y apaga el modo); en la lista
-// normal, la cierra.
-cheapCloseBtn.addEventListener('click', () => {
-  if (cheapModo === 'calc') limpiarCalc();
-  else setModo(null);
-});
+// Botones de rangos y de lista. Los coloca ModoControl, junto al de la calculadora.
+let rangosToggleBtn = null;
+function crearBotonRangos() {
+  rangosToggleBtn = document.createElement('button');
+  rangosToggleBtn.type = 'button';
+  rangosToggleBtn.setAttribute('aria-label', 'Filtrar por rangos de precio');
+  rangosToggleBtn.setAttribute('aria-pressed', String(modo === 'rangos'));
+  rangosToggleBtn.setAttribute('aria-controls', 'legend-block');
+  rangosToggleBtn.title = 'Filtrar por rangos de precio';
+  // Deslizadores (sliders-horizontal de Lucide): ajustar qué tramos se ven
+  rangosToggleBtn.innerHTML =
+    '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" ' +
+    'stroke-width="2" stroke-linecap="round" aria-hidden="true">' +
+    '<line x1="21" y1="4" x2="14" y2="4" /><line x1="10" y1="4" x2="3" y2="4" />' +
+    '<line x1="21" y1="12" x2="12" y2="12" /><line x1="8" y1="12" x2="3" y2="12" />' +
+    '<line x1="21" y1="20" x2="16" y2="20" /><line x1="12" y1="20" x2="3" y2="20" />' +
+    '<line x1="14" y1="2" x2="14" y2="6" /><line x1="8" y1="10" x2="8" y2="14" />' +
+    '<line x1="16" y1="18" x2="16" y2="22" /></svg>';
+  rangosToggleBtn.addEventListener('click', () => setModo('rangos'));
+  return rangosToggleBtn;
+}
 
-// Botón de la lista. Lo coloca ModoControl, junto al de la calculadora.
 let cheapToggleBtn = null;
 function crearBotonLista() {
   cheapToggleBtn = document.createElement('button');
@@ -2631,7 +2649,7 @@ function crearBotonLista() {
     '<line x1="9" y1="18" x2="20" y2="18" /><circle cx="4.5" cy="6" r="1.2" fill="currentColor" />' +
     '<circle cx="4.5" cy="12" r="1.2" fill="currentColor" /><circle cx="4.5" cy="18" r="1.2" fill="currentColor" />' +
     '</svg>';
-  cheapToggleBtn.addEventListener('click', () => setModo(modo === 'lista' ? null : 'lista'));
+  cheapToggleBtn.addEventListener('click', () => setModo('lista'));
   return cheapToggleBtn;
 }
 
@@ -3214,8 +3232,8 @@ function setCalcPicking(on) {
 }
 function empezarAElegir() {
   popup?.remove(); // un popup abierto taparía la cruz
-  // Si ya había un punto elegido, la cruz arranca sobre él para poder retocarlo
-  if (calcOrigin && calcModo === 'punto') map.easeTo({ center: calcOrigin });
+  // La cruz arranca en el centro de lo que se está viendo, sin volar al último punto elegido:
+  // se elige en la zona que se está mirando. Para retocar el punto anterior, se arrastra su marcador.
   setCalcPicking(true);
 }
 function terminarDeElegir(usar) {
@@ -3295,11 +3313,11 @@ function setCalcDetalles(abrir) {
   calcDetailsBtn.textContent = abrir ? 'Ocultar detalles del cálculo' : 'Ver detalles del cálculo';
   syncCalcVisibility();
 }
-// ✕ del panel: si hay resultados, se queda viéndolos en la tira; si no, no queda nada que ver y el
-// modo se apaga.
+// ✕ del panel: si hay resultados, se queda viéndolos en la tira; si no, no queda nada de la
+// calculadora que ver y se vuelve a los rangos.
 document.getElementById('calc-close').addEventListener('click', () => {
   toggleCalcPanel(false);
-  if (!calcLast?.best) setModo(null);
+  if (!calcLast?.best) setModo('rangos');
 });
 calcRunBtn.addEventListener('click', runCalc);
 
@@ -3342,12 +3360,12 @@ function toggleCalcPanel(abrir) {
   if (calcModo === 'gps' || (!calcOrigin && geoPermitida())) usarMiUbicacion({ silencioso: true });
 }
 
-// Botón del surtidor. Encendido, apaga el modo (el cálculo se conserva). Apagado, enseña los
-// resultados del último cálculo si los hay, y si no, el formulario. Mientras se elige con la cruz,
-// cancela la elección y vuelve al formulario.
+// Botón del surtidor. Enseña los resultados del último cálculo si los hay, y si no, el formulario.
+// Ya encendido no hace nada (es un radio: se sale eligiendo otro modo). Mientras se elige con la
+// cruz, cancela la elección y vuelve al formulario.
 function pulsarCompensa() {
   if (calcPicking) { terminarDeElegir(false); return; }
-  if (modo === 'compensa') { setModo(null); return; }
+  if (modo === 'compensa') return;
   setModo('compensa');
   if (!calcLast?.best) toggleCalcPanel(true);
 }
@@ -3370,22 +3388,24 @@ function crearBotonCalc() {
   return calcToggleBtn;
 }
 
-// Lista y calculadora en una sola caja, como el +/− del zoom: son un grupo de toggles excluyentes
-// (ver setModo). Va como control de MapLibre y no suelto sobre el mapa para que caiga en la
-// columna de controles, con su mismo aspecto, y para que MapLibre lo tenga en cuenta al colocar
-// el resto.
+// Rangos, lista y calculadora en una sola caja horizontal, abajo a la derecha en la misma fila que
+// el botón de ubicación (ver .maplibregl-ctrl-bottom-right en el CSS). Son un grupo de toggles
+// excluyentes, siempre con uno encendido (ver setModo). Va como control de MapLibre y no suelto
+// sobre el mapa para que tenga el aspecto de los demás controles y MapLibre lo coloque con ellos.
+// En las esquinas de abajo MapLibre mete cada control nuevo delante de los que ya había, así que
+// este queda a la izquierda del de ubicación, que se añadió antes.
 class ModoControl {
   onAdd() {
     this._container = document.createElement('div');
     this._container.className = 'maplibregl-ctrl maplibregl-ctrl-group modo-group';
     this._container.setAttribute('role', 'group');
     this._container.setAttribute('aria-label', 'Qué ver en la tira de abajo');
-    this._container.append(crearBotonLista(), crearBotonCalc());
+    this._container.append(crearBotonRangos(), crearBotonLista(), crearBotonCalc());
     return this._container;
   }
   onRemove() { this._container.remove(); }
 }
-map.addControl(new ModoControl(), 'top-right');
+map.addControl(new ModoControl(), 'bottom-right');
 
 // Recuadro que contiene el círculo de 'km' alrededor de un punto (aproximación esférica, de sobra
 // para radios de decenas de km)
@@ -3662,18 +3682,6 @@ async function seleccionarCalc(key, { desdeLista = false } = {}) {
   drawCalc();
   encuadrarCalc(s);
   openStationPopup(s.feature, { desdeLista });
-}
-
-// ✕ de "Compensa ir": se olvida el cálculo, se borra lo dibujado y se apaga el modo
-function limpiarCalc() {
-  calcLast = null;
-  calcSelKey = null;
-  calcDetailsBtn.hidden = true;
-  setCalcDetalles(false);
-  renderCalc();
-  drawCalc();
-  popup?.remove();
-  setModo(null);
 }
 
 // La tira en modo "Compensa ir": solo las gasolineras con coste real (OSRM), por coste. Las podadas
