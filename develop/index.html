@@ -2089,9 +2089,19 @@ function resolverArranque() {
   if (boot.posicion) {
     arranqueResuelto = true;
     // El fix del GPS ya está hecho: se pidió al pulsar el botón, en paralelo con la descarga de
-    // MapLibre. trigger() lo reaprovecha gracias al maximumAge de positionOptions, así que esto no
-    // vuelve a despertar el GPS -- solo vuela y pinta el punto azul del control.
-    geolocate.trigger();
+    // MapLibre. El control solo tiene que volar y pintar el punto azul, pero trigger() siempre
+    // vuelve a llamar a getCurrentPosition. En Chrome y Safari eso no se nota (el maximumAge
+    // reaprovecha el fix), pero Firefox, si no se marca "Recordar esta decisión", concede el
+    // permiso para esa única petición y volvía a preguntar acto seguido. Así que, solo durante
+    // esta llamada, getCurrentPosition devuelve la posición que ya tenemos sin tocar el navegador.
+    const geo = navigator.geolocation;
+    const original = geo.getCurrentPosition;
+    geo.getCurrentPosition = (ok) => queueMicrotask(() => ok(boot.posicion)); // asíncrono, como el real
+    try {
+      geolocate.trigger();
+    } finally {
+      geo.getCurrentPosition = original;
+    }
   } else if (boot.verPais) {
     arranqueResuelto = true;
     destinoDecidido = true;
